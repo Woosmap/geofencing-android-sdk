@@ -1,0 +1,20 @@
+<resources>
+    <string name="app_name">SampleGeoFence</string>
+    <string name="default_notification_channel_id" translatable="false">fcm_default_channel</string>
+    <!--
+        This is the name that users will see when interacting with this channel.
+        It should describe the category of notifications that will be sent through this channel
+     -->
+    <string name="default_notification_channel_name" translatable="true">WoosmapGeofencing</string>
+    <string name="html_position"><![CDATA[" <h3><font color=#0bbcf3>%1$s,%2$s</font> %3$s</h3>]]></string>
+    <string name="html_POI"><![CDATA[" <h3><font color=#0bbcf3>%1$s,%2$s</font>&#160; &#160; &#160; &#160; %3$s<br>
+    <h4> City = %4$s <br>
+    <h4> ZipCode = %5$s <br>
+    <h4> Distance = %6$s <br>]]></string>
+
+    <string name="html_visit"><![CDATA[" <h3><font color=#FFA500>%1$s,%2$s</font>
+    <h4> startTime = %3$s <br>
+    <h4> endTime = %4$s <br>
+    <h4> nbPoint = %5$d <br>]]></string>
+
+</resources>
