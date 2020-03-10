@@ -1,0 +1,1 @@
+# woosmap-geofencing-android-sdk
