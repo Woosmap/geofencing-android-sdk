@@ -26,6 +26,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.webgeoservices.woosmapGeofencing.Woosmap;
+import com.webgeoservices.woosmapGeofencing.WoosmapSettings;
 import com.webgeoservices.woosmapGeofencing.database.MovingPosition;
 import com.webgeoservices.woosmapGeofencing.database.POI;
 import com.webgeoservices.woosmapGeofencing.database.Visit;
@@ -162,6 +163,11 @@ public class MainActivity extends AppCompatActivity {
 
         // Instanciate woosmap object
         this.woosmap = Woosmap.getInstance().initializeWoosmap(this);
+
+        // Set Keys
+        WoosmapSettings.privateKeySearchAPI = "";
+        WoosmapSettings.privateKeyGMPStatic = "";
+
         this.woosmap.setLocationReadyListener(new WoosLocationReadyListener());
         this.woosmap.setSearchAPIReadyListener (new WoosSearchAPIReadyListener ());
         this.woosmap.setVisitReadyListener (new WoosVisitReadyListener ());
