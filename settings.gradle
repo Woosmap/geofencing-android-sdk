@@ -1,2 +1,2 @@
-include ':app', ':woosmapGeofencing'
+include ':app', ':woosmapgeofencing'
 rootProject.name='Sample'

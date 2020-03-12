@@ -19,16 +19,15 @@ public class LocationFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.location, container,false);
+        View view = inflater.inflate(R.layout.location, container, false);
         mLocationInfo = view.findViewById(R.id.location);
-        mLocationInfo.setMovementMethod(new ScrollingMovementMethod ());
-
+        mLocationInfo.setMovementMethod(new ScrollingMovementMethod());
         return view;
     }
 
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
-        super.onViewCreated (view, savedInstanceState);
+        super.onViewCreated(view, savedInstanceState);
     }
 
 

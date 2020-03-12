@@ -4,7 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
-import com.webgeoservices.woosmapGeofencing.WoosmapRebootJobService;
+import com.webgeoservices.woosmapgeofencing.WoosmapRebootJobService;
 
 public class RunOnStartup extends BroadcastReceiver {
 

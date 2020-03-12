@@ -34,16 +34,15 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     GoogleMap mGoolgeMap;
     MapView mMapView;
-    List<MarkerOptions> markersPOI = new ArrayList<MarkerOptions> ();
-    List<MarkerOptions> markersVisit = new ArrayList<MarkerOptions> ();
+    List<MarkerOptions> markersPOI = new ArrayList<MarkerOptions>();
+    List<MarkerOptions> markersVisit = new ArrayList<MarkerOptions>();
 
     Location currentLocation;
     FusedLocationProviderClient fusedLocationProviderClient;
     private static final int REQUEST_CODE = 101;
 
     @Override
-    public void onCreate(Bundle savedInstanceState)
-    {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
     }
@@ -61,14 +60,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     private void fetchLastLocation() {
         if (ActivityCompat.checkSelfPermission(getContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(getActivity(), new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},REQUEST_CODE);
+            ActivityCompat.requestPermissions(getActivity(), new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_CODE);
             return;
         }
         Task<Location> task = fusedLocationProviderClient.getLastLocation();
-        task.addOnSuccessListener(new OnSuccessListener<Location> () {
+        task.addOnSuccessListener(new OnSuccessListener<Location>() {
             @Override
             public void onSuccess(Location location) {
-                if(location!=null){
+                if (location != null) {
                     currentLocation = location;
                 }
             }
@@ -82,7 +81,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getActivity());
         fetchLastLocation();
         mMapView = view.findViewById(R.id.map);
-        if (mMapView!=null){
+        if (mMapView != null) {
             mMapView.onCreate(null);
             mMapView.onResume();
             mMapView.getMapAsync(this);
@@ -92,24 +91,24 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public void onMapReady(GoogleMap googleMap) {
 
-        if(currentLocation!=null && isVisible ()){
-            LatLng latLng = new LatLng(currentLocation.getLatitude(),currentLocation.getLongitude());
-            MapsInitializer.initialize(getActivity ());
+        if (currentLocation != null && isVisible()) {
+            LatLng latLng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
+            MapsInitializer.initialize(getActivity());
             mGoolgeMap = googleMap;
-            mGoolgeMap.setMyLocationEnabled (true);
+            mGoolgeMap.setMyLocationEnabled(true);
             googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
             googleMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
-            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng,11));
+            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 11));
 
-            if(!markersPOI.isEmpty ()) {
+            if (!markersPOI.isEmpty()) {
                 for (MarkerOptions marker : markersPOI) {
-                    mGoolgeMap.addMarker (marker.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+                    mGoolgeMap.addMarker(marker.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
                 }
             }
 
-            if(!markersVisit.isEmpty ()) {
+            if (!markersVisit.isEmpty()) {
                 for (MarkerOptions marker : markersVisit) {
-                    mGoolgeMap.addMarker (marker.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
+                    mGoolgeMap.addMarker(marker.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
                 }
             }
 
@@ -119,9 +118,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        switch (requestCode){
+        switch (requestCode) {
             case REQUEST_CODE:
-                if (grantResults.length>0 && grantResults[0]== PackageManager.PERMISSION_GRANTED){
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     fetchLastLocation();
                 }
                 break;
@@ -130,8 +129,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     public void clearMarkers() {
         if (mGoolgeMap != null)
-            mGoolgeMap.clear ();
-            markersPOI.clear ();
-            markersVisit.clear ();
+            mGoolgeMap.clear();
+        markersPOI.clear();
+        markersVisit.clear();
     }
 }

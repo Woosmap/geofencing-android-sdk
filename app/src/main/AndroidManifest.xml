@@ -30,12 +30,12 @@
             </intent-filter>
         </activity>
 
-        <service android:name="com.webgeoservices.woosmapGeofencing.WoosmapInstanceIDService">
+        <service android:name="com.webgeoservices.woosmapgeofencing.WoosmapInstanceIDService">
             <intent-filter>
                 <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
             </intent-filter>
         </service>
-        <service android:name="com.webgeoservices.woosmapGeofencing.WoosmapMessagingService">
+        <service android:name="com.webgeoservices.woosmapgeofencing.WoosmapMessagingService">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>

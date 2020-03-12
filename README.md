@@ -74,6 +74,7 @@ Get the location of the user when he stay in a place. You can know how much time
  	<img src="./assets/appMap.png" alt="Google map in app" width="50%">
 </p>
 
+
 * If you want to retrieve the closest of your store from the user location, load your assets in a Woosmap Project and get a Woosmap Key API (see [Woosmap developer documentation](https://developers.woosmap.com/get-started).)
 <p align="center">
 	<img src="./assets/SearchAPIList.png" alt="Search API" width="50%">
@@ -145,9 +146,33 @@ public void onPause(){
 }
 ```
 
+For the google map in the app, add your GMP Key SDK android key in the manifest : 
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.webgeoservices.sample">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    ...
+	...
+
+    <application
+      ...
+      ...
+
+    	<meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="GMP_KEY"/>
+
+    </application>
+
+</manifest>
+```
+
 To work properly, you have to instanciate the Woosmap object in the onCreate function and call Woosmap's onResume and onPause functions.
 
 ### Configure filters of refresh location and active visit detection
+
 You can make filters on :
 * Time to refresh user location in seconds :
 ```java 
@@ -169,6 +194,10 @@ static public int searchAPIDistanceFilter = 0;
 ```java   
 static public int accuracyFilter = 0;  
  ```
+  * Distance detection threshold for visits :
+```java   
+static public double distanceDetectionThresholdVisits = 25.0;
+ ```
  * Delay for outdated notification in seconds : 
 ```java   
 static public int outOfTimeDelay = 300;
@@ -177,6 +206,8 @@ To apply filter,  set the filter in singleton `WoosmapSettings` like this :
 ```java   
 WoosmapSettings.currentLocationTimeFilter = 30; 
 ```
+
+The default parameters are defined by tests in order to obtain the best data while consuming the least amount of battery, you can modify them you can modify them according to the use cases.
 ### Retrieve User Location
 
 In your `mainAcitivity` , create a Listener connect to the interface `Woosmap.LocationReadyListener` and set a callback to retrieve user current location.
