@@ -8,9 +8,12 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.Html;
+import android.text.Spanned;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 
 
 import androidx.annotation.NonNull;
@@ -52,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void onLocationCallback(Location currentLocation) {
-        new LocationTask(getApplicationContext(), this).execute();
+        new LocationTask(getApplicationContext(), this, currentLocation).execute();
     }
 
 
@@ -106,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
         mapFragment = new MapFragment();
         visitFragment = new VisitFragment();
 
-        //new AllLocationTask(getApplicationContext(), MainActivity.this).execute();
+        new AllLocationTask(getApplicationContext(), MainActivity.this).execute();
         new AllPOITask(getApplicationContext(), MainActivity.this).execute();
         new VisitTask(getApplicationContext(), MainActivity.this).execute();
 
@@ -285,10 +288,10 @@ public class MainActivity extends AppCompatActivity {
                 String poiHTML = mContext.getString(R.string.html_POI, Double.toString(poiToShow.lat),
                         Double.toString(poiToShow.lng), displayDateFormat.format(poiToShow.dateTime),
                         poiToShow.city, poiToShow.zipCode, Double.toString(poiToShow.distance));
-                if (mActivity.locationFragment.mLocationInfo.length() != 0)
-                    mActivity.locationFragment.mLocationInfo.getEditableText().insert(0, Html.fromHtml(poiHTML));
-                else
-                    mActivity.locationFragment.mLocationInfo.append(Html.fromHtml(poiHTML));
+                Spanned locationHTMLAsText = Html.fromHtml(poiHTML);
+                TextView locationInfoView = mActivity.locationFragment.mLocationInfo;
+                Spanned text = (Spanned) TextUtils.concat(locationHTMLAsText, locationInfoView.getText());
+                locationInfoView.setText(text, TextView.BufferType.SPANNABLE);
             }
 
         }
@@ -296,16 +299,22 @@ public class MainActivity extends AppCompatActivity {
 
     public static class LocationTask extends AsyncTask<Void, Void, MovingPosition> {
         private final Context mContext;
+        private final Location mCurrentLocation;
         public MainActivity mActivity;
 
-        LocationTask(Context context, MainActivity activity) {
+        LocationTask(Context context, MainActivity activity, Location currentLocation) {
             mContext = context;
             mActivity = activity;
+            mCurrentLocation = currentLocation;
         }
 
         @Override
         protected MovingPosition doInBackground(Void... voids) {
-            MovingPosition movingPosition = WoosmapDb.getInstance(mContext, true).getMovingPositionsDao().getLastMovingPosition();
+            MovingPosition movingPosition = new MovingPosition();
+            movingPosition.lat = mCurrentLocation.getLatitude();
+            movingPosition.lng = mCurrentLocation.getLongitude();
+            movingPosition.accuracy = mCurrentLocation.getAccuracy();
+            movingPosition.dateTime = mCurrentLocation.getTime();
             return movingPosition;
         }
 
@@ -313,15 +322,14 @@ public class MainActivity extends AppCompatActivity {
         protected void onPostExecute(MovingPosition movingPosition) {
             if (movingPosition == null)
                 return;
-
             SimpleDateFormat displayDateFormat = new SimpleDateFormat("HH:mm:ss");
             if (mActivity.locationFragment.mLocationInfo != null && mActivity.locationFragment.isVisible()) {
                 String locHTML = mContext.getString(R.string.html_position, Double.toString(movingPosition.lat),
                         Double.toString(movingPosition.lng), displayDateFormat.format(movingPosition.dateTime));
-                if (mActivity.locationFragment.mLocationInfo.getText().length() != 0)
-                    mActivity.locationFragment.mLocationInfo.getEditableText().insert(0, Html.fromHtml(locHTML));
-                else
-                    mActivity.locationFragment.mLocationInfo.append(Html.fromHtml(locHTML));
+                Spanned locationHTMLAsText = Html.fromHtml(locHTML);
+                TextView locationInfoView = mActivity.locationFragment.mLocationInfo;
+                Spanned text = (Spanned) TextUtils.concat(locationHTMLAsText, locationInfoView.getText());
+                locationInfoView.setText(text, TextView.BufferType.SPANNABLE);
             }
 
         }
@@ -344,8 +352,8 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
-        protected void onPostExecute(MovingPosition[] movingPositionListList) {
-            if(movingPositionListList.length == 0)
+        protected void onPostExecute(MovingPosition[] movingPositionList) {
+            if(movingPositionList.length == 0)
                 return;
 
             SimpleDateFormat displayDateFormat = new SimpleDateFormat("HH:mm:ss");
@@ -353,8 +361,7 @@ public class MainActivity extends AppCompatActivity {
             if (mActivity.locationFragment.mLocationInfo != null) {
                 mActivity.locationFragment.mLocationInfo.setText("");
             }
-
-            for (MovingPosition  movingPositionToShow: movingPositionListList) {
+            for (MovingPosition  movingPositionToShow: movingPositionList) {
                 String locHTML = mContext.getString(R.string.html_position, Double.toString(movingPositionToShow.lat),
                         Double.toString(movingPositionToShow.lng), displayDateFormat.format(movingPositionToShow.dateTime));
                 mActivity.locationFragment.mLocationInfo.append(Html.fromHtml(locHTML));
