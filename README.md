@@ -1,4 +1,4 @@
-﻿
+
 ## Woosmap Geofencing
 
 Location intelligence is one of the next revolutions to improve and "smoothen" user experience on mobile. 
@@ -60,6 +60,10 @@ Disclaimer: the code should be comatible with Android 6 but it was not tested.
 	2.  Click <img src="https://storage.googleapis.com/support-kms-prod/vMSwtm9y2uvHQAg2OfjmWpsBMtG4xwSIPWxh" alt="the Settings icon" width="2%">, then select  **Project settings**.
 	3.  In the  **Your apps**  card, select the package name of the app for which you need a config file.
 	4.  Click  ![](https://lh3.googleusercontent.com/F_l_k73LFMmhZzlG3uUxR85785RlZFMYIszJFNl6Xq4k_xMLdgotg_O95JGyk8bSlQ=w24) **google-services.json**, then add it to your app.
+    * If you don't config Firebase and don't add the file **google-services.json** to compile the project. So remove the below line from your app-level build.gradle in the app who triggered parsing.
+```java
+apply plugin: 'com.google.gms.google-services'
+```
 
 ### Get Keys
 * Get the token in the log debug.
