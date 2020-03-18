@@ -1,8 +1,7 @@
 ﻿
 ## Handling custom messages
 
-  
-Adding rich content like location or a mop in a notification is considered has managing custom messages.
+Adding rich content like location or a map in a notification is considered as managing custom messages.
 
 To receive custom messages, use a service that extends FirebaseMessagingService. Your service should override the onMessageReceived and onDeletedMessages callbacks.
 

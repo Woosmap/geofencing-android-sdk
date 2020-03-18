@@ -3,7 +3,7 @@
 
 Android Q introduces changes to location permissions. These changes are very useful for end users, providing them more control and transparency over location data usages.
 
-Android Q two major changes:
+Android Q provides two major changes:
 - separate permission for a background location
 - background location reminders.
 

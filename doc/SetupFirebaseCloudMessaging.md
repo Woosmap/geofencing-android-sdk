@@ -54,7 +54,7 @@ The registration token may change when:
 
 -   The app deletes Instance ID
 -   The app is restored on a new device
--   The user uninstalls/reinstall the app
+-   The user uninstalls/reinstalls the app
 -   The user clears app data.
  
 ```java
