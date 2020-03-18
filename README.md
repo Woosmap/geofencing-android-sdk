@@ -19,9 +19,6 @@ Thank you for your suggestions!
 ## License
 Woosmap Geofencing is released under the MIT License. See LICENSE file for details.
 
-## Links
-The official site for the library is at https://community.woosmap.com/geolocation-push-notification/.
-
 ##  Overview
 
 ### Get user location 
@@ -48,7 +45,8 @@ Get the location of the user when he stays in a place. You can know how much tim
 </p>
 
 ##  Pre-requisites
--   Android SDK 29
+-   Android SDK 26+ (tested witht he simulator and real devices)
+Disclaimer: the code should be comatible with Android 6 but it was not tested.
 -   Android Build Tools
 -   Android Support Repository
 -   Firebase Credentials
@@ -75,7 +73,7 @@ Get the location of the user when he stays in a place. You can know how much tim
 </p>
 
 
-* If you want to retrieve the closest stores to the user's location, load your assets in a Woosmap Project and get a Woosmap Key API (see [Woosmap developer documentation](https://developers.woosmap.com/get-started).)
+* If you want to retrieve the closest store to the user's location, load your assets in a Woosmap Project and get a Woosmap Key API (see [Woosmap developer documentation](https://developers.woosmap.com/get-started).)
 <p align="center">
 	<img src="./assets/SearchAPIList.png" alt="Search API" width="50%">
 </p>
