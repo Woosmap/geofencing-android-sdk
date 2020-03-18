@@ -1,16 +1,14 @@
 ﻿
 ## Find the Closest POIs and Display a Result Map
 
-  
-
 Location of the mobile is the first step but you may need to contextualize this location. Answering questions like “Where might be the user?”, “What could he be visiting?” is one step further to provide value to your users.
 
 In the code below a call to the Woosmap Search API is performed to find what is the closest POI from the user location.
 
-Don’t forget to load the proper POIs you want to monitor in Woosmap first (your stores/restaurants/services, yours competitors, etc). You’ll find anything about how to do this in our [Woosmap Developer Documentation](https://developers.woosmap.com/get-started).
+Don’t forget to load the proper POIs you want to monitor in Woosmap first (your stores/restaurants/services, your competitors, etc). You’ll find anything about how to do this in our [Woosmap Developer Documentation](https://developers.woosmap.com/get-started).
 
  
-Once the location obtained and the closest store identified, plot all of this on a Static Map from Google Maps API. Thanks to the code below you’ll obtained a jpeg file to display in your notification.
+Once the location obtained and the closest store identified, plot all of this on a Static Map from Google Maps API. Thanks to the code below you’ll obtain a jpeg file to display in your notification.
 
 Obviously, you must wait for the result of the first API call before calling the Google Maps API.
 
