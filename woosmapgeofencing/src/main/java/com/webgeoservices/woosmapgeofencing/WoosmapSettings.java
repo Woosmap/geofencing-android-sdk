@@ -49,7 +49,7 @@ public class WoosmapSettings {
     }
 
     static class Urls {
-        static String SearchAPIUrl = "https://develop-api.woosmap.com/stores/search/?private_key=%s&lat=%s&lng=%s&stores_by_page=1";
+        static String SearchAPIUrl = "https://api.woosmap.com/stores/search/?private_key=%s&lat=%s&lng=%s&stores_by_page=1";
         static String GoogleMapStaticUrl = "https://maps.google.com/maps/api/staticmap?markers=color:red%%7C%s,%s&markers=color:blue%%7C%s,%s&zoom=14&size=400x400&sensor=true&key=%s";
         static String GoogleMapStaticUrl1POI = "https://maps.google.com/maps/api/staticmap?markers=color:red%%7C%s,%s&zoom=14&size=400x400&sensor=true&key=%s";
     }

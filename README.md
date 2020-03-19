@@ -333,3 +333,5 @@ Then, just declare your receiver in the Manifest.xml in the application bloc
 * [Check Timestamp of the payload](./doc/CheckTimeStamp.md): Because differences may occur between sending time and reception time, you may need to check it before retrieving a location.
 
 * [APIs request](./doc/APIsrequest.md): Location of the mobile is one thing but knowing from what the mobile is close to is another thing. Find out here how to use Woosmap Search API to “geo contextualize” the location of your users.
+
+* [Visit Algorithm](./doc/VisitAlgorithm.md): You will find a diagram explaining the algorithm of visits.
