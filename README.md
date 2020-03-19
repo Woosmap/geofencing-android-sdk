@@ -8,8 +8,11 @@ During the last two years, we analysed, exploited and followed the evolution of 
 We are convinced that location is an effective way for App makers to propose tailor made and locally contextualised interactions with mobile users.
 But knowing the location of a user is not enough. Knowing from what a user is close to or what he is visiting is the important part. So we decided to share our findings and tricks for location collection on mobile to help you focus on this real value of location. 
 
-This repository is designed to share samples of codes and a SDK on Android to take the best of location in your mobile apps and go one step further in Location Intelligence.
-Woosmap Geofencing SDK and sample app should help you build Rich Push Notifications (highlighted with a Location context), analyse your mobile users surroundings (search for proximity to your assets, competitors, etc) and much more on Android.
+This repository is designed to share samples of codes and a SDK on Android to take the best of location in your mobile apps. 
+We had 3 main focus when developing and sharing this code: take full advantage of location capabilities of mobile devices, doing so in a battery friendly way and be fair with user privacy (see [Location permissions](./doc/CheckLocationpermissions.md)). 
+
+Woosmap Geofencing SDK and sample app should help you build Rich Push Notifications (highlighted with a Location context), analyse your mobile users surroundings (search for proximity to your assets, competitors, etc) and much more on Android to go a step further on Location Intelligence.
+
 
 ## Contributing
 
@@ -23,7 +26,7 @@ Woosmap Geofencing is released under the MIT License. See LICENSE file for detai
 
 ### Get user location 
 
-Get the user's location while optimising battery usage and search the nearest POIs. In this sample, we call a Woosmap search API to retrieve the stores closest to the user's location while using little battery.
+Collect in background user's locations and host them in a local database. Cal the Woosmap Search API to retreive closest stores to each location to locally and contextualized users journeys.
 
 <p align="center">
   <img alt="WoosmapGeofencing" src="/assets/WoosmapGeofencing1.png" width="30%">
@@ -37,8 +40,8 @@ In this sample, fetched location is then used to perform a request to the Woosma
   <img alt="Notification Location" src="/assets/2Markers.png" width="50%">
 </p>
 
-### Visit Detection 
-Get the location of the user when he stays in a place. You can know how much time he spends in a location.
+### Detect Visits (spending time at one place) of your users 
+Get the location and the time spent when a user is visiting places. Once again use the Woosmap Search API if needed to detect if your users visit you stores, your competitor of POI you may want to monitor. 
 
 <p align="center">
   <img alt="Visit" src="/assets/visit.png" width="50%">
@@ -323,10 +326,10 @@ Then, just declare your receiver in the Manifest.xml in the application bloc
 
 * [Set up a Firebase Cloud Messaging](./doc/EnablingLocation.md): Find out how to add Firebase Messaging to your App and regularly check if your notification token is up to date.
 
-* [Handling messages](./doc/HandlingMessages.md): if you are here, it’s because you want custom notifications. Find out here how to handle those.
+* [Handling messages](./doc/HandlingMessages.md): If you are here, it’s because you want custom notifications. Find out here how to handle those.
 
-* [Check Location permissions](./doc/CheckLocationpermissions.md): Because differences may occur between sending time and reception time, you may need to check it before retrieving a location.
+* [Check Location permissions](./doc/CheckLocationpermissions.md): Retrieve location from the OS location services to enrich your notification.
 
-* [Check Timestamp of the payload](./doc/CheckTimeStamp.md): Retrieve location from the OS location services to enrich your notification.
+* [Check Timestamp of the payload](./doc/CheckTimeStamp.md): Because differences may occur between sending time and reception time, you may need to check it before retrieving a location.
 
-* [APIs request](./doc/APIsrequest.md): location of the mobile is one thing but knowing from what the mobile is close to is another thing. Find out here how to use Woosmap Search API to “geo contextualize” the location of your users.
+* [APIs request](./doc/APIsrequest.md): Location of the mobile is one thing but knowing from what the mobile is close to is another thing. Find out here how to use Woosmap Search API to “geo contextualize” the location of your users.
