@@ -26,7 +26,7 @@ Woosmap Geofencing is released under the MIT License. See LICENSE file for detai
 
 ### Get user location 
 
-Collect in background user's locations and host them in a local database. Cal the Woosmap Search API to retreive closest stores to each location to locally and contextualized users journeys.
+Collect in background user's locations and host them in a local database. Call the Woosmap Search API to retrieve closest stores to each location to locally contextualized users journeys.
 
 <p align="center">
   <img alt="WoosmapGeofencing" src="/assets/WoosmapGeofencing1.png" width="30%">
@@ -41,7 +41,7 @@ In this sample, fetched location is then used to perform a request to the Woosma
 </p>
 
 ### Detect Visits (spending time at one place) of your users 
-Get the location and the time spent when a user is visiting places. Once again use the Woosmap Search API if needed to detect if your users visit you stores, your competitor of POI you may want to monitor. 
+Get the location and the time spent when a user is visiting places. Once again use the Woosmap Search API if needed to detect if your users visit you stores, your competitors or POI you may want to monitor. 
 
 <p align="center">
   <img alt="Visit" src="/assets/visit.png" width="50%">
