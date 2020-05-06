@@ -34,8 +34,10 @@ import com.webgeoservices.woosmapgeofencing.database.MovingPosition;
 import com.webgeoservices.woosmapgeofencing.database.POI;
 import com.webgeoservices.woosmapgeofencing.database.Visit;
 import com.webgeoservices.woosmapgeofencing.database.WoosmapDb;
+import com.webgeoservices.woosmapgeofencing.database.ZOI;
 
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -112,6 +114,7 @@ public class MainActivity extends AppCompatActivity {
         new AllLocationTask(getApplicationContext(), MainActivity.this).execute();
         new AllPOITask(getApplicationContext(), MainActivity.this).execute();
         new VisitTask(getApplicationContext(), MainActivity.this).execute();
+        new AllZOITask(getApplicationContext(), MainActivity.this).execute();
 
         BottomNavigationView bottomNav = findViewById(R.id.bottom_navigation);
         setFragment(locationFragment);
@@ -120,6 +123,7 @@ public class MainActivity extends AppCompatActivity {
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switch (item.getItemId()) {
                     case R.id.navigation_map:
+                        new AllZOITask(getApplicationContext(), MainActivity.this).execute();
                         setFragment(mapFragment);
                         return true;
                     case R.id.navigation_location:
@@ -297,6 +301,37 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public static class AllZOITask extends AsyncTask<Void, Void, ZOI[]> {
+        private final Context mContext;
+        public MainActivity mActivity;
+
+        AllZOITask(Context context, MainActivity activity) {
+            mContext = context;
+            mActivity = activity;
+        }
+
+        @Override
+        protected ZOI[] doInBackground(Void... voids) {
+            ZOI[] ZOIList = WoosmapDb.getInstance(mContext, true).getZOIsDAO().getAllZois();
+            return ZOIList;
+        }
+
+        @Override
+        protected void onPostExecute(ZOI[] ZOIList) {
+            if(ZOIList.length == 0)
+                return;
+
+            mActivity.mapFragment.zois.clear();
+            mActivity.mapFragment.clearPolygon();
+
+            mActivity.mapFragment.zois.addAll(Arrays.asList(ZOIList));
+
+            if (mActivity.mapFragment.mGoolgeMap != null) {
+                mActivity.mapFragment.drawPolygon();
+            }
+        }
+    }
+
     public static class LocationTask extends AsyncTask<Void, Void, MovingPosition> {
         private final Context mContext;
         private final Location mCurrentLocation;
@@ -320,6 +355,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(MovingPosition movingPosition) {
+
             if (movingPosition == null)
                 return;
             SimpleDateFormat displayDateFormat = new SimpleDateFormat("HH:mm:ss");
@@ -366,6 +402,7 @@ public class MainActivity extends AppCompatActivity {
                         Double.toString(movingPositionToShow.lng), displayDateFormat.format(movingPositionToShow.dateTime));
                 mActivity.locationFragment.mLocationInfo.append(Html.fromHtml(locHTML));
             }
+
 
         }
     }
@@ -479,7 +516,8 @@ public class MainActivity extends AppCompatActivity {
                     mActivity.visitFragment.mVisitInfo.append(Html.fromHtml(visitHTML));
                 }
 
-
+                //Refresh zoi on map on visit
+                new AllZOITask(mContext, mActivity).execute();
             }
         }
     }

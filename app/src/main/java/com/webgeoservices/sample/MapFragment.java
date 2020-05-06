@@ -1,11 +1,13 @@
 package com.webgeoservices.sample;
 
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -22,12 +24,20 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polygon;
+import com.google.android.gms.maps.model.PolygonOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.webgeoservices.woosmapgeofencing.database.ZOI;
 
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+import java.util.TimeZone;
 
 
 public class MapFragment extends Fragment implements OnMapReadyCallback {
@@ -36,6 +46,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     MapView mMapView;
     List<MarkerOptions> markersPOI = new ArrayList<MarkerOptions>();
     List<MarkerOptions> markersVisit = new ArrayList<MarkerOptions>();
+    List<Polygon> polygonZOI = new ArrayList<Polygon>();
+    List<ZOI> zois = new ArrayList<> ();
+
 
     Location currentLocation;
     FusedLocationProviderClient fusedLocationProviderClient;
@@ -112,7 +125,72 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 }
             }
 
+            drawPolygon();
+
         }
+
+    }
+
+    public void drawPolygon() {
+        if (!zois.isEmpty()) {
+            for (ZOI zoiPoint : zois) {
+                Polygon polygon =  mGoolgeMap.addPolygon(
+                        new PolygonOptions()
+                                .add(GetPolygonPoints(zoiPoint.wktPolygon))
+                                .strokeWidth(7)
+                                .fillColor(Color.CYAN)
+                                .strokeColor(Color.BLUE)
+
+                );
+
+                polygon.setTag(zoiPoint);
+
+                polygon.setClickable(true);
+
+                mGoolgeMap.setOnPolygonClickListener(new GoogleMap.OnPolygonClickListener() {
+                    public void onPolygonClick(Polygon polygon) {
+                        SimpleDateFormat displayDateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+                        ZOI zoiSelected = (ZOI) polygon.getTag();
+                        String startFormatedDate = displayDateFormat.format(zoiSelected.startTime);
+                        String endFormatedDate = displayDateFormat.format(zoiSelected.endTime);
+                        DateFormat formatter = new SimpleDateFormat("HH:mm:ss", Locale.US);
+                        formatter.setTimeZone(TimeZone.getTimeZone("UTC"));
+                        String duration = formatter.format(new Date(zoiSelected.duration));
+
+                        Toast.makeText(getContext(),  "--> start: " + startFormatedDate + "\n--> end: " + endFormatedDate +
+                                "\n" + "Nb visits: " + zoiSelected.idVisits.size() +
+                                "\n" + "Duration: " + duration, Toast.LENGTH_LONG).show();
+                    }
+
+                });
+                polygonZOI.add(polygon);
+            }
+        }
+    }
+
+
+
+    public LatLng[] GetPolygonPoints(String polygonWkt) {
+        List<LatLng> points = new ArrayList<>();
+
+        String sa1,sa2,sa3,sa4;
+
+        sa1 = polygonWkt.replaceAll("POLYGON","");
+        sa2 = sa1.replaceAll("[()]","");
+        sa3 = sa2.replaceAll(",","#");
+        sa4 = sa3.replaceAll(" ",",");
+
+        String[] splitString = sa4.split( "#" );
+
+        for ( String point : splitString )
+        {
+            String[] latlong =  point.split(",");
+            double latitude = Double.parseDouble(latlong[1]);
+            double longitude = Double.parseDouble(latlong[0]);
+            points.add(new LatLng(latitude,longitude));
+        }
+
+        return points.toArray(new LatLng[points.size()]);
 
     }
 
@@ -132,5 +210,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             mGoolgeMap.clear();
         markersPOI.clear();
         markersVisit.clear();
+        zois.clear();
+    }
+
+    public void clearPolygon()  {
+        for(Polygon poly : polygonZOI){
+            poly.remove();
+        }
     }
 }

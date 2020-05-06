@@ -271,10 +271,16 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
 
     private fun finishVisit(visit: Visit) {
         this.db.visitsDao.updateStaticPosition(visit)
+
+        // Refresh zoi on Visit
+        val figmmForVisitsCreator =  FigmmForVisitsCreator(db)
+        figmmForVisitsCreator.figmmForVisit(visit)
+
         temporaryFinishedVisits.add(visit)
         if (Woosmap.getInstance().visitReadyListener != null) {
             Woosmap.getInstance().visitReadyListener.VisitReadyCallback(visit)
         }
+
     }
 
     fun cleanOldPositions() {

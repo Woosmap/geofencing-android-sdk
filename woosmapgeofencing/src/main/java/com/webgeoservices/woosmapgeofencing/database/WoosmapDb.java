@@ -3,16 +3,21 @@ package com.webgeoservices.woosmapgeofencing.database;
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
+import androidx.room.TypeConverters;
 
 import android.content.Context;
 
-@Database(entities = {Visit.class, MovingPosition.class, POI.class}, version = 4, exportSchema = false)
+@Database(entities = {Visit.class, MovingPosition.class, POI.class, ZOI.class}, version = 5, exportSchema = false)
+@TypeConverters({Converters.class})
 public abstract class WoosmapDb extends RoomDatabase {
+
     public abstract VisitsDao getVisitsDao();
 
     public abstract MovingPositionsDao getMovingPositionsDao();
 
     public abstract POIsDAO getPOIsDAO();
+
+    public abstract ZOIsDAO getZOIsDAO();
 
     private static volatile WoosmapDb instance;
 
