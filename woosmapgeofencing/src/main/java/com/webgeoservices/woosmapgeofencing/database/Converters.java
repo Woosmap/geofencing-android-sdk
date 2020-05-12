@@ -17,9 +17,6 @@ public class Converters {
 
     @TypeConverter
     public static String arraylistToString(ArrayList<String> list) {
-        Gson gson = new Gson();
-        String json = gson.toJson(list);
-
-        return json;
+        return new Gson().toJson(list);
     }
 }

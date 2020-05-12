@@ -490,12 +490,12 @@ public class FigmmForVisitsCreator {
             }
         }
 
-        List<String> idVisit = (List<String>) list_zois_gmm_info.get(index).get("idVisits");
-        if(idVisit == null) {
-            idVisit = new ArrayList<>();
+        List<String> idVisits = (List<String>) list_zois_gmm_info.get(index).get("idVisits");
+        if(idVisits == null) {
+            idVisits = new ArrayList<>();
         }
-        idVisit.add((String) visit_m.uuid);
-        list_zois_gmm_info.get(index).put("idVisits",idVisit);
+        idVisits.add((String) visit_m.uuid);
+        list_zois_gmm_info.get(index).put("idVisits",idVisits);
 
     }
 

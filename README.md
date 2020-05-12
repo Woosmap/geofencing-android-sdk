@@ -317,7 +317,7 @@ public double latMean;
 public double age;
 ```
 
- - Represents the number of visits present in the ZOI
+ - Represents the number of visits influencing in the ZOI
 
 ```java
 public double accumulator;
@@ -329,7 +329,7 @@ public double accumulator;
 public double covariance_det;
 ```
 
- - Estimation of proability
+ - Estimation of probability
 
 ```java
 public double prior_probability;

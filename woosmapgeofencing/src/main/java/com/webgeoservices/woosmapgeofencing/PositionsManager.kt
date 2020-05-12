@@ -227,6 +227,10 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
             requestQueue = Volley.newRequestQueue(this.context)
         }
 
+        if(WoosmapSettings.privateKeySearchAPI.isEmpty()){
+            return
+        }
+
         val url = String.format(WoosmapSettings.Urls.SearchAPIUrl, WoosmapSettings.privateKeySearchAPI, positon.lat, positon.lng)
         val req = StringRequest(Request.Method.GET, url,
                 Response.Listener<String> { response ->

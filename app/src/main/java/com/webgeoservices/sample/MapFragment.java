@@ -46,7 +46,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     MapView mMapView;
     List<MarkerOptions> markersPOI = new ArrayList<MarkerOptions>();
     List<MarkerOptions> markersVisit = new ArrayList<MarkerOptions>();
-    List<Polygon> polygonZOI = new ArrayList<Polygon>();
+    List<Polygon> polygonsZOI = new ArrayList<Polygon>();
     List<ZOI> zois = new ArrayList<> ();
 
 
@@ -163,7 +163,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     }
 
                 });
-                polygonZOI.add(polygon);
+                polygonsZOI.add(polygon);
             }
         }
     }
@@ -175,16 +175,26 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
         String sa1,sa2,sa3,sa4;
 
+//        sa1 = polygonWkt.replaceAll("POLYGON","");
+//        sa2 = sa1.replaceAll("[()]","");
+//        sa3 = sa2.replaceAll(",","#");
+//        sa4 = sa3.replaceAll(" ",",");
+//
+//        String[] splitString = sa4.split( "#" );
+//
+//        for ( String point : splitString )
+//        {
+//            String[] latlong =  point.split(",");
+//            double latitude = Double.parseDouble(latlong[1]);
+//            double longitude = Double.parseDouble(latlong[0]);
+//            points.add(new LatLng(latitude,longitude));
+//        }
+
         sa1 = polygonWkt.replaceAll("POLYGON","");
         sa2 = sa1.replaceAll("[()]","");
-        sa3 = sa2.replaceAll(",","#");
-        sa4 = sa3.replaceAll(" ",",");
-
-        String[] splitString = sa4.split( "#" );
-
-        for ( String point : splitString )
+        for ( String point : sa2.split( "," ) )
         {
-            String[] latlong =  point.split(",");
+            String[] latlong =  point.split(" ");
             double latitude = Double.parseDouble(latlong[1]);
             double longitude = Double.parseDouble(latlong[0]);
             points.add(new LatLng(latitude,longitude));
@@ -214,7 +224,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     }
 
     public void clearPolygon()  {
-        for(Polygon poly : polygonZOI){
+        for(Polygon poly : polygonsZOI){
             poly.remove();
         }
     }
