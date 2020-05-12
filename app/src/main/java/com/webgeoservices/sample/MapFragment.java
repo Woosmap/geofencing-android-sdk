@@ -173,22 +173,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     public LatLng[] GetPolygonPoints(String polygonWkt) {
         List<LatLng> points = new ArrayList<>();
 
-        String sa1,sa2,sa3,sa4;
-
-//        sa1 = polygonWkt.replaceAll("POLYGON","");
-//        sa2 = sa1.replaceAll("[()]","");
-//        sa3 = sa2.replaceAll(",","#");
-//        sa4 = sa3.replaceAll(" ",",");
-//
-//        String[] splitString = sa4.split( "#" );
-//
-//        for ( String point : splitString )
-//        {
-//            String[] latlong =  point.split(",");
-//            double latitude = Double.parseDouble(latlong[1]);
-//            double longitude = Double.parseDouble(latlong[0]);
-//            points.add(new LatLng(latitude,longitude));
-//        }
+        String sa1,sa2;
 
         sa1 = polygonWkt.replaceAll("POLYGON","");
         sa2 = sa1.replaceAll("[()]","");
