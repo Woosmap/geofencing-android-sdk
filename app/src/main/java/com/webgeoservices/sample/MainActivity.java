@@ -483,37 +483,39 @@ public class MainActivity extends AppCompatActivity {
                 mActivity.mapFragment.markersVisit.clear();
             }
             for (Visit visitToShow : staticList) {
-                LatLng latLng = new LatLng(visitToShow.lat, visitToShow.lng);
-                String startFormatedDate = displayDateFormat.format(visitToShow.startTime);
-                String endFormatedDate = "";
-                if (visitToShow.endTime == 0) {
-                    //Visit in progress
-                    endFormatedDate = "ongoing";
-                } else {
-                    endFormatedDate = displayDateFormat.format(visitToShow.endTime);
-                }
-                String infoVisites = " --> start: " + startFormatedDate + " / end: " + endFormatedDate + " NbPt : " + visitToShow.nbPoint;
-                MarkerOptions markerOptions = new MarkerOptions().position(latLng).title(infoVisites);
-                boolean markerToUpdate = false;
-                for (MarkerOptions marker : mActivity.mapFragment.markersVisit) {
-                    if (marker.getPosition().equals(markerOptions.getPosition())) {
-                        //Update marker
-                        markerToUpdate = true;
-                        marker.title(markerOptions.getTitle());
+                if(visitToShow.duration >= WoosmapSettings.durationVisitFilter) {
+                    LatLng latLng = new LatLng(visitToShow.lat, visitToShow.lng);
+                    String startFormatedDate = displayDateFormat.format(visitToShow.startTime);
+                    String endFormatedDate = "";
+                    if (visitToShow.endTime == 0) {
+                        //Visit in progress
+                        endFormatedDate = "ongoing";
+                    } else {
+                        endFormatedDate = displayDateFormat.format(visitToShow.endTime);
                     }
-                }
-                if (!markerToUpdate) {
-                    mActivity.mapFragment.markersVisit.add(markerOptions);
-                    if (mActivity.mapFragment.mGoolgeMap != null)
-                        mActivity.mapFragment.mGoolgeMap.addMarker(markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
-                }
+                    String infoVisites = " --> start: " + startFormatedDate + " / end: " + endFormatedDate + " NbPt : " + visitToShow.nbPoint;
+                    MarkerOptions markerOptions = new MarkerOptions().position(latLng).title(infoVisites);
+                    boolean markerToUpdate = false;
+                    for (MarkerOptions marker : mActivity.mapFragment.markersVisit) {
+                        if (marker.getPosition().equals(markerOptions.getPosition())) {
+                            //Update marker
+                            markerToUpdate = true;
+                            marker.title(markerOptions.getTitle());
+                        }
+                    }
+                    if (!markerToUpdate) {
+                        mActivity.mapFragment.markersVisit.add(markerOptions);
+                        if (mActivity.mapFragment.mGoolgeMap != null)
+                            mActivity.mapFragment.mGoolgeMap.addMarker(markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
+                    }
 
-                if (mActivity.visitFragment.mVisitInfo != null) {
-                    String visitHTML = mContext.getString(R.string.html_visit, Double.toString(visitToShow.lat),
-                            Double.toString(visitToShow.lng), startFormatedDate,
-                            endFormatedDate, visitToShow.nbPoint);
+                    if (mActivity.visitFragment.mVisitInfo != null) {
+                        String visitHTML = mContext.getString(R.string.html_visit, Double.toString(visitToShow.lat),
+                                Double.toString(visitToShow.lng), startFormatedDate,
+                                endFormatedDate, visitToShow.nbPoint);
 
-                    mActivity.visitFragment.mVisitInfo.append(Html.fromHtml(visitHTML));
+                        mActivity.visitFragment.mVisitInfo.append(Html.fromHtml(visitHTML));
+                    }
                 }
 
                 //Refresh zoi on map on visit

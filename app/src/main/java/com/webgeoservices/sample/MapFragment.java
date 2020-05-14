@@ -153,9 +153,15 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                         ZOI zoiSelected = (ZOI) polygon.getTag();
                         String startFormatedDate = displayDateFormat.format(zoiSelected.startTime);
                         String endFormatedDate = displayDateFormat.format(zoiSelected.endTime);
-                        DateFormat formatter = new SimpleDateFormat("HH:mm:ss", Locale.US);
-                        formatter.setTimeZone(TimeZone.getTimeZone("UTC"));
-                        String duration = formatter.format(new Date(zoiSelected.duration));
+
+                         long timeSec= zoiSelected.duration/1000;
+                        int hours = (int) timeSec/ 3600;
+                        int temp = (int) timeSec- hours * 3600;
+                        int mins = temp / 60;
+                        temp = temp - mins * 60;
+                        int secs = temp;
+
+                        String duration = String.format("%02d", hours) + " hours "+ String.format("%02d", mins) +" mins "+ String.format("%02d", secs) +" secs";
 
                         Toast.makeText(getContext(),  "--> start: " + startFormatedDate + "\n--> end: " + endFormatedDate +
                                 "\n" + "Nb visits: " + zoiSelected.idVisits.size() +

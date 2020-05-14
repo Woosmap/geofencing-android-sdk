@@ -274,11 +274,14 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
     }
 
     private fun finishVisit(visit: Visit) {
+        visit.duration = visit.endTime - visit.startTime;
         this.db.visitsDao.updateStaticPosition(visit)
 
-        // Refresh zoi on Visit
-        val figmmForVisitsCreator =  FigmmForVisitsCreator(db)
-        figmmForVisitsCreator.figmmForVisit(visit)
+        if(visit.duration >= WoosmapSettings.durationVisitFilter) {
+            // Refresh zoi on Visit
+            val figmmForVisitsCreator = FigmmForVisitsCreator(db)
+            figmmForVisitsCreator.figmmForVisit(visit)
+        }
 
         temporaryFinishedVisits.add(visit)
         if (Woosmap.getInstance().visitReadyListener != null) {

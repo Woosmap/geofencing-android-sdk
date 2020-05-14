@@ -99,7 +99,7 @@ public class FigmmForVisitsCreator {
             long zoiDuration = 0;
             for (String visitUUIDZOI: newZOI.idVisits) {
                 Visit visit = db_m.getVisitsDao().getVisitFromUuid(visitUUIDZOI);
-                zoiDuration += visit.endTime - visit.startTime;
+                zoiDuration += visit.duration;
 
                 if(newZOI.idVisits.get(0) == visitUUIDZOI) {
                     newZOI.startTime = visit.startTime;

@@ -36,6 +36,10 @@ public class WoosmapSettings {
     // Distance detection threshold for visits
     static public double distanceDetectionThresholdVisits = 25.0;
 
+    // Distance detection threshold for visits
+    static public long minDurationVisitDisplay = 60;
+    static public long durationVisitFilter = 1000 * minDurationVisitDisplay;
+
     // Key for APIs
     static public String privateKeyGMPStatic = "";
     static public String privateKeySearchAPI = "";
