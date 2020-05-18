@@ -28,7 +28,7 @@ public class WoosmapSettings {
     static public int searchAPIDistanceFilter = 0;
 
     //Filter Accuracy of the location
-    static public int accuracyFilter = 0;
+    static public int accuracyFilter = 100;
 
     // delay for outdated notification
     static public int outOfTimeDelay = 300;

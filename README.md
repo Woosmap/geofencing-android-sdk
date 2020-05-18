@@ -215,7 +215,7 @@ static public int searchAPIDistanceFilter = 0;
  ```
  * Accuracy of the location in meters:
 ```java
-static public int accuracyFilter = 0;
+static public int accuracyFilter = 100;
  ```
   * Distance detection threshold for visits:
 ```java
