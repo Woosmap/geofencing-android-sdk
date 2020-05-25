@@ -30,7 +30,7 @@ public interface MovingPositionsDao {
     @Query("DELETE FROM movingpositions")
     void deleteAllMovingPositions();
 
-    @Query("SELECT * FROM movingpositions ORDER BY dateTime DESC")
+    @Query("SELECT * FROM movingpositions ORDER BY dateTime DESC LIMIT 50")
     MovingPosition [] getAllMovingPositions();
 
     @Query("DELETE FROM movingpositions WHERE dateTime <= :date AND isUpload=1")
