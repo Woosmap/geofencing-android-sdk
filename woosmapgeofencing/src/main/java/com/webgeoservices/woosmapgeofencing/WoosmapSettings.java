@@ -28,13 +28,17 @@ public class WoosmapSettings {
     static public int searchAPIDistanceFilter = 0;
 
     //Filter Accuracy of the location
-    static public int accuracyFilter = 0;
+    static public int accuracyFilter = 100;
 
     // delay for outdated notification
     static public int outOfTimeDelay = 300;
 
     // Distance detection threshold for visits
     static public double distanceDetectionThresholdVisits = 25.0;
+
+    // Distance detection threshold for visits
+    static public long minDurationVisitDisplay = 60;
+    static public long durationVisitFilter = 1000 * minDurationVisitDisplay;
 
     // Key for APIs
     static public String privateKeyGMPStatic = "";

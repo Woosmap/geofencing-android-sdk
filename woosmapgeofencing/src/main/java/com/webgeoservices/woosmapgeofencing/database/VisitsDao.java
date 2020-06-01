@@ -21,6 +21,9 @@ public interface VisitsDao {
     @Query("UPDATE visits SET isUpload=:status WHERE uuid=:uuid")
     void updateUploadStatus(int status, String uuid);
 
+    @Query("SELECT * FROM visits WHERE uuid=:uuid")
+    Visit getVisitFromUuid(String uuid);
+
     @Query("SELECT * FROM visits ORDER BY startTime DESC LIMIT 1")
     Visit getLastStaticPosition();
 

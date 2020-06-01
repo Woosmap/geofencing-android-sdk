@@ -17,6 +17,7 @@ public class Visit {
     public long startTime;
     public long endTime;
     public int nbPoint;
+    public long duration;
     public int isUpload = 0; //0 -> not uploaded; 1 -> not finished but uploaded; 2 -> finished and uploaded
 }
 

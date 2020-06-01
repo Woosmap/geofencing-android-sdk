@@ -227,6 +227,10 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
             requestQueue = Volley.newRequestQueue(this.context)
         }
 
+        if(WoosmapSettings.privateKeySearchAPI.isEmpty()){
+            return
+        }
+
         val url = String.format(WoosmapSettings.Urls.SearchAPIUrl, WoosmapSettings.privateKeySearchAPI, positon.lat, positon.lng)
         val req = StringRequest(Request.Method.GET, url,
                 Response.Listener<String> { response ->
@@ -270,11 +274,20 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
     }
 
     private fun finishVisit(visit: Visit) {
+        visit.duration = visit.endTime - visit.startTime;
         this.db.visitsDao.updateStaticPosition(visit)
+
+        if(visit.duration >= WoosmapSettings.durationVisitFilter) {
+            // Refresh zoi on Visit
+            val figmmForVisitsCreator = FigmmForVisitsCreator(db)
+            figmmForVisitsCreator.figmmForVisit(visit)
+        }
+
         temporaryFinishedVisits.add(visit)
         if (Woosmap.getInstance().visitReadyListener != null) {
             Woosmap.getInstance().visitReadyListener.VisitReadyCallback(visit)
         }
+
     }
 
     fun cleanOldPositions() {
