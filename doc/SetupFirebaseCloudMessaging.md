@@ -100,7 +100,7 @@ Firebase notifications behave differently depending on the foreground/background
 
 ## Customize notifications
 
-If you want to define the Activity which will be opened we a user clicks on the notification, you first have to set an Uri to this Activity in the Manifest.xml (example for the uri: `wooziesexemple://notif` on the MainActivity)
+If you want to define the Activity which will be opened we a user clicks on the notification, you first have to set an Uri to this Activity in the Manifest.xml (example for the uri: `sample://notif` on the MainActivity)
 
 ```xml
 <activity android:name=".MainActivity">
