@@ -27,6 +27,8 @@
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
+                <data android:scheme="sample"
+                    android:host="notif" />
             </intent-filter>
         </activity>
 
@@ -59,6 +61,9 @@
         <meta-data
             android:name="woosmap.messaging.default_notification_icon"
             android:resource="@drawable/ic_android_black_24dp" />
+
+        <meta-data android:name="woosmap_notification_defautl_uri"
+            android:value="sample://notif" />
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"

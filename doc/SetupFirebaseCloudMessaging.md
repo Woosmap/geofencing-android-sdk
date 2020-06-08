@@ -98,3 +98,40 @@ public  void onNewToken(String token)  {
 
 Firebase notifications behave differently depending on the foreground/background state of the receiving app. If you want foregrounded apps to receive notification messages or data messages, you’ll need to write code to handle the `onMessageReceived` callback. For an explanation of the difference between notification and data messages, see [Message types](https://firebase.google.com/docs/cloud-messaging/concept-options).
 
+## Customize notifications
+
+If you want to define the Activity which will be opened we a user clicks on the notification, you first have to set an Uri to this Activity in the Manifest.xml (example for the uri: `wooziesexemple://notif` on the MainActivity)
+
+```xml
+<activity android:name=".MainActivity">
+    ...
+    <intent-filter>
+        ...
+        <data android:scheme="sample"
+            android:host="notif" />
+    </intent-filter>
+</activity>
+```
+
+Finally you have to define the default Uri which will be opened when the user clicks on the notification in the tag `application` 
+
+```xml
+<application ... >
+...
+    <meta-data android:name="woosmap_notification_defautl_uri" android:value="sample://notif" />
+...
+</application>
+```
+
+### Define the notification's icon
+If you want to customize the small icon displayed in the notification, you must add the icon file in the directory `res/drawable` and add the following meta-data in the `AndroidManifest.xml``
+
+```xml
+<application ...>
+...
+    <meta-data
+android:name="woosmap.messaging.default_notification_icon"
+android:resource="@drawable/your_custom_icon_24dp" />
+...
+</application>
+```

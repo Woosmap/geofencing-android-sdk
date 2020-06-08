@@ -430,7 +430,7 @@ Then, just declare your receiver in the Manifest.xml in the application bloc
 
 * [Enabling Location](./doc/EnablingLocation.md): To use location, first enable associated services on the user device. Find out here how to do it and more importantly what are the different permissions and consequences of choices made by the users.
 
-* [Set up a Firebase Cloud Messaging](./doc/EnablingLocation.md): Find out how to add Firebase Messaging to your App and regularly check if your notification token is up to date.
+* [Set up a Firebase Cloud Messaging](./doc/SetupFirebaseCloudMessaging.md): Find out how to add Firebase Messaging to your App and regularly check if your notification token is up to date.
 
 * [Handling messages](./doc/HandlingMessages.md): If you are here, it’s because you want custom notifications. Find out here how to handle those.
 
