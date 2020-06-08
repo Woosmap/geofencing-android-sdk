@@ -65,7 +65,7 @@ Identify areas of interest for your users (location where they spend time, once 
 </p>
 
 ##  Pre-requisites
--   Android SDK 24+ (tested witht he simulator and real devices) Disclaimer: the code should be compatible with Android 7 but it was not tested.
+-   Android SDK 24+ (tested Android Virtual Device, but no real devices)  - Android SDK 26 (tested on real devices)
 -   Android Build Tools
 -   Android Support Repository
 -   Firebase Credentials
