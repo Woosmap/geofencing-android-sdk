@@ -8,7 +8,7 @@ We are convinced that location is an effective way for App makers to propose tai
 But knowing the location of a user is not enough. Knowing from what a user is close to or what he is visiting is the important part. So we decided to share our findings and tricks for location collection on mobile to help you focus on this real value of location.
 
 This repository is designed to share samples of codes and a SDK on Android to take the best of location in your mobile apps.
-We had 3 main focus when developing and sharing this code: take full advantage of location capabilities of mobile devices, doing so in a battery friendly way and be fair with user privacy (see [Location permissions](./doc/CheckLocationpermissions.md)).
+We had 3 main focus when developing and sharing this code: take full advantage of location capabilities of mobile devices, doing so in a battery friendly way and be fair with user privacy (see [Location permissions](https://github.com/woosmap/woosmap-geofencing-android-sdk/blob/master/doc/CheckLocationpermissions.md)).
 
 Woosmap Geofencing SDK and sample app should help you build Rich Push Notifications (highlighted with a Location context), analyse your mobile users surroundings (search for proximity to your assets, competitors, etc) and much more on Android to go a step further on Location Intelligence.
 
@@ -417,21 +417,21 @@ Then, just declare your receiver in the Manifest.xml in the application bloc
 
 ## Additional Documentation
 
-* [Enabling Location](./doc/EnablingLocation.md): To use location, first enable associated services on the user device. Find out here how to do it and more importantly what are the different permissions and consequences of choices made by the users.
+* [Enabling Location](https://github.com/woosmap/woosmap-geofencing-android-sdk/blob/master/doc/EnablingLocation.md): To use location, first enable associated services on the user device. Find out here how to do it and more importantly what are the different permissions and consequences of choices made by the users.
 
-* [Set up a Firebase Cloud Messaging](./doc/SetupFirebaseCloudMessaging.md): Find out how to add Firebase Messaging to your App and regularly check if your notification token is up to date.
+* [Set up a Firebase Cloud Messaging](https://github.com/woosmap/woosmap-geofencing-android-sdk/blob/master/doc/SetupFirebaseCloudMessaging.md): Find out how to add Firebase Messaging to your App and regularly check if your notification token is up to date.
 
-* [Handling messages](./doc/HandlingMessages.md): If you are here, it’s because you want custom notifications. Find out here how to handle those.
+* [Handling messages](https://github.com/woosmap/woosmap-geofencing-android-sdk/blob/master/doc/HandlingMessages.md): If you are here, it’s because you want custom notifications. Find out here how to handle those.
 
-* [Check Location permissions](./doc/CheckLocationpermissions.md): Retrieve location from the OS location services to enrich your notification.
+* [Check Location permissions](https://github.com/woosmap/woosmap-geofencing-android-sdk/blob/master/doc/CheckLocationpermissions.md): Retrieve location from the OS location services to enrich your notification.
 
-* [Check Timestamp of the payload](./doc/CheckTimeStamp.md): Because differences may occur between sending time and reception time, you may need to check it before retrieving a location.
+* [Check Timestamp of the payload](https://github.com/woosmap/woosmap-geofencing-android-sdk/blob/master/doc/CheckTimeStamp.md): Because differences may occur between sending time and reception time, you may need to check it before retrieving a location.
 
-* [APIs request](./doc/APIsrequest.md): Location of the mobile is one thing but knowing from what the mobile is close to is another thing. Find out here how to use Woosmap Search API to “geo contextualize” the location of your users.
+* [APIs request](https://github.com/woosmap/woosmap-geofencing-android-sdk/blob/master/doc/APIsrequest.md): Location of the mobile is one thing but knowing from what the mobile is close to is another thing. Find out here how to use Woosmap Search API to “geo contextualize” the location of your users.
 
-* [Visit Algorithm](./doc/VisitAlgorithm.md): Find a diagram explaining how the visits algorithm works.
+* [Visit Algorithm](https://github.com/woosmap/woosmap-geofencing-android-sdk/blob/master/doc/VisitAlgorithm.md): Find a diagram explaining how the visits algorithm works.
 
-* [ZOI Algorithm](./doc/ZOIAlgorithm.md): Find out how ZOI are built from visits.
+* [ZOI Algorithm](https://github.com/woosmap/woosmap-geofencing-android-sdk/blob/master/doc/ZOIAlgorithm.md): Find out how ZOI are built from visits.
 
 
 ## Contributing
