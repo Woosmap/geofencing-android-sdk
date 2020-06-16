@@ -29,7 +29,7 @@ As a retailer, insurance, banking or travel company, you want to be informed whe
 Collect in background user's locations and host them in a local database. Call the Woosmap Search API to retrieve closest stores to each location to locally contextualized users journeys.
 
 <p align="center">
-  <img alt="WoosmapGeofencing" src="https://github/com/woosmap/woosmap-geofencing-android-sdk/raw/master/assets/WoosmapGeofencing1.png" width="30%">
+  <img alt="WoosmapGeofencing" src="https://github.com/woosmap/woosmap-geofencing-android-sdk/raw/master/assets/WoosmapGeofencing1.png" width="30%">
 </p>
 
 ### Enrich Notification with user location and POIs (Points of Interest)
@@ -37,20 +37,20 @@ Get the location of a user on notification reception, to complete the payload wi
 In this sample, fetched location is then used to perform a request to the Woosmap Search API to get the closest POIs (Points of Interest) to the location of the user. In addition, a call to Google Static Map is performed to enrich the notification with a map displaying the user's location and the closest POIs.
 
 <p align="center">
-  <img alt="Notification Location" src="https://github/com/woosmap/woosmap-geofencing-android-sdk/raw/master/assets/2Markers.png" width="50%">
+  <img alt="Notification Location" src="https://github.com/woosmap/woosmap-geofencing-android-sdk/raw/master/assets/2Markers.png" width="50%">
 </p>
 
 ### Detect Visits (spending time at one place) of your users
 Get the location and the time spent when a user is visiting places. Once again use the Woosmap Search API if needed to detect if your users visit you stores, your competitors or POI you may want to monitor.
 
 <p align="center">
-  <img alt="Visit" src="https://github/com/woosmap/woosmap-geofencing-android-sdk/raw/master/assets/visit.png" width="50%">
+  <img alt="Visit" src="https://github.com/woosmap/woosmap-geofencing-android-sdk/raw/master/assets/visit.png" width="50%">
 </p>
 
 ### Detect Zone of Interest (cluster) of your users
 Identify areas of interest for your users (location where they spend time, once or recurrently).
 <p align="center">
-  <img alt="Visit" src="https://github/com/woosmap/woosmap-geofencing-android-sdk/raw/master/assets/ZOI.png" width="50%">
+  <img alt="Visit" src="https://github.com/woosmap/woosmap-geofencing-android-sdk/raw/master/assets/ZOI.png" width="50%">
 </p>
 
 ##  Pre-requisites
@@ -78,29 +78,29 @@ apply plugin: 'com.google.gms.google-services'
 * Get the token in the log debug.
 * If you want a map in the notification and a map in your app, get Google Maps API Key for requesting a static map (see [Google documentation](https://developers.google.com/maps/documentation/maps-static/get-api-key))
 <p align="center">
-   <img src="https://github/com/woosmap/woosmap-geofencing-android-sdk/raw/master/assets/GmapStatic.png" alt="Google map Static" width="50%">
+   <img src="https://github.com/woosmap/woosmap-geofencing-android-sdk/raw/master/assets/GmapStatic.png" alt="Google map Static" width="50%">
 </p>
 
 <p align="center">
-   <img src="https://github/com/woosmap/woosmap-geofencing-android-sdk/raw/master/assets/appMap.png" alt="Google map in app" width="50%">
+   <img src="https://github.com/woosmap/woosmap-geofencing-android-sdk/raw/master/assets/appMap.png" alt="Google map in app" width="50%">
 </p>
 
 
 * If you want to retrieve the closest store to the user's location, load your assets in a Woosmap Project and get a Woosmap Key API (see [Woosmap developer documentation](https://developers.woosmap.com/get-started).)
 <p align="center">
-   <img src="https://github/com/woosmap/woosmap-geofencing-android-sdk/raw/master/assets/SearchAPIList.png" alt="Search API" width="50%">
+   <img src="https://github.com/woosmap/woosmap-geofencing-android-sdk/raw/master/assets/SearchAPIList.png" alt="Search API" width="50%">
 </p>
 <p align="center">
-   <img src="https://github/com/woosmap/woosmap-geofencing-android-sdk/raw/master/assets/SearchAPIonly.png" alt="Search API" width="50%">
+   <img src="https://github.com/woosmap/woosmap-geofencing-android-sdk/raw/master/assets/SearchAPIonly.png" alt="Search API" width="50%">
 </p>
 
 * If you don't use any third party API and don’t define API keys, the notification and the app will only display the location (lat/long) of the user.
 <p align="center">
-   <img src="https://github/com/woosmap/woosmap-geofencing-android-sdk/raw/master/assets/userLocation.png" alt="User Location" width="50%">
+   <img src="https://github.com/woosmap/woosmap-geofencing-android-sdk/raw/master/assets/userLocation.png" alt="User Location" width="50%">
 </p>
 
 <p align="center">
-   <img src="https://github/com/woosmap/woosmap-geofencing-android-sdk/raw/master/assets/userLocationApp.png" alt="User Location" width="50%">
+   <img src="https://github.com/woosmap/woosmap-geofencing-android-sdk/raw/master/assets/userLocationApp.png" alt="User Location" width="50%">
 </p>
 
 ## Usage

@@ -5,5 +5,5 @@ Our SDK allows you to detect when and where a user has spent time, in another wo
 Ths diagram explains the visit algorithm implemented in our SDK / code samples: 
 
 <p align="center">
-  <img alt="Visit diagram Algorithm" src="https://github/com/woosmap/woosmap-geofencing-android-sdk/raw/master/assets/VisitDiagram.png" width="50%">
+  <img alt="Visit diagram Algorithm" src="https://github.com/woosmap/woosmap-geofencing-android-sdk/raw/master/assets/VisitDiagram.png" width="50%">
 </p>
