@@ -1,6 +1,3 @@
-
-
-
 ## Woosmap Geofencing
 
 Location intelligence is one of the next revolutions to improve and "smoothen" user experience on mobile.
@@ -25,14 +22,6 @@ As a retailer, insurance, banking or travel company, you need to add local conte
 
 As a retailer, insurance, banking or travel company, you want to be informed when a user is visiting specific POIs you decided to monitor (your own stores, your competitors, specific locations)? Use our SDK/code samples to not just collect location but directly obtain "visit triggers" and build advanced scenarios (e.g. a Bank being able to propose specific loans or services when users visits Real Estate agencies, Car Dealers, etc - an Insurance company proposing travel insurance when users visit airports, car insurance when users visit car dealers, etc)
 
-## Contributing
-
-Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
-Thank you for your suggestions!
-
-## License
-Woosmap Geofencing is released under the MIT License. See LICENSE file for details.
-
 ##  Overview
 
 ### Get user location
@@ -40,7 +29,7 @@ Woosmap Geofencing is released under the MIT License. See LICENSE file for detai
 Collect in background user's locations and host them in a local database. Call the Woosmap Search API to retrieve closest stores to each location to locally contextualized users journeys.
 
 <p align="center">
-  <img alt="WoosmapGeofencing" src="/assets/WoosmapGeofencing1.png" width="30%">
+  <img alt="WoosmapGeofencing" src="https://github/com/woosmap/woosmap-geofencing-android-sdk/raw/master/assets/WoosmapGeofencing1.png" width="30%">
 </p>
 
 ### Enrich Notification with user location and POIs (Points of Interest)
@@ -48,28 +37,28 @@ Get the location of a user on notification reception, to complete the payload wi
 In this sample, fetched location is then used to perform a request to the Woosmap Search API to get the closest POIs (Points of Interest) to the location of the user. In addition, a call to Google Static Map is performed to enrich the notification with a map displaying the user's location and the closest POIs.
 
 <p align="center">
-  <img alt="Notification Location" src="/assets/2Markers.png" width="50%">
+  <img alt="Notification Location" src="https://github/com/woosmap/woosmap-geofencing-android-sdk/raw/master/assets/2Markers.png" width="50%">
 </p>
 
 ### Detect Visits (spending time at one place) of your users
 Get the location and the time spent when a user is visiting places. Once again use the Woosmap Search API if needed to detect if your users visit you stores, your competitors or POI you may want to monitor.
 
 <p align="center">
-  <img alt="Visit" src="/assets/visit.png" width="50%">
+  <img alt="Visit" src="https://github/com/woosmap/woosmap-geofencing-android-sdk/raw/master/assets/visit.png" width="50%">
 </p>
 
 ### Detect Zone of Interest (cluster) of your users
 Identify areas of interest for your users (location where they spend time, once or recurrently).
 <p align="center">
-  <img alt="Visit" src="/assets/ZOI.png" width="50%">
+  <img alt="Visit" src="https://github/com/woosmap/woosmap-geofencing-android-sdk/raw/master/assets/ZOI.png" width="50%">
 </p>
 
 ##  Pre-requisites
--   Android SDK 24+ (tested Android Virtual Device, but no real devices)  - Android SDK 26 (tested on real devices)
--   Android Build Tools
--   Android Support Repository
--   Firebase Credentials
--  OjAlgo dependency [https://www.ojalgo.org/](https://www.ojalgo.org/)
+- Android SDK 24+ (tested Android Virtual Device, but no real devices)  - Android SDK 26 (tested on real devices)
+- Android Build Tools
+- Android Support Repository
+- Firebase Credentials
+- OjAlgo dependency [https://www.ojalgo.org/](https://www.ojalgo.org/)
 
 ### Installation
 * This sample uses the Gradle build system. To build this project, use the "gradlew build" command or use "Import Project" in Android Studio.
@@ -89,29 +78,29 @@ apply plugin: 'com.google.gms.google-services'
 * Get the token in the log debug.
 * If you want a map in the notification and a map in your app, get Google Maps API Key for requesting a static map (see [Google documentation](https://developers.google.com/maps/documentation/maps-static/get-api-key))
 <p align="center">
-   <img src="./assets/GmapStatic.png" alt="Google map Static" width="50%">
+   <img src="https://github/com/woosmap/woosmap-geofencing-android-sdk/raw/master/assets/GmapStatic.png" alt="Google map Static" width="50%">
 </p>
 
 <p align="center">
-   <img src="./assets/appMap.png" alt="Google map in app" width="50%">
+   <img src="https://github/com/woosmap/woosmap-geofencing-android-sdk/raw/master/assets/appMap.png" alt="Google map in app" width="50%">
 </p>
 
 
 * If you want to retrieve the closest store to the user's location, load your assets in a Woosmap Project and get a Woosmap Key API (see [Woosmap developer documentation](https://developers.woosmap.com/get-started).)
 <p align="center">
-   <img src="./assets/SearchAPIList.png" alt="Search API" width="50%">
+   <img src="https://github/com/woosmap/woosmap-geofencing-android-sdk/raw/master/assets/SearchAPIList.png" alt="Search API" width="50%">
 </p>
 <p align="center">
-   <img src="./assets/SearchAPIonly.png" alt="Search API" width="50%">
+   <img src="https://github/com/woosmap/woosmap-geofencing-android-sdk/raw/master/assets/SearchAPIonly.png" alt="Search API" width="50%">
 </p>
 
 * If you don't use any third party API and don’t define API keys, the notification and the app will only display the location (lat/long) of the user.
 <p align="center">
-   <img src="./assets/userLocation.png" alt="User Location" width="50%">
+   <img src="https://github/com/woosmap/woosmap-geofencing-android-sdk/raw/master/assets/userLocation.png" alt="User Location" width="50%">
 </p>
 
 <p align="center">
-   <img src="./assets/userLocationApp.png" alt="User Location" width="50%">
+   <img src="https://github/com/woosmap/woosmap-geofencing-android-sdk/raw/master/assets/userLocationApp.png" alt="User Location" width="50%">
 </p>
 
 ## Usage
@@ -199,27 +188,27 @@ You can make filters:
 * Time to refresh user's location in seconds:
 ```java
 static public int currentLocationTimeFilter = 0;
- ```
- * Distance to refresh user's location in meter:
+```
+* Distance to refresh user's location in meter:
 ```java
 static public int currentLocationDistanceFilter = 0;
- ```
- * Time to request Search API in seconds:
+```
+* Time to request Search API in seconds:
 ```java
 static public int searchAPITimeFilter = 0;
- ```
- * Distance to request Search API  in meter:
+```
+* Distance to request Search API  in meter:
 ```java
 static public int searchAPIDistanceFilter = 0;
- ```
- * Accuracy of the location in meters:
+```
+* Accuracy of the location in meters:
 ```java
 static public int accuracyFilter = 100;
- ```
-  * Distance detection threshold for visits:
+```
+* Distance detection threshold for visits:
 ```java
 static public double distanceDetectionThresholdVisits = 25.0;
- ```
+```
 
 * Duration in seconds for detection of visits to show and to create ZOI :
 ```java
@@ -235,6 +224,7 @@ WoosmapSettings.currentLocationTimeFilter = 30;
 ```
 
 The default parameters were determined by testing in real conditions in order to obtain the best data while consuming little battery, you can modify them according to your use cases.
+
 ### Retrieve User Location
 
 In your `mainActivity`, create a Listener connect to the interface `Woosmap.LocationReadyListener` and set a callback to retrieve user current location.
@@ -442,3 +432,12 @@ Then, just declare your receiver in the Manifest.xml in the application bloc
 * [Visit Algorithm](./doc/VisitAlgorithm.md): Find a diagram explaining how the visits algorithm works.
 
 * [ZOI Algorithm](./doc/ZOIAlgorithm.md): Find out how ZOI are built from visits.
+
+
+## Contributing
+
+Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+Thank you for your suggestions!
+
+## License
+Woosmap Geofencing is released under the MIT License. See [LICENSE](https://github.com/woosmap/woosmap-geofencing-android-sdk/blob/master/LICENSE.md) file for details.

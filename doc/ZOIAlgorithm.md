@@ -5,5 +5,5 @@ We are currently defining a Zone of interest (ZOI) as a geographic area where a 
 This diagram quickly describes how ZOI are built/updated from visits. Part ot the algorithm is defining if a visit is elligible to be part of a ZOI (proximity and time spent), the other part uses a FIGMM to create or increment existing ZOIs (Learning phase): 
 
 <p align="center">
-  <img alt="ZOI diagram Algorithm" src="/assets/ZOIDiagram.png" width="50%">
+  <img alt="ZOI diagram Algorithm" src="https://github/com/woosmap/woosmap-geofencing-android-sdk/raw/master/assets/ZOIDiagram.png" width="50%">
 </p>
