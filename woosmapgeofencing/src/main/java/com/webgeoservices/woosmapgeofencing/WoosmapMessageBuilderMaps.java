@@ -122,7 +122,8 @@ public class WoosmapMessageBuilderMaps {
         Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 
         mBuilder = new NotificationCompat.Builder(this.context, CHANNEL_ID)
-                .setSmallIcon(this.message_icon)
+                //.setSmallIcon(this.message_icon)
+                .setSmallIcon(R.drawable.ic_local_grocery_store_black_24dp)
                 .setAutoCancel(true)
                 .setSound(defaultSoundUri)
                 .setPriority(NotificationCompat.PRIORITY_MAX);

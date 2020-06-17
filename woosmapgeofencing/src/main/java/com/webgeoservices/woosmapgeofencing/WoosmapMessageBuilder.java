@@ -81,7 +81,8 @@ public class WoosmapMessageBuilder {
 
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this.context, CHANNEL_ID)
-                        .setSmallIcon(this.message_icon)
+                        .setSmallIcon(R.drawable.ic_local_grocery_store_black_24dp)
+                        //.setSmallIcon(this.message_icon)
                         .setAutoCancel(true)
                         .setSound(defaultSoundUri)
                         .setPriority(4);
