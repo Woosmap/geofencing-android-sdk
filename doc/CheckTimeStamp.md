@@ -1,5 +1,4 @@
-﻿
-No need to collect a location and display a notification if it’s not the right time anymore. Verify first if the notification expedition time is not too different from the notification reception time on the mobile.
+﻿No need to collect a location and display a notification if it’s not the right time anymore. Verify first if the notification expedition time is not too different from the notification reception time on the mobile.
 
 ## Delay timeout
 
