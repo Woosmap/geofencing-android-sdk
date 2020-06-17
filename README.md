@@ -65,8 +65,7 @@ Identify areas of interest for your users (location where they spend time, once 
 </p>
 
 ##  Pre-requisites
--   Android SDK 26+ (tested witht he simulator and real devices)
-Disclaimer: the code should be comatible with Android 6 but it was not tested.
+-   Android SDK 24+ (tested Android Virtual Device, but no real devices)  - Android SDK 26 (tested on real devices)
 -   Android Build Tools
 -   Android Support Repository
 -   Firebase Credentials
@@ -430,7 +429,7 @@ Then, just declare your receiver in the Manifest.xml in the application bloc
 
 * [Enabling Location](./doc/EnablingLocation.md): To use location, first enable associated services on the user device. Find out here how to do it and more importantly what are the different permissions and consequences of choices made by the users.
 
-* [Set up a Firebase Cloud Messaging](./doc/EnablingLocation.md): Find out how to add Firebase Messaging to your App and regularly check if your notification token is up to date.
+* [Set up a Firebase Cloud Messaging](./doc/SetupFirebaseCloudMessaging.md): Find out how to add Firebase Messaging to your App and regularly check if your notification token is up to date.
 
 * [Handling messages](./doc/HandlingMessages.md): If you are here, it’s because you want custom notifications. Find out here how to handle those.
 
