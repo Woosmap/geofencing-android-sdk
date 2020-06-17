@@ -418,19 +418,12 @@ Then, just declare your receiver in the Manifest.xml in the application bloc
 ## Additional Documentation
 
 * [Enabling Location](https://github.com/woosmap/woosmap-geofencing-android-sdk/blob/master/doc/EnablingLocation.md): To use location, first enable associated services on the user device. Find out here how to do it and more importantly what are the different permissions and consequences of choices made by the users.
-
 * [Set up a Firebase Cloud Messaging](https://github.com/woosmap/woosmap-geofencing-android-sdk/blob/master/doc/SetupFirebaseCloudMessaging.md): Find out how to add Firebase Messaging to your App and regularly check if your notification token is up to date.
-
 * [Handling messages](https://github.com/woosmap/woosmap-geofencing-android-sdk/blob/master/doc/HandlingMessages.md): If you are here, it’s because you want custom notifications. Find out here how to handle those.
-
 * [Check Location permissions](https://github.com/woosmap/woosmap-geofencing-android-sdk/blob/master/doc/CheckLocationpermissions.md): Retrieve location from the OS location services to enrich your notification.
-
 * [Check Timestamp of the payload](https://github.com/woosmap/woosmap-geofencing-android-sdk/blob/master/doc/CheckTimeStamp.md): Because differences may occur between sending time and reception time, you may need to check it before retrieving a location.
-
 * [APIs request](https://github.com/woosmap/woosmap-geofencing-android-sdk/blob/master/doc/APIsrequest.md): Location of the mobile is one thing but knowing from what the mobile is close to is another thing. Find out here how to use Woosmap Search API to “geo contextualize” the location of your users.
-
 * [Visit Algorithm](https://github.com/woosmap/woosmap-geofencing-android-sdk/blob/master/doc/VisitAlgorithm.md): Find a diagram explaining how the visits algorithm works.
-
 * [ZOI Algorithm](https://github.com/woosmap/woosmap-geofencing-android-sdk/blob/master/doc/ZOIAlgorithm.md): Find out how ZOI are built from visits.
 
 

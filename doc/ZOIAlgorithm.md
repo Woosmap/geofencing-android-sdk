@@ -1,4 +1,3 @@
-
 ## Algorithm ZOI
 We are currently defining a Zone of interest (ZOI) as a geographic area where a user spent some time, once or recurrently. This temporal classification allows us to identify geographical patterns / behaviors for users and subsequently caracterize places of life, work, leisure, etc.
 
