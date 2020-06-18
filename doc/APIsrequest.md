@@ -1,4 +1,5 @@
-﻿## Find the Closest POIs and Display a Result Map
+﻿
+## Find the Closest POIs and Display a Result Map
 
 Location of the mobile is the first step but you may need to contextualize this location. Answering questions like “Where might be the user?”, “What could he be visiting?” is one step further to provide value to your users.
 

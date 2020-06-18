@@ -1,4 +1,5 @@
-﻿## Handling custom messages
+﻿
+## Handling custom messages
 
 Adding rich content like location or a map in a notification is considered as managing custom messages.
 
