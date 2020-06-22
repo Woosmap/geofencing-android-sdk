@@ -1,5 +1,4 @@
-﻿
-To enrich notification with location info, you’ll need to check first if the user has authorized your App to access location services.
+﻿To enrich notification with location info, you’ll need to check first if the user has authorized your App to access location services.
 
 To do so, check permission using the checkSelfPermission method of [ActivityCompat](https://developer.android.com/reference/android/support/v4/app/ActivityCompat.html) or [ContextCompat](https://developer.android.com/reference/android/support/v4/content/ContextCompat.html).
 
