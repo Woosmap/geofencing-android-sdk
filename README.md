@@ -54,11 +54,11 @@ Identify areas of interest for your users (location where they spend time, once 
 </p>
 
 ##  Pre-requisites
-- Android SDK 24+ (tested Android Virtual Device, but no real devices)  - Android SDK 26 (tested on real devices)
-- Android Build Tools
-- Android Support Repository
-- Firebase Credentials
-- OjAlgo dependency [https://www.ojalgo.org/](https://www.ojalgo.org/)
+-   Android SDK 21 and newer. SDK21 (Android 5) to SDK25 (Android 7.1) tested with Android Virtual Device, newer versions tested on real devices.
+-   Android Build Tools
+-   Android Support Repository
+-   Firebase Credentials
+-  OjAlgo dependency [https://www.ojalgo.org/](https://www.ojalgo.org/)
 
 ### Installation
 * This sample uses the Gradle build system. To build this project, use the "gradlew build" command or use "Import Project" in Android Studio.
