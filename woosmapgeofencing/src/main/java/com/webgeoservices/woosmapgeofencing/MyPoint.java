@@ -1,0 +1,56 @@
+package com.webgeoservices.woosmapgeofencing;
+
+public class MyPoint {
+
+    private double x;
+    private double y;
+    private double accuracy;
+    private String id;
+    public long startime;
+    public long endtime;
+
+
+    public MyPoint(double x, double y, String id) {
+        this.x = x;
+        this.y = y;
+        this.id = id;
+        this.accuracy = 20.0;
+        this.startime = 0;
+        this.endtime = 0;
+    }
+
+    public MyPoint(double x, double y, double accuracy, String id) {
+        this.x = x;
+        this.y = y;
+        this.id = id;
+        this.accuracy = accuracy;
+        this.startime = 0;
+        this.endtime = 0;
+    }
+
+    public MyPoint(double x, double y, double accuracy, String id, long startime, long endtime) {
+        this.x = x;
+        this.y = y;
+        this.id = id;
+        this.accuracy = accuracy;
+        this.startime = startime;
+        this.endtime = endtime;
+    }
+
+    public double getX() {
+        return x;
+    }
+
+    public double getY() {
+        return y;
+    }
+
+    public double getAccuray() {
+        return accuracy;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+}

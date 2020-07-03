@@ -25,10 +25,11 @@
         <activity android:name="com.webgeoservices.sample.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
-                <data android:scheme="sample"
-                    android:host="notif" />
+            </intent-filter>
+            <intent-filter>
+                 <data android:scheme="sample"
+                android:host="notif" />
             </intent-filter>
         </activity>
 

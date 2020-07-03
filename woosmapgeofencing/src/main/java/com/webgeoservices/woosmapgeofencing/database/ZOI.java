@@ -4,6 +4,7 @@ import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
 import java.util.ArrayList;
+import java.util.List;
 
 
 @Entity(tableName = "ZOI")
@@ -28,6 +29,8 @@ public class ZOI {
     public long startTime;
     public long endTime;
     public long duration;
+    public String period;
+    public ArrayList<String> weekly_density;
 
 }
 

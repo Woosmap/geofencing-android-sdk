@@ -28,6 +28,8 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
+import com.webgeoservices.woosmapgeofencing.FigmmForVisitsCreator;
+import com.webgeoservices.woosmapgeofencing.MyPoint;
 import com.webgeoservices.woosmapgeofencing.Woosmap;
 import com.webgeoservices.woosmapgeofencing.WoosmapSettings;
 import com.webgeoservices.woosmapgeofencing.database.MovingPosition;
@@ -36,6 +38,12 @@ import com.webgeoservices.woosmapgeofencing.database.Visit;
 import com.webgeoservices.woosmapgeofencing.database.WoosmapDb;
 import com.webgeoservices.woosmapgeofencing.database.ZOI;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 
@@ -149,6 +157,16 @@ public class MainActivity extends AppCompatActivity {
                 Snackbar.make(view, "Clear Database", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
                 new clearDBTask(getApplicationContext(), MainActivity.this).execute();
+            }
+        });
+
+        FloatingActionButton testZOIBtn = findViewById(R.id.TestZOI);
+        testZOIBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Snackbar.make(view, "Create ZOI", 8000)
+                        .setAction("Action", null).show();
+                new testZOITask(getApplicationContext(), MainActivity.this).execute();
             }
         });
 
@@ -501,6 +519,7 @@ public class MainActivity extends AppCompatActivity {
                             //Update marker
                             markerToUpdate = true;
                             marker.title(markerOptions.getTitle());
+
                         }
                     }
                     if (!markerToUpdate) {
@@ -517,14 +536,13 @@ public class MainActivity extends AppCompatActivity {
                         mActivity.visitFragment.mVisitInfo.append(Html.fromHtml(visitHTML));
                     }
                 }
-
-                //Refresh zoi on map on visit
-                new AllZOITask(mContext, mActivity).execute();
             }
+            //Refresh zoi on map on visit
+            new AllZOITask(mContext, mActivity).execute();
         }
     }
 
-    public static class clearDBTask extends AsyncTask<Void, Void, Void> {
+    public class clearDBTask extends AsyncTask<Void, Void, Void> {
         private final Context mContext;
         public MainActivity mActivity;
 
@@ -550,4 +568,74 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
+
+    public class testZOITask extends AsyncTask<Void, Void, Void> {
+        private final Context mContext;
+        public MainActivity mActivity;
+
+        testZOITask(Context context, MainActivity activity) {
+            mContext = context;
+            mActivity = activity;
+        }
+
+
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            InputStream in = getResources().openRawResource(R.raw.visit_qualif);
+            DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss+SS");
+            BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+            String line = null;
+            FigmmForVisitsCreator figmmForVisitsCreator = new FigmmForVisitsCreator(WoosmapDb.getInstance(mContext, true));
+            try {
+                int i = 0;
+                while ((line = reader.readLine()) != null) {
+                    String[] separated = line.split(",");
+                    String id = separated[0];
+                    double accuracy = Double.valueOf(separated[1]);
+                    String[] valLatLng = separated[2].replace("POINT(","").replace(")","").split(" ");
+
+                    double x = Double.valueOf(valLatLng[0]);
+                    double y = Double.valueOf(valLatLng[1]);
+
+                    long startime = formatter.parse(separated[3]).getTime();
+                    long endtime = formatter.parse(separated[4]).getTime();
+
+                    Visit visit = new Visit();
+                    visit.lat = y;
+                    visit.lng = x;
+                    visit.startTime = startime;
+                    visit.endTime = endtime;
+                    visit.accuracy = (float) accuracy;
+                    visit.uuid = id;
+                    visit.duration = visit.endTime - visit.startTime;
+
+                    WoosmapDb.getInstance(mContext, true).getVisitsDao().createStaticPosition(visit);
+
+
+                    MyPoint point = new MyPoint(x, y, accuracy,id,startime,endtime);
+
+
+                    figmmForVisitsCreator.figmmForVisitTest(visit);
+
+                    i++;
+                }
+                figmmForVisitsCreator.update_db();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+
+            //Refresh zoi on map on visit
+            new VisitTask(mContext, mActivity).execute();
+        }
+
+    }
+
 }

@@ -19,6 +19,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.UUID;
 
 public class FigmmForVisitsCreator {
     List<Map> list_zois = new ArrayList<>();
@@ -36,20 +37,18 @@ public class FigmmForVisitsCreator {
 
     public void figmmForVisit(Visit visit) {
         visit_m = visit;
-        figmmAlgo(visit.lat,visit.lng,visit.accuracy);
+        figmmAlgo(visit.lat,visit.lng,visit.accuracy,visit.uuid, visit.startTime, visit.endTime);
     }
 
-    public void figmmForLocation(Location position) {
-        figmmAlgo(position.getLatitude(),position.getLongitude(),position.getAccuracy());
+    public void figmmForVisitTest(Visit visit) {
+        visit_m = visit;
+        figmmAlgoTest(visit.lat,visit.lng,visit.accuracy,visit.uuid, visit.startTime, visit.endTime);
     }
 
-    public void figmmAlgo(double xpos, double ypos, double accuracy) {
-        //Get list of ZOI in DB
-        getListOfZoi();
-
-        double y = SphericalMercator.lat2y(xpos);
-        double x = SphericalMercator.lon2x(ypos);
-        MyPoint point = new MyPoint(x, y, accuracy);
+    private void figmmAlgoTest(double lat, double lng, float accuracy, String uuid, long startTime, long endTime) {
+        double y = SphericalMercator.lat2y(lat);
+        double x = SphericalMercator.lon2x(lng);
+        MyPoint point = new MyPoint(x, y, accuracy, uuid, startTime, endTime);
 
         // Learning
         boolean zois_have_been_updated = incrementZOI(list_zois, point);
@@ -60,7 +59,7 @@ public class FigmmForVisitsCreator {
         }
 
         // Removing spurious components
-        clean_clusters();
+        //clean_clusters();
 
         // Update prior
         update_zois_prior();
@@ -68,13 +67,57 @@ public class FigmmForVisitsCreator {
         // Associate visit to zoi
         predict_as_dict(list_zois,point);
 
+        clean_clusters_without_visit();
+
+        //Classification Time ZOI
+        ZOIQualifiers zoiQualifiers = new ZOIQualifiers();
+        zoiQualifiers.updateZoisQualifications(list_zois);
+    }
+
+    public void figmmForLocation(Location position) {
+        figmmAlgo(position.getLatitude(),position.getLongitude(),position.getAccuracy(), UUID.randomUUID().toString(), 0,0);
+    }
+
+    public void figmmAlgo(double lat, double lng, double accuracy, String id, long startime, long endtime) {
+        //Get list of ZOI in DB
+        getListOfZoi();
+
+        double y = SphericalMercator.lat2y(lat);
+        double x = SphericalMercator.lon2x(lng);
+        MyPoint point = new MyPoint(x, y, accuracy, id, startime, endtime);
+
+        // Learning
+        boolean zois_have_been_updated = incrementZOI(list_zois, point);
+
+        // Creating new components
+        if (!zois_have_been_updated) {
+            createInitialCluster(point);
+        }
+
+        // Removing spurious components
+        //clean_clusters();
+
+        // Update prior
+        update_zois_prior();
+
+        // Associate visit to zoi
+        predict_as_dict(list_zois,point);
+
+        clean_clusters_without_visit();
+
+        //Classification Time ZOI
+        ZOIQualifiers zoiQualifiers = new ZOIQualifiers();
+        zoiQualifiers.updateZoisQualifications(list_zois);
+
         // Update DB
         update_db();
 
     }
 
-    private void update_db() {
+    public void update_db() {
         db_m.getZOIsDAO().deleteAllZOI();
+        ZOI[] zoiList = new ZOI[list_zois.size()];
+        int indexZoi = 0;
         for (Iterator<Map> iter = list_zois.iterator(); iter.hasNext(); ) {
             Map<String, Object> zois_gmm_info = iter.next();
             ZOI newZOI = new ZOI();
@@ -111,10 +154,26 @@ public class FigmmForVisitsCreator {
 
             }
             newZOI.duration = zoiDuration;
+            newZOI.period = (String) zois_gmm_info.get("period");
 
+            int[] weekly_density_int = (int[]) zois_gmm_info.get("weekly_density");
+            List<Integer> week_density = new ArrayList<Integer>(weekly_density_int.length);
+            for (int i : weekly_density_int)
+            {
+                week_density.add(i);
+            }
+            List<String> week_density_string = new ArrayList<>(week_density.size());
+            for (Integer myInt : week_density) {
+                week_density_string.add(String.valueOf(myInt));
+            }
 
-            db_m.getZOIsDAO().createZoi(newZOI);
+            newZOI.weekly_density = (ArrayList<String>) week_density_string;
+
+            zoiList[indexZoi] = newZOI;
+            indexZoi++;
         }
+
+        db_m.getZOIsDAO().createAllZoi(zoiList);
 
 
     }
@@ -141,11 +200,58 @@ public class FigmmForVisitsCreator {
             zois_gmm_info.put("accumulator", zoiDB.accumulator);
             zois_gmm_info.put("updated", false);
             zois_gmm_info.put("covariance_det", zoiDB.covariance_det);
+
             zois_gmm_info.put("idVisits", zoiDB.idVisits);
+            List<MyPoint> visitPointList = new ArrayList<>();
+            List<String> idVisits = (List<String>) zois_gmm_info.get("idVisits");
+            for (Iterator<String> iter = idVisits.iterator(); iter.hasNext(); ) {
+                String uuidVisit = iter.next();
+                Visit visitOfZoi = db_m.getVisitsDao().getVisitFromUuid(uuidVisit);
+                MyPoint point = new MyPoint(visitOfZoi.lat,visitOfZoi.lng,visitOfZoi.accuracy,visitOfZoi.uuid);
+                visitPointList.add(point);
+            }
+            zois_gmm_info.put("visitPoint",visitPointList);
+
+            // DATA For classification
+            zois_gmm_info.put("duration", zoiDB.duration);
+            List<Integer> weeks_on_zoi = new ArrayList<>();
+            zois_gmm_info.put("weeks_on_zoi", weeks_on_zoi);
+
+            int[] weekly_density = convertArraylistStringToArrayInt(zoiDB.weekly_density);
+            zois_gmm_info.put("weekly_density", weekly_density);
+
+            Map<String, Object> daily_presence_intervals = new HashMap<>();
+            zois_gmm_info.put("daily_presence_intervals", daily_presence_intervals);
+            List<Map> average_intervals = new ArrayList<>();
+            zois_gmm_info.put("average_intervals",average_intervals);
+            zois_gmm_info.put("period",zoiDB.period);
+            zois_gmm_info.put("startTime",zoiDB.startTime);
+            zois_gmm_info.put("endTime",zoiDB.endTime);
 
             list_zois.add(zois_gmm_info);
         }
     }
+
+    public int[] convertArraylistStringToArrayInt(List<String> stringList){
+        String[] stringArray = stringList.toArray(new String[stringList.size()]);
+
+        int[] arrayOfValues = new int[stringList.size()];
+
+        for(int i = 0;i < stringArray.length;i++)
+        {
+            try
+            {
+                arrayOfValues[i] = Integer.parseInt(stringArray[i]);
+            }
+            catch(Exception e)
+            {
+                System.out.println("Not an integer value");
+            }
+        }
+
+        return arrayOfValues;
+    }
+
 
     private void createInitialCluster(MyPoint newVisitPoint) {
         Log.d("WoosmapGeofencing", "createInitialCluster");
@@ -184,8 +290,24 @@ public class FigmmForVisitsCreator {
 
         List<String> idVisit = new ArrayList<>();
         zois_gmm_info.put("idVisits",idVisit);
-        zois_gmm_info.put("startTime",visit_m.startTime);
-        zois_gmm_info.put("endTime",visit_m.endTime);
+        zois_gmm_info.put("startTime",newVisitPoint.startime);
+        zois_gmm_info.put("endTime",newVisitPoint.endtime);
+        List<MyPoint> visitPoint = new ArrayList<>();
+        zois_gmm_info.put("visitPoint",visitPoint);
+
+        // DATA For classification
+        zois_gmm_info.put("duration", newVisitPoint.endtime - newVisitPoint.startime);
+        List<Integer> weeks_on_zoi = new ArrayList<>();
+        zois_gmm_info.put("weeks_on_zoi", weeks_on_zoi);
+
+        int[] weekly_density = new int[7*24];
+        zois_gmm_info.put("weekly_density", weekly_density);
+
+        Map<String, Object> daily_presence_intervals = new HashMap<>();
+        zois_gmm_info.put("daily_presence_intervals", daily_presence_intervals);
+        List<Map> average_intervals = new ArrayList<>();
+        zois_gmm_info.put("average_intervals",average_intervals);
+        zois_gmm_info.put("period","NO QUALIFIER");
 
 
         list_zois.add(zois_gmm_info);
@@ -197,7 +319,7 @@ public class FigmmForVisitsCreator {
         List<Double> cov_determinants = new ArrayList<>();
         List<Double> prior_probabilities = new ArrayList<>();
         List<Double> sqr_mahalanobis_distances = new ArrayList<>();
-        MyPoint point = new MyPoint(visitPoint.getX(), visitPoint.getY());
+        MyPoint point = new MyPoint(visitPoint.getX(), visitPoint.getY(), visitPoint.getId());
 
         for (Iterator<Map> iter = list_zois_gmm_info.iterator(); iter.hasNext(); ) {
             Map<String, Object> zois_gmm_info = iter.next();
@@ -231,9 +353,6 @@ public class FigmmForVisitsCreator {
         for (int i = 0; i < x_j_probabilities.length; i++) {
             result_x_j_prob_prior_prob_Array[i] = x_j_probabilities[i] * prior_probabilities.get(i);
         }
-
-
-        final PrimitiveMatrix result_x_j_prob_prior_prob_Matrix = PrimitiveMatrix.FACTORY.rows(result_x_j_prob_prior_prob_Array);
 
         double normalization_coefficient = 0.0;
         for (int i = 0; i < result_x_j_prob_prior_prob_Array.length; i++) {
@@ -363,6 +482,21 @@ public class FigmmForVisitsCreator {
                 list_zois_to_delete.add(zois_gmm_info);
             }
         }
+        for(Iterator<Map> iterToDelete = list_zois_to_delete.iterator(); iterToDelete.hasNext(); ) {
+            Map<String, Object> zois_gmm_info = iterToDelete.next();
+            list_zois.remove(iterToDelete);
+        }
+    }
+
+    private void clean_clusters_without_visit() {
+        for (Iterator<Map> iter = list_zois.iterator(); iter.hasNext(); ) {
+            Map<String, Object> zois_gmm_info = iter.next();
+            List<MyPoint> visitPoint = new ArrayList<>();
+            visitPoint = (List<MyPoint>) zois_gmm_info.get("visitPoint");
+            if (visitPoint.isEmpty()) {
+                list_zois.remove(zois_gmm_info);
+            }
+        }
     }
 
     private void update_zois_prior() {
@@ -433,7 +567,6 @@ public class FigmmForVisitsCreator {
         int step = 8;
         int valLimit = (int) (2 * Math.PI * step) + 1;
 
-        MyPoint[] ellipse_points = new MyPoint[valLimit + 1];
         for (double i = 0; i < valLimit; i++) {
             double t = i / step;
             double cos_t = Math.cos(t);
@@ -446,11 +579,8 @@ public class FigmmForVisitsCreator {
             sb.append(SphericalMercator.y2lat(y));
             if (i + 1 < ((2 * Math.PI * step)))
                 sb.append(",");
-            ellipse_points[(int) i] = new MyPoint(x, y);
-
         }
 
-        ellipse_points[valLimit] = ellipse_points[0];
         sb.append("))");
 
         return sb.toString();
@@ -510,65 +640,16 @@ public class FigmmForVisitsCreator {
         if(idVisits == null) {
             idVisits = new ArrayList<>();
         }
-        idVisits.add((String) visit_m.uuid);
+        long duration = (long) list_zois_gmm_info.get(index).get("duration");
+        idVisits.add(visitPoint.getId());
         list_zois_gmm_info.get(index).put("idVisits",idVisits);
 
+        List<MyPoint> listVisitPoint = (List<MyPoint>) list_zois_gmm_info.get(index).get("visitPoint");
+        listVisitPoint.add(visitPoint);
+        list_zois_gmm_info.get(index).put("visitPoint",listVisitPoint);
+
     }
 
 }
 
 
-class MyPoint {
-
-    private double x;
-    private double y;
-    private double accuracy;
-
-
-    public MyPoint(double x, double y) {
-        this.x = x;
-        this.y = y;
-        this.accuracy = 20.0;
-    }
-
-    public MyPoint(double x, double y, double accuracy) {
-        this.x = x;
-        this.y = y;
-        this.accuracy = accuracy;
-    }
-
-    public double getX() {
-        return x;
-    }
-
-    public double getY() {
-        return y;
-    }
-
-    public double getAccuray() {
-        return accuracy;
-    }
-
-}
-
-class SphericalMercator {
-    public static final double RADIUS = 6378137.0; /* in meters on the equator */
-
-    /* These functions take their length parameter in meters and return an angle in degrees */
-
-    public static double y2lat(double aY) {
-        return Math.toDegrees(Math.atan(Math.exp(aY / RADIUS)) * 2 - Math.PI/2);
-    }
-    public static double x2lon(double aX) {
-        return Math.toDegrees(aX / RADIUS);
-    }
-
-    /* These functions take their angle parameter in degrees and return a length in meters */
-
-    public static double lat2y(double aLat) {
-        return Math.log(Math.tan(Math.PI / 4 + Math.toRadians(aLat) / 2)) * RADIUS;
-    }
-    public static double lon2x(double aLong) {
-        return Math.toRadians(aLong) * RADIUS;
-    }
-}

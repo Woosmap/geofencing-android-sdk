@@ -10,6 +10,9 @@ public interface ZOIsDAO {
     @Insert
     void createZoi(ZOI zoi);
 
+    @Insert
+    void createAllZoi(ZOI[] zoiList);
+
     @Update
     void updateZOI(ZOI zoi);
 
