@@ -17,7 +17,7 @@ Zois z1 and z3 are therefore considered to be recurrent.
 In order not to take zois that would be recurrent because of a passage more than a real presence, we will also apply a second filter which requires that the time spent in a zoi be greater than or equal to 5% of the time spent in all of the zois. 
 
 ### Determination of weekly and daily attendance intervals
-On 1 week of 168 hours, we calculate the number of hours spent for each hour of the week [1,168]. We sum the hours over each week of the zoi.
+On one week of 168 hours, we calculate the number of hours spent for each hour of the week [1,168]. We sum the hours over each week of the zoi.
 So to get a daily interval by making a new sum and a new average.
 
 
