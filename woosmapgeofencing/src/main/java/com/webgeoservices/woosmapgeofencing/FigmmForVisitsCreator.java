@@ -48,7 +48,7 @@ public class FigmmForVisitsCreator {
     private void figmmAlgoTest(double lat, double lng, float accuracy, String uuid, long startTime, long endTime) {
         double y = SphericalMercator.lat2y(lat);
         double x = SphericalMercator.lon2x(lng);
-        MyPoint point = new MyPoint(x, y, accuracy, uuid, startTime, endTime);
+        LoadedVisit point = new LoadedVisit(x, y, accuracy, uuid, startTime, endTime);
 
         // Learning
         boolean zois_have_been_updated = incrementZOI(list_zois, point);
@@ -84,7 +84,7 @@ public class FigmmForVisitsCreator {
 
         double y = SphericalMercator.lat2y(lat);
         double x = SphericalMercator.lon2x(lng);
-        MyPoint point = new MyPoint(x, y, accuracy, id, startime, endtime);
+        LoadedVisit point = new LoadedVisit(x, y, accuracy, id, startime, endtime);
 
         // Learning
         boolean zois_have_been_updated = incrementZOI(list_zois, point);
@@ -174,8 +174,6 @@ public class FigmmForVisitsCreator {
         }
 
         db_m.getZOIsDAO().createAllZoi(zoiList);
-
-
     }
 
     public double chi_squared_value(double probability) {
@@ -202,12 +200,12 @@ public class FigmmForVisitsCreator {
             zois_gmm_info.put("covariance_det", zoiDB.covariance_det);
 
             zois_gmm_info.put("idVisits", zoiDB.idVisits);
-            List<MyPoint> visitPointList = new ArrayList<>();
+            List<LoadedVisit> visitPointList = new ArrayList<>();
             List<String> idVisits = (List<String>) zois_gmm_info.get("idVisits");
             for (Iterator<String> iter = idVisits.iterator(); iter.hasNext(); ) {
                 String uuidVisit = iter.next();
                 Visit visitOfZoi = db_m.getVisitsDao().getVisitFromUuid(uuidVisit);
-                MyPoint point = new MyPoint(visitOfZoi.lat,visitOfZoi.lng,visitOfZoi.accuracy,visitOfZoi.uuid);
+                LoadedVisit point = new LoadedVisit(visitOfZoi.lat,visitOfZoi.lng,visitOfZoi.accuracy,visitOfZoi.uuid);
                 visitPointList.add(point);
             }
             zois_gmm_info.put("visitPoint",visitPointList);
@@ -253,7 +251,7 @@ public class FigmmForVisitsCreator {
     }
 
 
-    private void createInitialCluster(MyPoint newVisitPoint) {
+    private void createInitialCluster(LoadedVisit newVisitPoint) {
         Log.d("WoosmapGeofencing", "createInitialCluster");
         // We use a multiplier because of true visit are not exactly on the position of the point.
         // So we left more variance to create clusters
@@ -292,7 +290,7 @@ public class FigmmForVisitsCreator {
         zois_gmm_info.put("idVisits",idVisit);
         zois_gmm_info.put("startTime",newVisitPoint.startime);
         zois_gmm_info.put("endTime",newVisitPoint.endtime);
-        List<MyPoint> visitPoint = new ArrayList<>();
+        List<LoadedVisit> visitPoint = new ArrayList<>();
         zois_gmm_info.put("visitPoint",visitPoint);
 
         // DATA For classification
@@ -309,17 +307,16 @@ public class FigmmForVisitsCreator {
         zois_gmm_info.put("average_intervals",average_intervals);
         zois_gmm_info.put("period","NO QUALIFIER");
 
-
         list_zois.add(zois_gmm_info);
     }
 
-    private boolean incrementZOI(List<Map> list_zois_gmm_info, MyPoint visitPoint) {
+    private boolean incrementZOI(List<Map> list_zois_gmm_info, LoadedVisit visitPoint) {
         Log.d("WoosmapGeofencing", "incrementZOI");
         boolean zois_have_been_updated = false;
         List<Double> cov_determinants = new ArrayList<>();
         List<Double> prior_probabilities = new ArrayList<>();
         List<Double> sqr_mahalanobis_distances = new ArrayList<>();
-        MyPoint point = new MyPoint(visitPoint.getX(), visitPoint.getY(), visitPoint.getId());
+        LoadedVisit point = new LoadedVisit(visitPoint.getX(), visitPoint.getY(), visitPoint.getId());
 
         for (Iterator<Map> iter = list_zois_gmm_info.iterator(); iter.hasNext(); ) {
             Map<String, Object> zois_gmm_info = iter.next();
@@ -393,11 +390,10 @@ public class FigmmForVisitsCreator {
             probability_of_x_knowing_cluster[i] = sqr_mahalanobis_distances_to_evaluate.get(i) / cov_determinants_to_evaluate.get(i);
         }
 
-
         return probability_of_x_knowing_cluster;
     }
 
-    public void update_cluster(MyPoint point, double x_j_probability, Map zoi_gmminfo, double normalization_coefficient) {
+    public void update_cluster(LoadedVisit point, double x_j_probability, Map zoi_gmminfo, double normalization_coefficient) {
         Log.d("WoosmapGeofencing", "update_cluster");
         double j_x_probability = x_j_probability * (Double) zoi_gmminfo.get("prior_probability") / normalization_coefficient;
 
@@ -491,8 +487,8 @@ public class FigmmForVisitsCreator {
     private void clean_clusters_without_visit() {
         for (Iterator<Map> iter = list_zois.iterator(); iter.hasNext(); ) {
             Map<String, Object> zois_gmm_info = iter.next();
-            List<MyPoint> visitPoint = new ArrayList<>();
-            visitPoint = (List<MyPoint>) zois_gmm_info.get("visitPoint");
+            List<LoadedVisit> visitPoint = new ArrayList<>();
+            visitPoint = (List<LoadedVisit>) zois_gmm_info.get("visitPoint");
             if (visitPoint.isEmpty()) {
                 list_zois.remove(zois_gmm_info);
             }
@@ -513,7 +509,6 @@ public class FigmmForVisitsCreator {
             zois_gmm_info.put("prior_probability", (double) zois_gmm_info.get("accumulator") / normalization_params);
 
         }
-
     }
 
     public String figmm(Map zoi_gmminfo) {
@@ -580,14 +575,12 @@ public class FigmmForVisitsCreator {
             if (i + 1 < ((2 * Math.PI * step)))
                 sb.append(",");
         }
-
         sb.append("))");
-
         return sb.toString();
     }
 
     //predict cluster for each data and return them as dict to optimized insertion
-    public void predict_as_dict(List<Map> list_zois_gmm_info, MyPoint visitPoint) {
+    public void predict_as_dict(List<Map> list_zois_gmm_info, LoadedVisit visitPoint) {
         List<Double> cov_determinants = new ArrayList<>();
         List<Double> prior_probabilities = new ArrayList<>();
         List<Double> sqr_mahalanobis_distances = new ArrayList<>();
@@ -619,7 +612,6 @@ public class FigmmForVisitsCreator {
         double[] x_j_probabilities = get_probability_of_x_knowing_cluster(cov_determinants, sqr_mahalanobis_distances);
         double[] result_x_j_prob_prior_prob_Array = new double[x_j_probabilities.length];
 
-
         for (int i = 0; i < x_j_probabilities.length; i++) {
             result_x_j_prob_prior_prob_Array[i] = x_j_probabilities[i] * prior_probabilities.get(i);
         }
@@ -644,12 +636,11 @@ public class FigmmForVisitsCreator {
         idVisits.add(visitPoint.getId());
         list_zois_gmm_info.get(index).put("idVisits",idVisits);
 
-        List<MyPoint> listVisitPoint = (List<MyPoint>) list_zois_gmm_info.get(index).get("visitPoint");
+        List<LoadedVisit> listVisitPoint = (List<LoadedVisit>) list_zois_gmm_info.get(index).get("visitPoint");
         listVisitPoint.add(visitPoint);
         list_zois_gmm_info.get(index).put("visitPoint",listVisitPoint);
 
     }
-
 }
 
 

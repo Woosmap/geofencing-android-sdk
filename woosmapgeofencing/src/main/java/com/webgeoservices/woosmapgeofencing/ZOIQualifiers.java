@@ -1,13 +1,17 @@
 package com.webgeoservices.woosmapgeofencing;
 
+import android.util.ArraySet;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TimeZone;
 
 public class ZOIQualifiers {
@@ -47,7 +51,7 @@ public class ZOIQualifiers {
     private void update_recurrent_zois_status() {
         Map<String, Object> zois_qualifications = new HashMap<>();
         List<Map> list_zois_to_update = new ArrayList<>();
-        List<Integer> total_weeks_on_zois = new ArrayList<>();
+        Set<Integer> total_weeks_on_zois = new HashSet<>();
         long total_time_on_zois = 0;
         List<Integer> number_of_weeks_by_zois = new ArrayList<>();
 
@@ -56,11 +60,8 @@ public class ZOIQualifiers {
             List<Integer> weeks_zoi_list = (List<Integer>) zois_gmm_info.get("weeks_on_zoi");
             for (Iterator<Integer> weekIterator = weeks_zoi_list.iterator(); weekIterator.hasNext(); ) {
                 int week = weekIterator.next();
-                if(!total_weeks_on_zois.contains(week)){
-                    total_weeks_on_zois.add(week);
-                }
+                total_weeks_on_zois.add(week);
             }
-
             total_time_on_zois += ((Number) zois_gmm_info.get("duration")).longValue();
             number_of_weeks_by_zois.add(weeks_zoi_list.size());
         }
@@ -86,12 +87,9 @@ public class ZOIQualifiers {
                     }
                     list_zois_in_period.add(list_zois.get(indexZOI));
                     zois_qualifications.put(zoi_periods.get(indexKeyPeriod),list_zois_in_period);
-
                 }
-
             }
         }
-
     }
 
     private List<String> qualify_recurrent_zoi(Map<String, Object> zois_gmm_info) {
@@ -99,8 +97,6 @@ public class ZOIQualifiers {
         get_average_presence_intervals(weekly_density, zois_gmm_info);
 
         List<String> zoi_periods = new ArrayList<>();
-
-
 
         for (String key : PERIODS.keySet()) {
             long time_on_period = get_time_on_period((List<Map>) PERIODS.get(key),(List<Map>)zois_gmm_info.get("average_intervals"));
@@ -118,8 +114,6 @@ public class ZOIQualifiers {
             zois_gmm_info.put("period","OTHER");
             zoi_periods.add("OTHER");
         }
-
-
         return zoi_periods;
     }
 
@@ -302,9 +296,7 @@ public class ZOIQualifiers {
 
             }
         }
-
         return  daily_presence_intervals;
-
     }
 
     public static Double mean(Double[] m) {
@@ -326,19 +318,17 @@ public class ZOIQualifiers {
     private void update_zoi_time_info() {
         for (Iterator<Map> iter = list_zois.iterator(); iter.hasNext(); ) {
             Map<String, Object> zois_gmm_info = iter.next();
-            List<MyPoint> listVisit = (List<MyPoint>) zois_gmm_info.get("visitPoint");
+            List<LoadedVisit> listVisit = (List<LoadedVisit>) zois_gmm_info.get("visitPoint");
             // Update time and weeks spent on zoi
-            for (Iterator<MyPoint> iterVisit = listVisit.iterator(); iterVisit.hasNext(); ) {
-                MyPoint visitPoint = iterVisit.next();
+            for (Iterator<LoadedVisit> iterVisit = listVisit.iterator(); iterVisit.hasNext(); ) {
+                LoadedVisit visitPoint = iterVisit.next();
                 extract_time_and_weeks_from_interval(visitPoint,zois_gmm_info);
                 update_weekly_density(visitPoint,zois_gmm_info);
             }
-
         }
-
     }
 
-    private void update_weekly_density(MyPoint visitPoint, Map<String, Object> zois_gmm_info) {
+    private void update_weekly_density(LoadedVisit visitPoint, Map<String, Object> zois_gmm_info) {
 
         long start_time = visitPoint.startime;
         long end_time = visitPoint.endtime;
@@ -350,8 +340,6 @@ public class ZOIQualifiers {
 
         while (start_time < end_time) {
             int hour = cal.get(Calendar.HOUR_OF_DAY);
-
-
             int day = cal.get(Calendar.DAY_OF_WEEK);
             if(day == 1) {
                 day =  6;
@@ -364,13 +352,10 @@ public class ZOIQualifiers {
             start_time = start_time + 3600000; //1hours
             cal.setTimeInMillis(start_time);
         }
-
         zois_gmm_info.put("weekly_density",weekly_density);
-
-
     }
 
-    private void extract_time_and_weeks_from_interval(MyPoint visitPoint, Map zoi_gmminfo) {
+    private void extract_time_and_weeks_from_interval(LoadedVisit visitPoint, Map zoi_gmminfo) {
         zoi_gmminfo.put("duration", ((Number) zoi_gmminfo.get("duration")).longValue() + visitPoint.endtime - visitPoint.startime);
 
         Date startDateTime = new Date(visitPoint.startime);
@@ -391,7 +376,5 @@ public class ZOIQualifiers {
         }
 
         zoi_gmminfo.put("weeks_on_zoi",weeks_on_zoi);
-
-
     }
 }

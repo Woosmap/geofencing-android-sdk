@@ -29,7 +29,6 @@ public class LocationUpdatesBroadcastReceiver extends BroadcastReceiver {
                     WoosmapDb db = WoosmapDb.getInstance(context, true);
                     PositionsManager positionsManager = new PositionsManager(context, db);
                     positionsManager.asyncManageLocation(locations);
-
                 }
             }
         }

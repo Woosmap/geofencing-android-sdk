@@ -1,6 +1,6 @@
 package com.webgeoservices.woosmapgeofencing;
 
-public class MyPoint {
+public class LoadedVisit {
 
     private double x;
     private double y;
@@ -10,7 +10,7 @@ public class MyPoint {
     public long endtime;
 
 
-    public MyPoint(double x, double y, String id) {
+    public LoadedVisit(double x, double y, String id) {
         this.x = x;
         this.y = y;
         this.id = id;
@@ -19,7 +19,7 @@ public class MyPoint {
         this.endtime = 0;
     }
 
-    public MyPoint(double x, double y, double accuracy, String id) {
+    public LoadedVisit(double x, double y, double accuracy, String id) {
         this.x = x;
         this.y = y;
         this.id = id;
@@ -28,7 +28,7 @@ public class MyPoint {
         this.endtime = 0;
     }
 
-    public MyPoint(double x, double y, double accuracy, String id, long startime, long endtime) {
+    public LoadedVisit(double x, double y, double accuracy, String id, long startime, long endtime) {
         this.x = x;
         this.y = y;
         this.id = id;

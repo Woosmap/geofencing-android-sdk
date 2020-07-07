@@ -29,7 +29,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.webgeoservices.woosmapgeofencing.FigmmForVisitsCreator;
-import com.webgeoservices.woosmapgeofencing.MyPoint;
+import com.webgeoservices.woosmapgeofencing.LoadedVisit;
 import com.webgeoservices.woosmapgeofencing.Woosmap;
 import com.webgeoservices.woosmapgeofencing.WoosmapSettings;
 import com.webgeoservices.woosmapgeofencing.database.MovingPosition;
@@ -315,7 +315,6 @@ public class MainActivity extends AppCompatActivity {
                 Spanned text = (Spanned) TextUtils.concat(locationHTMLAsText, locationInfoView.getText());
                 locationInfoView.setText(text, TextView.BufferType.SPANNABLE);
             }
-
         }
     }
 
@@ -385,9 +384,7 @@ public class MainActivity extends AppCompatActivity {
                 Spanned text = (Spanned) TextUtils.concat(locationHTMLAsText, locationInfoView.getText());
                 locationInfoView.setText(text, TextView.BufferType.SPANNABLE);
             }
-
         }
-
     }
 
     public static class AllLocationTask extends AsyncTask<Void, Void, MovingPosition[]> {
@@ -420,8 +417,6 @@ public class MainActivity extends AppCompatActivity {
                         Double.toString(movingPositionToShow.lng), displayDateFormat.format(movingPositionToShow.dateTime));
                 mActivity.locationFragment.mLocationInfo.append(Html.fromHtml(locHTML));
             }
-
-
         }
     }
 
@@ -464,14 +459,11 @@ public class MainActivity extends AppCompatActivity {
                 if (markerToAdd) {
                     mActivity.mapFragment.markersPOI.add(markerOptions);
                 }
-
                 String poiHTML = mContext.getString(R.string.html_POI, Double.toString(poiToShow.lat),
                         Double.toString(poiToShow.lng), displayDateFormat.format(poiToShow.dateTime),
                         poiToShow.city, poiToShow.zipCode, Double.toString(poiToShow.distance));
                 mActivity.locationFragment.mLocationInfo.append(Html.fromHtml(poiHTML));
-
             }
-
         }
     }
 
@@ -493,8 +485,6 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(Visit[] staticList) {
-
-
             SimpleDateFormat displayDateFormat = new SimpleDateFormat("HH:mm:ss");
             if (mActivity.visitFragment.mVisitInfo != null) {
                 mActivity.visitFragment.mVisitInfo.setText("");
@@ -519,7 +509,6 @@ public class MainActivity extends AppCompatActivity {
                             //Update marker
                             markerToUpdate = true;
                             marker.title(markerOptions.getTitle());
-
                         }
                     }
                     if (!markerToUpdate) {
@@ -527,7 +516,6 @@ public class MainActivity extends AppCompatActivity {
                         if (mActivity.mapFragment.mGoolgeMap != null)
                             mActivity.mapFragment.mGoolgeMap.addMarker(markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
                     }
-
                     if (mActivity.visitFragment.mVisitInfo != null) {
                         String visitHTML = mContext.getString(R.string.html_visit, Double.toString(visitToShow.lat),
                                 Double.toString(visitToShow.lng), startFormatedDate,
@@ -564,9 +552,7 @@ public class MainActivity extends AppCompatActivity {
             if (mActivity.visitFragment.mVisitInfo != null)
                 mActivity.visitFragment.mVisitInfo.setText("");
             mActivity.mapFragment.clearMarkers();
-
         }
-
     }
 
     public class testZOITask extends AsyncTask<Void, Void, Void> {
@@ -577,8 +563,6 @@ public class MainActivity extends AppCompatActivity {
             mContext = context;
             mActivity = activity;
         }
-
-
 
         @Override
         protected Void doInBackground(Void... voids) {
@@ -611,13 +595,9 @@ public class MainActivity extends AppCompatActivity {
                     visit.duration = visit.endTime - visit.startTime;
 
                     WoosmapDb.getInstance(mContext, true).getVisitsDao().createStaticPosition(visit);
-
-
-                    MyPoint point = new MyPoint(x, y, accuracy,id,startime,endtime);
-
+                    LoadedVisit point = new LoadedVisit(x, y, accuracy,id,startime,endtime);
 
                     figmmForVisitsCreator.figmmForVisitTest(visit);
-
                     i++;
                 }
                 figmmForVisitsCreator.update_db();
@@ -635,7 +615,6 @@ public class MainActivity extends AppCompatActivity {
             //Refresh zoi on map on visit
             new VisitTask(mContext, mActivity).execute();
         }
-
     }
 
 }

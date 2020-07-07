@@ -44,8 +44,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     List<MarkerOptions> markersVisit = new ArrayList<MarkerOptions>();
     List<Polygon> polygonsZOI = new ArrayList<Polygon>();
     List<ZOI> zois = new ArrayList<>();
-
-
     Location currentLocation;
     FusedLocationProviderClient fusedLocationProviderClient;
     private static final int REQUEST_CODE = 101;
@@ -62,8 +60,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         View view = inflater.inflate(R.layout.map, container, false);
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getActivity());
         fetchLastLocation();
-
-
         return view;
     }
 
@@ -119,16 +115,16 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
             if (!markersVisit.isEmpty()) {
                 for (MarkerOptions marker : markersVisit) {
-                    boolean inside = false;
+                    boolean isMarkerInsideZoi = false;
                     ZOI zoiSelected = null;
-                    for(Polygon poly : polygonsZOI) {
-                        inside = PolyUtil.containsLocation(marker.getPosition(), poly.getPoints(), true);
-                        if(inside) {
-                            zoiSelected = (ZOI) poly.getTag();
+                    for(Polygon zoiPolygon : polygonsZOI) {
+                        isMarkerInsideZoi = PolyUtil.containsLocation(marker.getPosition(), zoiPolygon.getPoints(), true);
+                        if(isMarkerInsideZoi) {
+                            zoiSelected = (ZOI) zoiPolygon.getTag();
                             break;
                         }
                     }
-                    if (inside){
+                    if (isMarkerInsideZoi){
                         if(zoiSelected.period.equals("HOME_PERIOD")) {
                             marker.zIndex(1.0F);
                             mGoolgeMap.addMarker(marker.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
@@ -143,11 +139,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     }
                 }
             }
-
-
-
         }
-
     }
 
     public void drawPolygon() {
@@ -187,7 +179,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                         String startFormatedDate = displayDateFormat.format(zoiSelected.startTime);
                         String endFormatedDate = displayDateFormat.format(zoiSelected.endTime);
 
-                         long timeSec= zoiSelected.duration/1000;
+                        long timeSec= zoiSelected.duration/1000;
                         int hours = (int) timeSec/ 3600;
                         int temp = (int) timeSec- hours * 3600;
                         int mins = temp / 60;
@@ -212,9 +204,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     public LatLng[] GetPolygonPoints(String polygonWkt) {
         List<LatLng> points = new ArrayList<>();
-
         String sa1,sa2;
-
         sa1 = polygonWkt.replaceAll("POLYGON","");
         sa2 = sa1.replaceAll("[()]","");
         for ( String point : sa2.split( "," ) )
@@ -224,9 +214,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             double longitude = Double.parseDouble(latlong[0]);
             points.add(new LatLng(latitude,longitude));
         }
-
         return points.toArray(new LatLng[points.size()]);
-
     }
 
     @Override
@@ -252,5 +240,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         for(Polygon poly : polygonsZOI){
             poly.remove();
         }
+        polygonsZOI.clear();
     }
 }

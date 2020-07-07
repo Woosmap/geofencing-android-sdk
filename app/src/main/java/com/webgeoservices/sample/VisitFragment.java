@@ -14,7 +14,6 @@ import androidx.fragment.app.Fragment;
 public class VisitFragment extends Fragment {
     TextView mVisitInfo;
 
-
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {

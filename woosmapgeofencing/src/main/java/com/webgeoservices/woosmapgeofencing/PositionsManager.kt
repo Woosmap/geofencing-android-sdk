@@ -287,7 +287,6 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
         if (Woosmap.getInstance().visitReadyListener != null) {
             Woosmap.getInstance().visitReadyListener.VisitReadyCallback(visit)
         }
-
     }
 
     fun cleanOldPositions() {
@@ -313,6 +312,4 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
             return false
         return true
     }
-
-
 }
