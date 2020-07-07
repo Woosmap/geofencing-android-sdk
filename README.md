@@ -53,6 +53,15 @@ Identify areas of interest for your users (location where they spend time, once 
   <img alt="Visit" src="https://github.com/woosmap/woosmap-geofencing-android-sdk/raw/master/assets/ZOI.png" width="50%">
 </p>
 
+### Classification of Zone of Interest (cluster) 
+The classification of zone of interest (zois) aims to assign them types, such as "home", "work", ...
+<p align="center">
+  <img alt="Classification" src="https://github.com/woosmap/woosmap-geofencing-android-sdk/raw/master/assets/Classification.png" width="50%">
+</p>
+
+In order to determine the zois in which the user returns weekly, we will calculate for each zoi the number of different weeks that the user has spent there.
+A zoi is considered to be recurrent if the number of weeks spent indoors is greater than or equal to the average of the weeks spent in the zones.
+
 ##  Pre-requisites
 -   Android SDK 21 and newer. SDK21 (Android 5) to SDK25 (Android 7.1) tested with Android Virtual Device, newer versions tested on real devices.
 -   Android Build Tools
@@ -364,6 +373,11 @@ public long endTime;
 public long duration;
 ```
 
+- The classification of the period (HOME, WORK, OTHER or NO QUALIFIER)
+```java
+public String period;
+```
+
 ### Enable location after a device reboot
 #### Create the BroadcasReceiver
 To collect location after a device reboot without having to relaunch the application, you have to create a Broadcast which launches the jobInstantService `WoosmapRebootJobService` when it receives the BOOT_COMPLETED event.
@@ -425,6 +439,7 @@ Then, just declare your receiver in the Manifest.xml in the application bloc
 * [APIs request](https://github.com/woosmap/woosmap-geofencing-android-sdk/blob/master/doc/APIsrequest.md): Location of the mobile is one thing but knowing from what the mobile is close to is another thing. Find out here how to use Woosmap Search API to “geo contextualize” the location of your users.
 * [Visit Algorithm](https://github.com/woosmap/woosmap-geofencing-android-sdk/blob/master/doc/VisitAlgorithm.md): Find a diagram explaining how the visits algorithm works.
 * [ZOI Algorithm](https://github.com/woosmap/woosmap-geofencing-android-sdk/blob/master/doc/ZOIAlgorithm.md): Find out how ZOI are built from visits.
+* [ZOI Classification](https://github.com/woosmap/woosmap-geofencing-android-sdk/blob/master/doc/Classification.md): Find out how Classification are built from duration of ZOI.
 
 
 ## Contributing
