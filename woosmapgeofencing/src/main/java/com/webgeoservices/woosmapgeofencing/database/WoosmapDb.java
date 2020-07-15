@@ -7,7 +7,7 @@ import androidx.room.TypeConverters;
 
 import android.content.Context;
 
-@Database(entities = {Visit.class, MovingPosition.class, POI.class, ZOI.class}, version = 6, exportSchema = false)
+@Database(entities = {Visit.class, MovingPosition.class, POI.class, ZOI.class}, version = 8, exportSchema = false)
 @TypeConverters({Converters.class})
 public abstract class WoosmapDb extends RoomDatabase {
 

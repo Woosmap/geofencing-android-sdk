@@ -116,7 +116,6 @@ class LocationManager {
         mFusedLocationClient.removeLocationUpdates(mLocationCallback);
     }
 
-
     boolean checkPermissions() {
         int permissionState = ActivityCompat.checkSelfPermission(this.context,
                 android.Manifest.permission.ACCESS_FINE_LOCATION);

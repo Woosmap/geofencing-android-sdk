@@ -30,5 +30,4 @@ public class LocationFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
     }
 
-
 }

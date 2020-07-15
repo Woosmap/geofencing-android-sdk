@@ -28,16 +28,12 @@ import com.google.android.gms.maps.model.Polygon;
 import com.google.android.gms.maps.model.PolygonOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.maps.android.PolyUtil;
 import com.webgeoservices.woosmapgeofencing.database.ZOI;
 
-
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
-import java.util.TimeZone;
 
 
 public class MapFragment extends Fragment implements OnMapReadyCallback {
@@ -47,9 +43,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     List<MarkerOptions> markersPOI = new ArrayList<MarkerOptions>();
     List<MarkerOptions> markersVisit = new ArrayList<MarkerOptions>();
     List<Polygon> polygonsZOI = new ArrayList<Polygon>();
-    List<ZOI> zois = new ArrayList<> ();
-
-
+    List<ZOI> zois = new ArrayList<>();
     Location currentLocation;
     FusedLocationProviderClient fusedLocationProviderClient;
     private static final int REQUEST_CODE = 101;
@@ -66,8 +60,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         View view = inflater.inflate(R.layout.map, container, false);
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getActivity());
         fetchLastLocation();
-
-
         return view;
     }
 
@@ -113,6 +105,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             googleMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
             googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 11));
 
+            drawPolygon();
+
             if (!markersPOI.isEmpty()) {
                 for (MarkerOptions marker : markersPOI) {
                     mGoolgeMap.addMarker(marker.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
@@ -121,28 +115,59 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
             if (!markersVisit.isEmpty()) {
                 for (MarkerOptions marker : markersVisit) {
-                    mGoolgeMap.addMarker(marker.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
+                    boolean isMarkerInsideZoi = false;
+                    ZOI zoiSelected = null;
+                    for(Polygon zoiPolygon : polygonsZOI) {
+                        isMarkerInsideZoi = PolyUtil.containsLocation(marker.getPosition(), zoiPolygon.getPoints(), true);
+                        if(isMarkerInsideZoi) {
+                            zoiSelected = (ZOI) zoiPolygon.getTag();
+                            break;
+                        }
+                    }
+                    if (isMarkerInsideZoi){
+                        if(zoiSelected.period.equals("HOME_PERIOD")) {
+                            marker.zIndex(1.0F);
+                            mGoolgeMap.addMarker(marker.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+                        }else if (zoiSelected.period.equals("WORK_PERIOD")) {
+                            marker.zIndex(1.0F);
+                            mGoolgeMap.addMarker(marker.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+                        } else {
+                            mGoolgeMap.addMarker(marker.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
+                        }
+                    }else {
+                        mGoolgeMap.addMarker(marker.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
+                    }
                 }
             }
-
-            drawPolygon();
-
         }
-
     }
 
     public void drawPolygon() {
         if (!zois.isEmpty()) {
             for (ZOI zoiPoint : zois) {
-                Polygon polygon =  mGoolgeMap.addPolygon(
+                int fillZoiColor = 0x7F00ffff; //transparent cyan
+                int strokeZoiColor = Color.BLUE;
+                float zindex = 0.0F;
+
+                if(zoiPoint.period.equals("HOME_PERIOD")){
+                    fillZoiColor = Color.GREEN;
+                    strokeZoiColor = Color.YELLOW;
+                    zindex = 1.0F;
+                } else if (zoiPoint.period.equals("WORK_PERIOD")){
+                    fillZoiColor = Color.RED;
+                    strokeZoiColor = Color.YELLOW;
+                    zindex = 1.0F;
+                }
+
+                Polygon polygon = mGoolgeMap.addPolygon(
                         new PolygonOptions()
                                 .add(GetPolygonPoints(zoiPoint.wktPolygon))
                                 .strokeWidth(7)
-                                .fillColor(Color.CYAN)
-                                .strokeColor(Color.BLUE)
+                                .fillColor(fillZoiColor)
+                                .strokeColor(strokeZoiColor)
+                                .zIndex(zindex)
 
                 );
-
                 polygon.setTag(zoiPoint);
 
                 polygon.setClickable(true);
@@ -154,7 +179,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                         String startFormatedDate = displayDateFormat.format(zoiSelected.startTime);
                         String endFormatedDate = displayDateFormat.format(zoiSelected.endTime);
 
-                         long timeSec= zoiSelected.duration/1000;
+                        long timeSec= zoiSelected.duration/1000;
                         int hours = (int) timeSec/ 3600;
                         int temp = (int) timeSec- hours * 3600;
                         int mins = temp / 60;
@@ -165,7 +190,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
                         Toast.makeText(getContext(),  "--> start: " + startFormatedDate + "\n--> end: " + endFormatedDate +
                                 "\n" + "Nb visits: " + zoiSelected.idVisits.size() +
-                                "\n" + "Duration: " + duration, Toast.LENGTH_LONG).show();
+                                "\n" + "Duration: " + duration +
+                                "\n" + "Qualifier: " + zoiSelected.period, Toast.LENGTH_SHORT).show();
                     }
 
                 });
@@ -178,9 +204,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     public LatLng[] GetPolygonPoints(String polygonWkt) {
         List<LatLng> points = new ArrayList<>();
-
         String sa1,sa2;
-
         sa1 = polygonWkt.replaceAll("POLYGON","");
         sa2 = sa1.replaceAll("[()]","");
         for ( String point : sa2.split( "," ) )
@@ -190,9 +214,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             double longitude = Double.parseDouble(latlong[0]);
             points.add(new LatLng(latitude,longitude));
         }
-
         return points.toArray(new LatLng[points.size()]);
-
     }
 
     @Override
@@ -218,5 +240,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         for(Polygon poly : polygonsZOI){
             poly.remove();
         }
+        polygonsZOI.clear();
     }
 }
