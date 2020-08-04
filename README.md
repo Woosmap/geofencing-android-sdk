@@ -54,13 +54,13 @@ Identify areas of interest for your users (location where they spend time, once 
 </p>
 
 ### Classification of Zone of Interest (cluster) 
-The classification of zone of interest (zois) aims to assign them types, such as "home", "work", ...
+The classification of zones of interest (zois) aims to assign them types. For now, two types are supported "home" (zone where a user is supposed to live) and "work" (zone where a user is supposed to work).
 <p align="center">
   <img alt="Classification" src="https://github.com/woosmap/woosmap-geofencing-android-sdk/raw/master/assets/Classification.png" width="50%">
 </p>
 
-In order to determine the zois in which the user returns weekly, we will calculate for each zoi the number of different weeks that the user has spent there.
-A zoi is considered to be recurrent if the number of weeks spent indoors is greater than or equal to the average of the weeks spent in the zones.
+Calculations for each zoi are performed to determine the number of different weeks that the user has spent there.
+A zoi is considered to be recurrent if the number of weeks spent in the zone is greater than or equal to the average of the number of weeks spent in all the zones.
 
 ##  Pre-requisites
 -   Android SDK 21 and newer. SDK21 (Android 5) to SDK25 (Android 7.1) tested with Android Virtual Device, newer versions tested on real devices.
