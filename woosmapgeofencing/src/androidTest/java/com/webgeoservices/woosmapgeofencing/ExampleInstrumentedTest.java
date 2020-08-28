@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
 
-        assertEquals("com.webgeoservices.woosmap_mobile_sdk.test", appContext.getPackageName());
+        assertEquals("com.webgeoservices.woosmapgeofencing.test", appContext.getPackageName());
     }
 }

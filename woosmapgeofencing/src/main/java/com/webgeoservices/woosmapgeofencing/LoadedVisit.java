@@ -37,6 +37,15 @@ public class LoadedVisit {
         this.endtime = endtime;
     }
 
+    public LoadedVisit() {
+        this.x = 0;
+        this.y = 0;
+        this.id = "1";
+        this.accuracy = 20.0;
+        this.startime = 0;
+        this.endtime = 0;
+    }
+
     public double getX() {
         return x;
     }
