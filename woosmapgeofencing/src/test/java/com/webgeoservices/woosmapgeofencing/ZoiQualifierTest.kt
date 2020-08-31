@@ -6,6 +6,7 @@ import org.junit.Test
 import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 
 class ZoiQualifierTests{
@@ -29,10 +30,18 @@ class ZoiQualifierTests{
 
     @Test
     fun test_when_update_weekly_density_with_basics_date_then_update_correctly_density(){
+        val mCalendar: Calendar = GregorianCalendar()
+        val mTimeZone = mCalendar.timeZone
+        val mGMTOffset = mTimeZone.rawOffset
+        val offset = TimeUnit.HOURS.convert(mGMTOffset.toLong(), TimeUnit.MILLISECONDS)
+
         // Monday 12:10am
-        val start_date = formatter.parse("2019-03-25 12:10:35+00").time
+        var start_date_string = "2019-03-25 12:10:35" + "+" + "%02d".format(offset)
         // Thuesday 09:50am
-        val end_date = formatter.parse("2019-03-26 09:50:35+00").time
+        var end_date_string = "2019-03-26 09:50:35" + "+" + "%02d".format(offset)
+
+        val start_date = formatter.parse(start_date_string).time
+        val end_date = formatter.parse(end_date_string).time
 
         val point = LoadedVisit(2.2386777435903, 48.8323083708807, 20.0, "1", start_date, end_date)
         val zoiToTest = HashMap<String, Any>()
@@ -54,10 +63,20 @@ class ZoiQualifierTests{
     }
     @Test
     fun test_when_update_weekly_density_with_larges_date_then_update_correctly_density(){
+        val mCalendar: Calendar = GregorianCalendar()
+        val mTimeZone = mCalendar.timeZone
+        val mGMTOffset = mTimeZone.rawOffset
+        val offset = TimeUnit.HOURS.convert(mGMTOffset.toLong(), TimeUnit.MILLISECONDS)
+
         // Monday 12:10am
-        val start_date = formatter.parse("2019-03-25 12:10:35+00").time
+        var start_date_string = "2019-04-01 12:10:35" + "+" + "%02d".format(offset)
         // Thuesday 09:50am
-        val end_date = formatter.parse("2019-04-02 09:50:35+00").time
+        var end_date_string = "2019-04-09 09:50:35" + "+" + "%02d".format(offset)
+
+        // Monday 12:10am
+        val start_date = formatter.parse(start_date_string).time
+        // Thuesday 09:50am
+        val end_date = formatter.parse(end_date_string).time
 
         val point = LoadedVisit(2.2386777435903, 48.8323083708807, 20.0, "1", start_date, end_date)
         val zoiToTest = HashMap<String, Any>()
@@ -78,18 +97,26 @@ class ZoiQualifierTests{
         for (i in 34..expected_weekly_density.lastIndex) {
             expected_weekly_density[i] = 1
         }
-        //Winter hour change
-        expected_weekly_density[146] = 0
 
         Assert.assertThat(expected_weekly_density, IsEqual.equalTo(zoiToTest["weekly_density"]))
     }
 
     @Test
     fun test_when_extract_time_and_weeks_from_interval_then_return_time_and_weeks_spent_in_interval() {
+        val mCalendar: Calendar = GregorianCalendar()
+        val mTimeZone = mCalendar.timeZone
+        val mGMTOffset = mTimeZone.rawOffset
+        val offset = TimeUnit.HOURS.convert(mGMTOffset.toLong(), TimeUnit.MILLISECONDS)
+
         // Monday 12:10am
-        val start_date = formatter.parse("2019-04-01 12:10:35+00").time
+        var start_date_string = "2019-04-01 12:10:35" + "+" + "%02d".format(offset)
         // Thuesday 09:50am
-        val end_date = formatter.parse("2019-04-16 09:50:35+00").time
+        var end_date_string = "2019-04-16 09:50:35" + "+" + "%02d".format(offset)
+
+        // Monday 12:10am
+        val start_date = formatter.parse(start_date_string).time
+        // Thuesday 09:50am
+        val end_date = formatter.parse(end_date_string).time
 
         val point = LoadedVisit(2.2386777435903, 48.8323083708807, 20.0, "1", start_date, end_date)
         val zoiToTest = HashMap<String, Any>()
