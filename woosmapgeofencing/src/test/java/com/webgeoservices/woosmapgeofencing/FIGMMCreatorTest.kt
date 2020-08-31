@@ -7,8 +7,9 @@ import org.junit.Test
 import org.ojalgo.matrix.PrimitiveMatrix
 import java.text.DateFormat
 import java.text.SimpleDateFormat
-import java.util.ArrayList
-import java.util.HashMap
+import java.util.*
+import kotlin.math.round
+import kotlin.math.roundToInt
 
 class FIGMMCreatorTest {
     val formatter: DateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss+SS")
@@ -92,7 +93,11 @@ class FIGMMCreatorTest {
                 "1.0001168486962955 2.0004012887161977,1.000065875938214 2.0004127169304624,1.0000138752081493 2.0004177048358125))"
 
         var wktFromZoi = figmmForVisitsCreator.figmm(zoiToTest)
-        Assert.assertThat(wktFromZoi, IsEqual.equalTo(wktToTest))
+
+        var wktFromZoiRounded = GetPolygonPoints(wktFromZoi)
+
+        var wktToTestRounded = GetPolygonPoints(wktToTest)
+        Assert.assertThat(wktFromZoiRounded, IsEqual.equalTo(wktToTestRounded))
 
         Assert.assertThat(visit1.startime, IsEqual.equalTo(zoiToTest["startTime"]))
         Assert.assertThat(visit1.endtime, IsEqual.equalTo(zoiToTest["endTime"]))
@@ -132,7 +137,10 @@ class FIGMMCreatorTest {
                 "2.0003306298255215,1.0002125570984535 2.000359922410268,1.0001659980695523 2.000383598526376,1.0001168486962955 2.0004012887161977," +
                 "1.000065875938214 2.0004127169304624,1.0000138752081493 2.0004177048358125))"
         wktFromZoi = figmmForVisitsCreator.figmm(zoiToTest)
-        Assert.assertThat(wktFromZoi, IsEqual.equalTo(wktToTest))
+        wktFromZoiRounded = GetPolygonPoints(wktFromZoi)
+
+        wktToTestRounded = GetPolygonPoints(wktToTest)
+        Assert.assertThat(wktFromZoiRounded, IsEqual.equalTo(wktToTestRounded))
 
         Assert.assertThat(visit1.startime, IsEqual.equalTo(zoiToTest["startTime"]))
         Assert.assertThat(visit1.endtime, IsEqual.equalTo(zoiToTest["endTime"]))
@@ -171,7 +179,10 @@ class FIGMMCreatorTest {
                 "2.000087834584285 6.000547608080551,2.0000185002775326 6.000554226215257))"
 
         wktFromZoi = figmmForVisitsCreator.figmm(zoiToTest)
-        Assert.assertThat(wktFromZoi, IsEqual.equalTo(wktToTest))
+        wktFromZoiRounded = GetPolygonPoints(wktFromZoi)
+
+        wktToTestRounded = GetPolygonPoints(wktToTest)
+        Assert.assertThat(wktFromZoiRounded, IsEqual.equalTo(wktToTestRounded))
 
         Assert.assertThat(visit2.startime, IsEqual.equalTo(zoiToTest["startTime"]))
         Assert.assertThat(visit2.endtime, IsEqual.equalTo(zoiToTest["endTime"]))
@@ -257,6 +268,23 @@ class FIGMMCreatorTest {
         val mean = zoi_after_update["mean"] as DoubleArray
         Assert.assertThat(222638.98158654713, IsEqual.equalTo(mean[0]))
         Assert.assertThat(669146.6536782421, IsEqual.equalTo(mean[1]))
+    }
+
+    fun GetPolygonPoints(polygonWkt: String): Array<Double?>? {
+        val points: MutableList<Double> = ArrayList<Double>()
+        val sa1: String
+        val sa2: String
+        sa1 = polygonWkt.replace("POLYGON".toRegex(), "")
+        sa2 = sa1.replace("[()]".toRegex(), "")
+        for (point in sa2.split(",".toRegex()).toTypedArray()) {
+            val latlong = point.split(" ".toRegex()).toTypedArray()
+            val latitude = latlong[1].toDouble()
+            val longitude = latlong[0].toDouble()
+            points.add(round(longitude*1000000)/1000000)
+            points.add(round(latitude*1000000)/1000000)
+
+        }
+        return points.toTypedArray()
     }
 
 }
