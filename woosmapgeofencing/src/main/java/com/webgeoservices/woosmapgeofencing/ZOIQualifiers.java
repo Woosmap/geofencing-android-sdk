@@ -371,12 +371,6 @@ public class ZOIQualifiers {
         int endWeekOfYear = cal.get(Calendar.WEEK_OF_YEAR);
 
         List<Integer> weeks_on_zoi = (List<Integer>) zoi_gmminfo.get("weeks_on_zoi");
-        /*if(!weeks_on_zoi.contains(startWeekOfYear)){
-            weeks_on_zoi.add(startWeekOfYear);
-        }
-        if(!weeks_on_zoi.contains(endWeekOfYear)){
-            weeks_on_zoi.add(endWeekOfYear);
-        }*/
 
         if(startWeekOfYear > endWeekOfYear){
             startWeekOfYear = startWeekOfYear - 52;
@@ -389,9 +383,6 @@ public class ZOIQualifiers {
             }
         }
 
-
         zoi_gmminfo.put("weeks_on_zoi",weeks_on_zoi);
     }
-
-
 }
