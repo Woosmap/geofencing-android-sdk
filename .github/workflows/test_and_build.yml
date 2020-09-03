@@ -1,0 +1,45 @@
+name: Test and Build
+
+on:
+  push:
+
+jobs:
+  Tests:
+    name: Unit Tests
+    runs-on: ubuntu-18.04
+
+    steps:
+      - uses: actions/checkout@v1
+      - name: set up JDK 1.8
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+      - name: Unit tests
+        working-directory: woosmapgeofencing
+        run: bash ./gradlew test --warning-mode none
+      - name: Unit tests results
+        uses: actions/upload-artifact@v1
+        with:
+          name: unit-tests-results
+          path: ./woosmapgeofencing/build/reports/tests/testReleaseUnitTest
+
+  lib:
+    name: Generate WoosmapGeofencing Lib
+    runs-on: ubuntu-18.04
+
+    steps:
+      - uses: actions/checkout@v1
+      - name: set up JDK 1.8
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+      - name: Build Release lib
+        working-directory: woosmapgeofencing
+        run: bash ./gradlew assembleRelease --stacktrace
+      - name: Upload lib
+        uses: actions/upload-artifact@v2
+        with:
+          name: woosmapgeofencing-release.aar
+          path: /home/runner/work/woosmap-geofencing-android-sdk/woosmap-geofencing-android-sdk/woosmapgeofencing/build/outputs/aar/woosmapgeofencing-release.aar
+     
+
