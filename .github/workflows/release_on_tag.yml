@@ -28,6 +28,7 @@ jobs:
   lib:
     name: Generate and release WoosmapGeofencing Lib
     runs-on: ubuntu-18.04
+    needs: tests
 
     steps:
       - name: Set env

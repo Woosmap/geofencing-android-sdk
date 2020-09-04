@@ -23,7 +23,7 @@ class FIGMMCreatorTest {
     @Before
     fun setUp() {
         val start_date = formatter.parse("2018-01-01 12:00:35+00").time
-        val end_date = start_date + (7*3600)*1000
+        val end_date = start_date + (7 * 3600) * 1000
         visit1 = LoadedVisit(2.0, 1.0, 15.0, "visit1", start_date,end_date)
         visit2 = LoadedVisit(6.0, 2.0, 20.0, "visit2", start_date + (24 * 3600) * 1000, start_date + (24 * 3600 + 1800) * 1000)
         visit3 = LoadedVisit(6.0, 2.0, 20.0, "visit3", start_date + (24 * 3600) * 1000, start_date + (24 * 3600 + 1800) * 1000)
@@ -278,8 +278,8 @@ class FIGMMCreatorTest {
             val latlong = point.split(" ".toRegex()).toTypedArray()
             val latitude = latlong[1].toDouble()
             val longitude = latlong[0].toDouble()
-            points.add(round(longitude*1000000)/1000000)
-            points.add(round(latitude*1000000)/1000000)
+            points.add(round(longitude * 1000000) / 1000000)
+            points.add(round(latitude * 1000000) / 1000000)
 
         }
         return points.toTypedArray()

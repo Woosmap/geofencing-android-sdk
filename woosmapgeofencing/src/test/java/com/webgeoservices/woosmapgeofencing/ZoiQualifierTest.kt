@@ -46,12 +46,12 @@ class ZoiQualifierTests{
         val point = LoadedVisit(2.2386777435903, 48.8323083708807, 20.0, "1", start_date, end_date)
         val zoiToTest = HashMap<String, Any>()
 
-        val weekly_density: IntArray = IntArray(7*24)
+        val weekly_density: IntArray = IntArray(7 * 24)
         zoiToTest["weekly_density"] = weekly_density
 
         zoiQualifiers.update_weekly_density(point,zoiToTest)
 
-        val expected_weekly_density: IntArray = IntArray(7*24)
+        val expected_weekly_density: IntArray = IntArray(7 * 24)
         for (i in 0..12) {
             expected_weekly_density[i] = 0
         }
@@ -81,12 +81,12 @@ class ZoiQualifierTests{
         val point = LoadedVisit(2.2386777435903, 48.8323083708807, 20.0, "1", start_date, end_date)
         val zoiToTest = HashMap<String, Any>()
 
-        val weekly_density: IntArray = IntArray(7*24)
+        val weekly_density: IntArray = IntArray(7 * 24)
         zoiToTest["weekly_density"] = weekly_density
 
         zoiQualifiers.update_weekly_density(point,zoiToTest)
 
-        val expected_weekly_density: IntArray = IntArray(7*24)
+        val expected_weekly_density: IntArray = IntArray(7 * 24)
 
         for (i in 0..12) {
             expected_weekly_density[i] = 1
