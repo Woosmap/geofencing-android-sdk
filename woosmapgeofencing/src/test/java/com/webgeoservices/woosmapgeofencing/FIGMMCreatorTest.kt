@@ -25,12 +25,12 @@ class FIGMMCreatorTest {
         val start_date = formatter.parse("2018-01-01 12:00:35+00").time
         val end_date = start_date + (7*3600)*1000
         visit1 = LoadedVisit(2.0, 1.0, 15.0, "visit1", start_date,end_date)
-        visit2 = LoadedVisit(6.0, 2.0, 20.0, "visit2", start_date + (24*3600)*1000, start_date + (24*3600 + 1800)*1000)
-        visit3 = LoadedVisit(6.0, 2.0, 20.0, "visit3", start_date + (24*3600)*1000, start_date + (24*3600 + 1800)*1000)
-        visit4 = LoadedVisit(6.0001, 2.0, 20.0, "visit4", start_date + (24*3600 + 3*3600)*1000, start_date + (24*3600 + 5*3600)*1000)
+        visit2 = LoadedVisit(6.0, 2.0, 20.0, "visit2", start_date + (24 * 3600) * 1000, start_date + (24 * 3600 + 1800) * 1000)
+        visit3 = LoadedVisit(6.0, 2.0, 20.0, "visit3", start_date + (24 * 3600) * 1000, start_date + (24 * 3600 + 1800) * 1000)
+        visit4 = LoadedVisit(6.0001, 2.0, 20.0, "visit4", start_date + (24 * 3600 + 3 * 3600) * 1000, start_date + (24 * 3600 + 5 * 3600) * 1000)
 
         visit_on_home1 = LoadedVisit(2.0, 1.0, 15.0, "visit_on_home1", start_date, end_date)
-        visit_on_home2 = LoadedVisit(2.0, 1.0001, 20.0, "visit_on_home2", start_date + (19*3600)*1000, start_date + (23*3600)*1000)
+        visit_on_home2 = LoadedVisit(2.0, 1.0001, 20.0, "visit_on_home2", start_date + (19 * 3600) * 1000, start_date + (23 * 3600) * 1000)
     }
 
     @Test
@@ -92,10 +92,9 @@ class FIGMMCreatorTest {
                 "1.0001168486962955 2.0004012887161977,1.000065875938214 2.0004127169304624,1.0000138752081493 2.0004177048358125))"
 
         var wktFromZoi = figmmForVisitsCreator.figmm(zoiToTest)
+        var wktFromZoiRounded = getRoundedPolygonPoints(wktFromZoi)
 
-        var wktFromZoiRounded = GetPolygonPoints(wktFromZoi)
-
-        var wktToTestRounded = GetPolygonPoints(wktToTest)
+        var wktToTestRounded = getRoundedPolygonPoints(wktToTest)
         Assert.assertThat(wktFromZoiRounded, IsEqual.equalTo(wktToTestRounded))
 
         Assert.assertThat(visit1.startime, IsEqual.equalTo(zoiToTest["startTime"]))
@@ -136,9 +135,9 @@ class FIGMMCreatorTest {
                 "2.0003306298255215,1.0002125570984535 2.000359922410268,1.0001659980695523 2.000383598526376,1.0001168486962955 2.0004012887161977," +
                 "1.000065875938214 2.0004127169304624,1.0000138752081493 2.0004177048358125))"
         wktFromZoi = figmmForVisitsCreator.figmm(zoiToTest)
-        wktFromZoiRounded = GetPolygonPoints(wktFromZoi)
+        wktFromZoiRounded = getRoundedPolygonPoints(wktFromZoi)
 
-        wktToTestRounded = GetPolygonPoints(wktToTest)
+        wktToTestRounded = getRoundedPolygonPoints(wktToTest)
         Assert.assertThat(wktFromZoiRounded, IsEqual.equalTo(wktToTestRounded))
 
         Assert.assertThat(visit1.startime, IsEqual.equalTo(zoiToTest["startTime"]))
@@ -178,9 +177,9 @@ class FIGMMCreatorTest {
                 "2.000087834584285 6.000547608080551,2.0000185002775326 6.000554226215257))"
 
         wktFromZoi = figmmForVisitsCreator.figmm(zoiToTest)
-        wktFromZoiRounded = GetPolygonPoints(wktFromZoi)
+        wktFromZoiRounded = getRoundedPolygonPoints(wktFromZoi)
 
-        wktToTestRounded = GetPolygonPoints(wktToTest)
+        wktToTestRounded = getRoundedPolygonPoints(wktToTest)
         Assert.assertThat(wktFromZoiRounded, IsEqual.equalTo(wktToTestRounded))
 
         Assert.assertThat(visit2.startime, IsEqual.equalTo(zoiToTest["startTime"]))
@@ -269,7 +268,7 @@ class FIGMMCreatorTest {
         Assert.assertThat(669146.6536782421, IsEqual.equalTo(mean[1]))
     }
 
-    fun GetPolygonPoints(polygonWkt: String): Array<Double?>? {
+    fun getRoundedPolygonPoints(polygonWkt: String): Array<Double?>? {
         val points: MutableList<Double> = ArrayList<Double>()
         val sa1: String
         val sa2: String
