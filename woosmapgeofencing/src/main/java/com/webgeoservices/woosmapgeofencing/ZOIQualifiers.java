@@ -2,6 +2,8 @@ package com.webgeoservices.woosmapgeofencing;
 
 import android.util.ArraySet;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -117,7 +119,7 @@ public class ZOIQualifiers {
         return zoi_periods;
     }
 
-    private int get_periods_length(List<Map> period_segments) {
+    public int get_periods_length(List<Map> period_segments) {
         int periods_length = 0;
         for (Iterator<Map> iter = period_segments.iterator(); iter.hasNext(); ) {
             Map<String, Object> period_segment = iter.next();
@@ -126,7 +128,7 @@ public class ZOIQualifiers {
         return periods_length;
     }
 
-    private long get_time_on_period(List<Map> period_segments, List<Map>  average_intervals) {
+    public long get_time_on_period(List<Map> period_segments, List<Map>  average_intervals) {
         long time_spent_on_periods = 0;
         List<List> compact_intervals = new ArrayList<>();
         for(int index = 0; index < average_intervals.size(); index++) {
@@ -150,7 +152,7 @@ public class ZOIQualifiers {
         return time_spent_on_periods;
     }
 
-    private long intervals_intersection_length(int interval1_start, int interval1_end, int interval2_start, int interval2_end) {
+    public long intervals_intersection_length(int interval1_start, int interval1_end, int interval2_start, int interval2_end) {
         // We check for intersection
         if((interval1_start <= interval2_start &&  interval2_start <= interval1_end) ||
                 (interval1_start <= interval2_end && interval2_end <= interval1_end) ||
@@ -231,7 +233,7 @@ public class ZOIQualifiers {
 
     }
 
-    private void add_first_entry_and_last_exit_to_intervals_if_needed(List<Map> current_daily_presence_interval) {
+    public void add_first_entry_and_last_exit_to_intervals_if_needed(List<Map> current_daily_presence_interval) {
         if(!current_daily_presence_interval.isEmpty()) {
             Map<String, Object> first_interval = current_daily_presence_interval.get(0);
             if(first_interval.get("type") == EXIT_TYPE) {
@@ -251,7 +253,7 @@ public class ZOIQualifiers {
         }
     }
 
-    private  Map<String, Object> extract_daily_presence_intervals_from_weekly_density(int[] weekly_density) {
+    public  Map<String, Object> extract_daily_presence_intervals_from_weekly_density(int[] weekly_density) {
         Double weekly_density_mean = mean(weekly_density);
 
         Map<String, Object> daily_presence_intervals = new HashMap<>();
@@ -328,7 +330,7 @@ public class ZOIQualifiers {
         }
     }
 
-    private void update_weekly_density(LoadedVisit visitPoint, Map<String, Object> zois_gmm_info) {
+    public void update_weekly_density(LoadedVisit visitPoint, Map<String, Object> zois_gmm_info) {
 
         long start_time = visitPoint.startime;
         long end_time = visitPoint.endtime;
@@ -348,6 +350,7 @@ public class ZOIQualifiers {
             }
 
             int current_hour = hour + day*24;
+
             weekly_density[current_hour] += 1;
             start_time = start_time + 3600000; //1hours
             cal.setTimeInMillis(start_time);
@@ -355,7 +358,7 @@ public class ZOIQualifiers {
         zois_gmm_info.put("weekly_density",weekly_density);
     }
 
-    private void extract_time_and_weeks_from_interval(LoadedVisit visitPoint, Map zoi_gmminfo) {
+    public void extract_time_and_weeks_from_interval(LoadedVisit visitPoint, Map zoi_gmminfo) {
         zoi_gmminfo.put("duration", ((Number) zoi_gmminfo.get("duration")).longValue() + visitPoint.endtime - visitPoint.startime);
 
         Date startDateTime = new Date(visitPoint.startime);
@@ -368,11 +371,16 @@ public class ZOIQualifiers {
         int endWeekOfYear = cal.get(Calendar.WEEK_OF_YEAR);
 
         List<Integer> weeks_on_zoi = (List<Integer>) zoi_gmminfo.get("weeks_on_zoi");
-        if(!weeks_on_zoi.contains(startWeekOfYear)){
-            weeks_on_zoi.add(startWeekOfYear);
+
+        if(startWeekOfYear > endWeekOfYear){
+            startWeekOfYear = startWeekOfYear - 52;
         }
-        if(!weeks_on_zoi.contains(endWeekOfYear)){
-            weeks_on_zoi.add(endWeekOfYear);
+        int period = endWeekOfYear - startWeekOfYear;
+
+        for(int weekNumber = 0; weekNumber < period; weekNumber++) {
+            if(!weeks_on_zoi.contains(startWeekOfYear + weekNumber)){
+                weeks_on_zoi.add(startWeekOfYear + weekNumber);
+            }
         }
 
         zoi_gmminfo.put("weeks_on_zoi",weeks_on_zoi);

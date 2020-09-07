@@ -7,6 +7,7 @@ import com.webgeoservices.woosmapgeofencing.database.Visit;
 import com.webgeoservices.woosmapgeofencing.database.WoosmapDb;
 import com.webgeoservices.woosmapgeofencing.database.ZOI;
 
+import org.jetbrains.annotations.NotNull;
 import org.ojalgo.matrix.PrimitiveMatrix;
 import org.ojalgo.matrix.decomposition.Eigenvalue;
 import org.ojalgo.matrix.decomposition.EigenvalueDecomposition;
@@ -35,6 +36,10 @@ public class FigmmForVisitsCreator {
         this.db_m = db;
     }
 
+    public FigmmForVisitsCreator() {
+
+    }
+
     public void figmmForVisit(Visit visit) {
         visit_m = visit;
         figmmAlgo(visit.lat,visit.lng,visit.accuracy,visit.uuid, visit.startTime, visit.endTime);
@@ -45,7 +50,32 @@ public class FigmmForVisitsCreator {
         figmmAlgoTest(visit.lat,visit.lng,visit.accuracy,visit.uuid, visit.startTime, visit.endTime);
     }
 
-    private void figmmAlgoTest(double lat, double lng, float accuracy, String uuid, long startTime, long endTime) {
+    public void figmmForVisit(LoadedVisit point) {
+        // Learning
+        boolean zois_have_been_updated = incrementZOI(list_zois, point);
+
+        // Creating new components
+        if (!zois_have_been_updated) {
+            createInitialCluster(point);
+        }
+
+        // Removing spurious components
+        //clean_clusters();
+
+        // Update prior
+        update_zois_prior();
+
+        // Associate visit to zoi
+        predict_as_dict(list_zois,point);
+
+        clean_clusters_without_visit();
+
+        //Classification Time ZOI
+        ZOIQualifiers zoiQualifiers = new ZOIQualifiers();
+        zoiQualifiers.updateZoisQualifications(list_zois);
+    }
+
+    public void figmmAlgoTest(double lat, double lng, float accuracy, String uuid, long startTime, long endTime) {
         double y = SphericalMercator.lat2y(lat);
         double x = SphericalMercator.lon2x(lng);
         LoadedVisit point = new LoadedVisit(x, y, accuracy, uuid, startTime, endTime);
@@ -495,7 +525,7 @@ public class FigmmForVisitsCreator {
         }
     }
 
-    private void update_zois_prior() {
+    public void update_zois_prior() {
         Log.d("WoosmapGeofencing", "update_zois_prior");
         double normalization_params = 0.0;
         for (Iterator<Map> iter = list_zois.iterator(); iter.hasNext(); ) {
@@ -641,6 +671,8 @@ public class FigmmForVisitsCreator {
         list_zois_gmm_info.get(index).put("visitPoint",listVisitPoint);
 
     }
+
+
 }
 
 

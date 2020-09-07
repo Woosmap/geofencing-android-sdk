@@ -2,9 +2,8 @@ package com.webgeoservices.woosmapgeofencing
 
 import android.content.Context
 import android.location.Location
-import androidx.test.runner.AndroidJUnit4
-import androidx.test.InstrumentationRegistry
 import android.util.Log
+import androidx.test.platform.app.InstrumentationRegistry;
 import com.webgeoservices.woosmapgeofencing.database.WoosmapDb
 import org.hamcrest.core.IsEqual.equalTo
 import org.junit.After
@@ -14,14 +13,14 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.IOException
 
-@RunWith(AndroidJUnit4::class)
-class visitTest {
+
+public class visitTest {
     private lateinit var db: WoosmapDb
     private lateinit var context: Context
     private var pointsList: MutableList<Location> = mutableListOf()
 
     fun populatePointsList(){
-        val inputStream = InstrumentationRegistry.getContext().resources.assets.open(
+        val inputStream = InstrumentationRegistry.getInstrumentation().context.resources.assets.open(
                 "home_work.csv"
         )
         val inputString = inputStream.bufferedReader().useLines {
@@ -39,7 +38,11 @@ class visitTest {
 
     @Before
     fun createDb() {
-        context = InstrumentationRegistry.getTargetContext()
+        context = InstrumentationRegistry.getInstrumentation().context
+
+        // Instanciate woosmap object
+        Woosmap.getInstance().isVisitEnable = true
+
         db = WoosmapDb.getInstance(context, false)
         this.populatePointsList()
     }
