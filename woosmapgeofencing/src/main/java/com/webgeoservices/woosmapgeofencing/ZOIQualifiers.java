@@ -28,6 +28,9 @@ public class ZOIQualifiers {
 
 
     void updateZoisQualifications(List<Map> zois){
+        if (WoosmapSettings.classificationEnable == false) {
+            return;
+        }
         list_zois = zois;
 
         Map<String, Object> firstHomePeriod = new HashMap<>();
@@ -371,16 +374,11 @@ public class ZOIQualifiers {
         int endWeekOfYear = cal.get(Calendar.WEEK_OF_YEAR);
 
         List<Integer> weeks_on_zoi = (List<Integer>) zoi_gmminfo.get("weeks_on_zoi");
-
-        if(startWeekOfYear > endWeekOfYear){
-            startWeekOfYear = startWeekOfYear - 52;
+        if(!weeks_on_zoi.contains(startWeekOfYear)){
+            weeks_on_zoi.add(startWeekOfYear);
         }
-        int period = endWeekOfYear - startWeekOfYear;
-
-        for(int weekNumber = 0; weekNumber < period; weekNumber++) {
-            if(!weeks_on_zoi.contains(startWeekOfYear + weekNumber)){
-                weeks_on_zoi.add(startWeekOfYear + weekNumber);
-            }
+        if(!weeks_on_zoi.contains(endWeekOfYear)){
+            weeks_on_zoi.add(endWeekOfYear);
         }
 
         zoi_gmminfo.put("weeks_on_zoi",weeks_on_zoi);
