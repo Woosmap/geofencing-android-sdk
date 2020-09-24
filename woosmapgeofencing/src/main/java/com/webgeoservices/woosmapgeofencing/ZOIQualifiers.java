@@ -372,15 +372,12 @@ public class ZOIQualifiers {
 
         List<Integer> weeks_on_zoi = (List<Integer>) zoi_gmminfo.get("weeks_on_zoi");
 
-        if(startWeekOfYear > endWeekOfYear){
-            startWeekOfYear = startWeekOfYear - 52;
+        if(!weeks_on_zoi.contains(startWeekOfYear)){
+            weeks_on_zoi.add(startWeekOfYear);
         }
-        int period = endWeekOfYear - startWeekOfYear;
 
-        for(int weekNumber = 0; weekNumber < period; weekNumber++) {
-            if(!weeks_on_zoi.contains(startWeekOfYear + weekNumber)){
-                weeks_on_zoi.add(startWeekOfYear + weekNumber);
-            }
+        if(!weeks_on_zoi.contains(endWeekOfYear)){
+            weeks_on_zoi.add(endWeekOfYear);
         }
 
         zoi_gmminfo.put("weeks_on_zoi",weeks_on_zoi);

@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
 
 android {
     compileSdkVersion 29
@@ -23,6 +24,10 @@ android {
         targetCompatibility JavaVersion.VERSION_1_7
     }
 
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+
     flavorDimensions "version"
     productFlavors {
         develop {
@@ -31,6 +36,10 @@ android {
         production {
 
         }
+    }
+
+    testOptions {
+        unitTests.returnDefaultValues = true
     }
 
 
@@ -60,6 +69,21 @@ dependencies {
     implementation project(path: ':woosmapgeofencing')
     implementation 'com.google.android.gms:play-services-maps:17.0.0'
     implementation 'com.google.maps.android:android-maps-utils:0.5+'
+
+    // Core library
+    androidTestImplementation 'androidx.test:core:1.2.0'
+
+    // AndroidJUnitRunner and JUnit Rules
+    androidTestImplementation 'androidx.test:runner:1.2.0'
+    androidTestImplementation 'androidx.test:rules:1.2.0'
+
+    // Assertions
+    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
+    androidTestImplementation 'androidx.test.ext:truth:1.2.0'
+    androidTestImplementation 'com.google.truth:truth:0.42'
+
+    // Espresso dependencies
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 }
 
 apply plugin: 'com.google.gms.google-services'

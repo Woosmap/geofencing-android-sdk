@@ -10,11 +10,13 @@ import android.location.Location;
 
 import androidx.annotation.RequiresApi;
 
+import android.os.AsyncTask;
 import android.util.Log;
 
 
 import com.webgeoservices.woosmapgeofencing.database.POI;
 import com.webgeoservices.woosmapgeofencing.database.Visit;
+import com.webgeoservices.woosmapgeofencing.database.WoosmapDb;
 
 import java.util.Objects;
 
@@ -181,6 +183,13 @@ public class Woosmap {
         } else {
             Log.d(WoosmapSdkTag, "Get Location permissions error");
         }
+        AsyncTask.execute(new Runnable() {
+            @Override
+            public void run() {
+                WoosmapDb.getInstance(context, true).cleanOldGeographicData(context);
+            }
+        });
+
     }
 
     /**

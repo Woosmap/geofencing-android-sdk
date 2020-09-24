@@ -144,6 +144,33 @@ public class FigmmForVisitsCreator {
 
     }
 
+    public void deleteVisitOnZoi(long dataDurationDelay) {
+        //Get list of ZOI in DB
+        getListOfZoi();
+
+        Visit[] visitsToDelete = db_m.getVisitsDao().getVisitOlderThan(dataDurationDelay);
+        for (Visit visitTodelete: visitsToDelete) {
+            String idVisitToDelete = visitTodelete.uuid;
+            for (Iterator<Map> iter = list_zois.iterator(); iter.hasNext(); ) {
+                Map<String, Object> zois_gmm_info = iter.next();
+                ArrayList<String> visitIdList = new ArrayList<String>((ArrayList<String>) zois_gmm_info.get("idVisits"));
+                for (String visitUUIDZOI : visitIdList) {
+                    if (idVisitToDelete.equals(visitUUIDZOI)) {
+                        ((ArrayList<String>) zois_gmm_info.get("idVisits")).remove(idVisitToDelete);
+                    }
+                }
+            }
+        }
+
+        // Update prior
+        update_zois_prior();
+
+        clean_clusters_without_visit();
+
+        // Update DB
+        update_db();
+    }
+
     public void update_db() {
         db_m.getZOIsDAO().deleteAllZOI();
         ZOI[] zoiList = new ZOI[list_zois.size()];
@@ -515,11 +542,13 @@ public class FigmmForVisitsCreator {
     }
 
     private void clean_clusters_without_visit() {
-        for (Iterator<Map> iter = list_zois.iterator(); iter.hasNext(); ) {
+        List<Map> list_zois_to_clean = new ArrayList<>(list_zois);
+        for (Iterator<Map> iter = list_zois_to_clean.iterator(); iter.hasNext(); ) {
             Map<String, Object> zois_gmm_info = iter.next();
             List<LoadedVisit> visitPoint = new ArrayList<>();
             visitPoint = (List<LoadedVisit>) zois_gmm_info.get("visitPoint");
-            if (visitPoint.isEmpty()) {
+            ArrayList<String> visitIdList = new ArrayList<String>((ArrayList<String>) zois_gmm_info.get("idVisits"));
+            if (visitPoint.isEmpty() || visitIdList.isEmpty()) {
                 list_zois.remove(zois_gmm_info);
             }
         }

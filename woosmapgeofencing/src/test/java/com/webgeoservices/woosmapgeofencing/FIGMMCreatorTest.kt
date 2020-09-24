@@ -209,9 +209,18 @@ class FIGMMCreatorTest {
 
         figmmForVisitsCreator.update_zois_prior()
 
-        Assert.assertThat(0.3333333333333333, IsEqual.equalTo(zoiToTest1["prior_probability"]))
-        Assert.assertThat(0.16666666666666666, IsEqual.equalTo(zoiToTest2["prior_probability"]))
-        Assert.assertThat(0.5, IsEqual.equalTo(zoiToTest3["prior_probability"]))
+        Assert.assertThat(0.3333333333333333, IsEqual.equalTo(listZoiToTest.get(0)["prior_probability"]))
+        Assert.assertThat(0.16666666666666666, IsEqual.equalTo(listZoiToTest.get(1)["prior_probability"]))
+        Assert.assertThat(0.5, IsEqual.equalTo(listZoiToTest.get(2)["prior_probability"]))
+
+        listZoiToTest.removeAt(0)
+
+        figmmForVisitsCreator.list_zois = listZoiToTest
+        figmmForVisitsCreator.update_zois_prior()
+
+        Assert.assertThat(0.25, IsEqual.equalTo(listZoiToTest.get(0)["prior_probability"]))
+        Assert.assertThat(0.75, IsEqual.equalTo(listZoiToTest.get(1)["prior_probability"]))
+
     }
 
     @Test

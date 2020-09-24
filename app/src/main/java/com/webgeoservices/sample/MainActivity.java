@@ -183,6 +183,9 @@ public class MainActivity extends AppCompatActivity {
         // Instanciate woosmap object
         this.woosmap = Woosmap.getInstance().initializeWoosmap(this);
 
+        // Set the Delay of Duration data
+        WoosmapSettings.numberOfDayDataDuration = 30;
+
         // Set Keys
         WoosmapSettings.privateKeySearchAPI = "";
         WoosmapSettings.privateKeyGMPStatic = "";
@@ -335,11 +338,11 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(ZOI[] ZOIList) {
-            if(ZOIList.length == 0)
-                return;
-
             mActivity.mapFragment.zois.clear();
             mActivity.mapFragment.clearPolygon();
+
+            if(ZOIList.length == 0)
+                return;
 
             mActivity.mapFragment.zois.addAll(Arrays.asList(ZOIList));
 
@@ -567,6 +570,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected Void doInBackground(Void... voids) {
             InputStream in = getResources().openRawResource(R.raw.visit_qualif);
+            //InputStream in = getResources().openRawResource(R.raw.location);
             DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss+SS");
             BufferedReader reader = new BufferedReader(new InputStreamReader(in));
             String line = null;
@@ -595,7 +599,6 @@ public class MainActivity extends AppCompatActivity {
                     visit.duration = visit.endTime - visit.startTime;
 
                     WoosmapDb.getInstance(mContext, true).getVisitsDao().createStaticPosition(visit);
-                    LoadedVisit point = new LoadedVisit(x, y, accuracy,id,startime,endtime);
 
                     figmmForVisitsCreator.figmmForVisitTest(visit);
                     i++;
