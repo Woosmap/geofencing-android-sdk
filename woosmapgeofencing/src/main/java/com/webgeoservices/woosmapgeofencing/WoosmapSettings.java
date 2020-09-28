@@ -40,6 +40,9 @@ public class WoosmapSettings {
     static public long minDurationVisitDisplay = 60;
     static public long durationVisitFilter = 1000 * minDurationVisitDisplay;
 
+    //Active Classification
+    static public boolean classificationEnable = true;
+
     // Key for APIs
     static public String privateKeyGMPStatic = "";
     static public String privateKeySearchAPI = "";

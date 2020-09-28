@@ -126,7 +126,7 @@ class ZoiQualifierTests{
 
         zoiQualifiers.extract_time_and_weeks_from_interval(point,zoiToTest)
 
-        val expected_weeks_on_zoi: MutableList<Int> = mutableListOf<Int>(14,15)
+        val expected_weeks_on_zoi: MutableList<Int> = mutableListOf<Int>(14,16)
 
         Assert.assertThat(end_date - start_date, IsEqual.equalTo(zoiToTest["duration"]))
         Assert.assertThat(expected_weeks_on_zoi, IsEqual.equalTo(zoiToTest["weeks_on_zoi"]))
