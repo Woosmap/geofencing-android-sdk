@@ -44,6 +44,9 @@ public class WoosmapSettings {
     static public long numberOfDayDataDuration = 30;// number of day
     static public long dataDurationDelay = numberOfDayDataDuration * 1000 * 86400;
 
+    //Active Classification
+    static public boolean classificationEnable = true;
+
     // Key for APIs
     static public String privateKeyGMPStatic = "";
     static public String privateKeySearchAPI = "";

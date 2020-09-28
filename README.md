@@ -62,12 +62,18 @@ The classification of zones of interest (zois) aims to assign them types. For no
 Calculations for each zoi are performed to determine the number of different weeks that the user has spent there.
 A zoi is considered to be recurrent if the number of weeks spent in the zone is greater than or equal to the average of the number of weeks spent in all the zones.
 
+The classification of zois is enable by default. For disable that, in your MainActivity, you can change the value in the settings of the SDK as follow:
+```java
+// Set classification of zoi enable:
+WoosmapSettings.classificationEnable = true;
+```
+
 ##  Pre-requisites
 -   Android SDK 21 and newer. SDK21 (Android 5) to SDK25 (Android 7.1) tested with Android Virtual Device, newer versions tested on real devices.
 -   Android Build Tools
 -   Android Support Repository
 -   Firebase Credentials
--  OjAlgo dependency [https://www.ojalgo.org/](https://www.ojalgo.org/)
+-   OjAlgo dependency [https://www.ojalgo.org/](https://www.ojalgo.org/)
 
 ### Installation
 * This sample uses the Gradle build system. To build this project, use the "gradlew build" command or use "Import Project" in Android Studio.
@@ -218,16 +224,15 @@ static public int accuracyFilter = 100;
 ```java
 static public double distanceDetectionThresholdVisits = 25.0;
 ```
-
 * Duration in seconds for detection of visits to show and to create ZOI :
 ```java
 static public long minDurationVisitDisplay = 60
  ```
- * Delay for outdated notification in seconds:
+* Delay for outdated notification in seconds:
 ```java
 static public int outOfTimeDelay = 300;
  ```
-To apply filters,  set the filters in singleton `WoosmapSettings` like this:
+* To apply filters,  set the filters in singleton `WoosmapSettings` like this:
 ```java
 WoosmapSettings.currentLocationTimeFilter = 30;
 ```

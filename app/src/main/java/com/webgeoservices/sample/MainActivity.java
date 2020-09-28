@@ -180,6 +180,9 @@ public class MainActivity extends AppCompatActivity {
         // Set Filter on Accuracy of the location
         //WoosmapSettings.accuracyFilter = 10;
 
+        // Set classification of zoi enable
+        WoosmapSettings.classificationEnable = false;
+
         // Instanciate woosmap object
         this.woosmap = Woosmap.getInstance().initializeWoosmap(this);
 

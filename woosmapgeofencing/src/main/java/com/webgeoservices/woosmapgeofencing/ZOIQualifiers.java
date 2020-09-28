@@ -28,6 +28,9 @@ public class ZOIQualifiers {
 
 
     void updateZoisQualifications(List<Map> zois){
+        if (WoosmapSettings.classificationEnable == false) {
+            return;
+        }
         list_zois = zois;
 
         Map<String, Object> firstHomePeriod = new HashMap<>();
