@@ -29,7 +29,6 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.webgeoservices.woosmapgeofencing.FigmmForVisitsCreator;
-import com.webgeoservices.woosmapgeofencing.LoadedVisit;
 import com.webgeoservices.woosmapgeofencing.Woosmap;
 import com.webgeoservices.woosmapgeofencing.WoosmapSettings;
 import com.webgeoservices.woosmapgeofencing.database.MovingPosition;
@@ -404,7 +403,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected MovingPosition[] doInBackground(Void... voids) {
-            MovingPosition[] MovingPositionList = WoosmapDb.getInstance(mContext, true).getMovingPositionsDao().getAllMovingPositions(50);
+            MovingPosition[] MovingPositionList = WoosmapDb.getInstance(mContext, true).getMovingPositionsDao().getMovingPositions(50);
             return MovingPositionList;
         }
 

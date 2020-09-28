@@ -33,11 +33,11 @@ class DelayDataDurationTest {
     @Test
     fun test_when_clean_old_geographic_data_then_clean_data_older_than_data_duration_delay() {
         WoosmapSettings.numberOfDayDataDuration = 30
-        var lastupdate = formatter.parse("2018-12-24 14:25:03+00").time
+        var lastUpdate = formatter.parse("2018-12-24 14:25:03+00").time
 
         val mPrefs = context.getSharedPreferences("WGSGeofencingPref", Context.MODE_PRIVATE)
         //Update date
-        mPrefs.edit().putLong("lastUpdate", lastupdate).apply()
+        mPrefs.edit().putLong("lastUpdate", lastUpdate).apply()
 
         val lng = 3.8793329
         val lat = 43.6053862
@@ -88,7 +88,7 @@ class DelayDataDurationTest {
 
         Assert.assertEquals( WoosmapDb.getInstance(context, true).visitsDao.allStaticPositions.size, 30)
         Assert.assertEquals( WoosmapDb.getInstance(context, true).poIsDAO.allPOIs.size, 30)
-        Assert.assertEquals( WoosmapDb.getInstance(context, true).movingPositionsDao.allMovingPositions.size, 30)
+        Assert.assertEquals( WoosmapDb.getInstance(context, true).movingPositionsDao.getMovingPositions(-1).size, 30)
 
     }
 
