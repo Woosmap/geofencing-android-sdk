@@ -401,7 +401,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected MovingPosition[] doInBackground(Void... voids) {
-            MovingPosition[] MovingPositionList = WoosmapDb.getInstance(mContext, true).getMovingPositionsDao().getAllMovingPositions();
+            MovingPosition[] MovingPositionList = WoosmapDb.getInstance(mContext, true).getMovingPositionsDao().getAllMovingPositions(50);
             return MovingPositionList;
         }
 
