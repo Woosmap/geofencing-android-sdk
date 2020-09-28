@@ -572,6 +572,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected Void doInBackground(Void... voids) {
             InputStream in = getResources().openRawResource(R.raw.visit_qualif);
+            // if you want less visits and ZOI you can load the file location.csv like that :
             //InputStream in = getResources().openRawResource(R.raw.location);
             DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss+SS");
             BufferedReader reader = new BufferedReader(new InputStreamReader(in));
