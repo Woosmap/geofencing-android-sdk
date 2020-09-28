@@ -40,6 +40,10 @@ public class WoosmapSettings {
     static public long minDurationVisitDisplay = 60;
     static public long durationVisitFilter = 1000 * minDurationVisitDisplay;
 
+    //Delay of Duration data
+    static public long numberOfDayDataDuration = 30;// number of day
+    static public long dataDurationDelay = numberOfDayDataDuration * 1000 * 86400;
+
     //Active Classification
     static public boolean classificationEnable = true;
 

@@ -30,11 +30,11 @@ public interface POIsDAO {
     @Query("DELETE FROM POI")
     void deleteAllPOIs();
 
-    @Query("SELECT * FROM POI ORDER BY dateTime DESC LIMIT 50")
+    @Query("SELECT * FROM POI ORDER BY dateTime")
     POI [] getAllPOIs();
 
-    @Query("DELETE FROM POI WHERE dateTime <= :date AND isUpload=1")
-    void deleteOldPOI(long date);
+    @Query("DELETE FROM POI WHERE dateTime <= :dataDurationDelay")
+    void deletePOIOlderThan(long dataDurationDelay);
 }
 
 

@@ -234,6 +234,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         markersPOI.clear();
         markersVisit.clear();
         zois.clear();
+        polygonsZOI.clear();
     }
 
     public void clearPolygon()  {

@@ -53,4 +53,11 @@ public interface VisitsDao {
 
     @Query("SELECT * FROM visits WHERE isUpload!=2 AND endTime != 0 ORDER BY startTime DESC")
     Visit[] getFailedStaticPositions();
+
+    @Query("SELECT * FROM visits WHERE startTime < :dataDurationDelay")
+    Visit[] getVisitOlderThan(long dataDurationDelay);
+
+    @Query("DELETE FROM visits WHERE startTime < :dataDurationDelay")
+    void deleteVisitOlderThan(long dataDurationDelay);
+
 }
