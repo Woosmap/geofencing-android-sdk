@@ -1,9 +1,13 @@
 ﻿  
 ## Overview  
-  
+
+### Localtion on Android
+
+Location management by Android varied a lot in the successive previous versions. Goals remain the same: bring more control and knowledge to users on behaviour of app with their locations data.  
+
 ### Location updates in Android Q  
   
-Android Q introduces changes to location permissions. These changes are very useful for end users, providing them more control and transparency over location data usages.  
+Android Q introduced changes to location permissions. These changes are very useful for end users, providing them more control and transparency over location data usages.  
   
 Android Q provides two major changes:  
 - separate permission for a background location  
@@ -23,12 +27,14 @@ Here are the 3 different choices given to users:
       
 If a user who previously granted location permissions upgrades to Android Q, some permissions are inherited when upgrading location permissions in the background, depending on your app settings. More info on the ACCESS_BACKGROUND_LOCATION in this documentation [https://developer.android.com/training/location/receive-location-updates](https://developer.android.com/training/location/receive-location-updates).  
   
-Android Q also introduces location reminders in the background. If the user grants background permissions, Android displays a reminder after a few days, allowing him to modify the parameters  
+Android Q also introduced location reminders in the background. If the user grants background permissions, Android displays a reminder after a few days, allowing him to modify the parameters  
   
 ### Location updates in Android 11  
+ 
+Android 11 evolves even more on requesting for background location and restricts a bit its usage.
   
 #### One-time access  
-The system permissions dialog includes an option give users more control over when an app can access location information.  
+The system permissions dialog includes an option giving users more control over when an app can access location information.  
   
 <p align="center">  
   <img alt="PermissionOneTime" src="https://github.com/woosmap/woosmap-geofencing-android-sdk/raw/master/assets/PermissionOneTime.png" width="30%">  
@@ -45,12 +51,14 @@ When the user next opens your app and a feature in your app requests access to l
 #### Request background location
 When a feature in your app requests background location on a device that runs Android 10 (API level 29), the system permissions dialog includes an option named  **Allow all the time**. If the user selects this option, the feature in your app gains background location access.
 
-On Android 11 (API level 30) and higher, however, the system dialog doesn't include the  **Allow all the time**  option. Instead, users must enable background location on a settings page.
+On Android 11 (API level 30) and higher, however, the system dialog doesn't include the  **Allow all the time**  option. Instead, users must enable background location on the settings page.
 
 <p align="center">  
   <img alt="Settings" src="https://github.com/woosmap/woosmap-geofencing-android-sdk/raw/master/assets/Settings.png" width="30%">  
 </p>  
 
+As long as the user does not enable the background location in the settings, your app will not access to sufficient location to build geographic behaviour profiles (no Visits or ZOI processed by the Geofencing SDK). If you want to exploit the full scope of the SDK you'll need to be sure to well inform your users about enabling background collection and what is the added value for them (e.g. fraud detection in banking apps, special offers based on their location for retail, ...).  
+In addition to this, you'll need to give them the opportunity from time to time to enable background collection if they did not consent the first time. This last point means checking regularly location permissions when the app is in use.
 
   
 ## Manifest  
