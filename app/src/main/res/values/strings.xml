@@ -16,5 +16,9 @@
     <h4> &#160; startTime = %3$s <br>
     <h4> &#160; endTime = %4$s <br>
     <h4> &#160; nbPoint = %5$d <br>]]></string>
+    <string name="Location">Location</string>
+    <string name="POI">POI</string>
+    <string name="visit">Visit</string>
+    <string name="ZOI">ZOI</string>
 
 </resources>

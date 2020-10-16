@@ -21,7 +21,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:configChanges="orientation|screenSize"
-        android:fullBackupContent="@xml/backup_descriptor">
+        android:fullBackupContent="@xml/backup_descriptor"
+        android:largeHeap="true">
         <activity android:name="com.webgeoservices.sample.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

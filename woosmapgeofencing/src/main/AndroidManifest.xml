@@ -11,7 +11,8 @@
     <uses-permission android:name="android.location.GPS_ENABLED_CHANGE" />
     <uses-permission android:name="android.permission.VIBRATE" />
 
-    <application>
+    <application
+        android:largeHeap="true">
         <receiver
             android:name="com.webgeoservices.woosmapgeofencing.LocationUpdatesBroadcastReceiver"
             android:enabled="true"
