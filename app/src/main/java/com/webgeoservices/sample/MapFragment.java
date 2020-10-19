@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -23,6 +24,7 @@ import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polygon;
 import com.google.android.gms.maps.model.PolygonOptions;
@@ -40,6 +42,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     GoogleMap mGoolgeMap;
     MapView mMapView;
+    CheckBox locationEnableCheckbox;
+    CheckBox POIEnableCheckbox;
+    CheckBox ZOIEnableCheckbox;
+    CheckBox visitEnableCheckbox;
+    List<Marker> locationMarkerList = new ArrayList<>();
+    List<Marker> poiMarkerList = new ArrayList<>();
+    List<Marker> visitMarkerList = new ArrayList<>();
+    List<MarkerOptions> markersLocations = new ArrayList<MarkerOptions>();
     List<MarkerOptions> markersPOI = new ArrayList<MarkerOptions>();
     List<MarkerOptions> markersVisit = new ArrayList<MarkerOptions>();
     List<Polygon> polygonsZOI = new ArrayList<Polygon>();
@@ -60,6 +70,73 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         View view = inflater.inflate(R.layout.map, container, false);
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getActivity());
         fetchLastLocation();
+
+        locationEnableCheckbox = (CheckBox) view.findViewById(R.id.LocationFilter);
+        POIEnableCheckbox = (CheckBox) view.findViewById(R.id.POI);
+        visitEnableCheckbox = (CheckBox) view.findViewById(R.id.Visit);
+        ZOIEnableCheckbox = (CheckBox) view.findViewById(R.id.ZOI);
+
+        locationEnableCheckbox.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(locationEnableCheckbox.isChecked()) {
+                    for (Marker marker : locationMarkerList) {
+                        marker.setVisible(true);
+                    }
+                } else {
+                    for (Marker marker : locationMarkerList) {
+                        marker.setVisible(false);
+                    }
+                }
+            }
+        });
+
+
+        POIEnableCheckbox.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(POIEnableCheckbox.isChecked()) {
+                    for (Marker marker : poiMarkerList) {
+                        marker.setVisible(true);
+                    }
+                } else {
+                    for (Marker marker : poiMarkerList) {
+                        marker.setVisible(false);
+                    }
+                }
+            }
+        });
+
+        visitEnableCheckbox.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(visitEnableCheckbox.isChecked()) {
+                    for (Marker marker : visitMarkerList) {
+                        marker.setVisible(true);
+                    }
+                } else {
+                    for (Marker marker : visitMarkerList) {
+                        marker.setVisible(false);
+                    }
+                }
+            }
+        });
+
+        ZOIEnableCheckbox.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(ZOIEnableCheckbox.isChecked()) {
+                    for (Polygon polygon : polygonsZOI) {
+                        polygon.setVisible(true);
+                    }
+                } else {
+                    for (Polygon polygon : polygonsZOI) {
+                        polygon.setVisible(false);
+                    }
+                }
+            }
+        });
+
         return view;
     }
 
@@ -91,7 +168,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             mMapView.onResume();
             mMapView.getMapAsync(this);
         }
+
+
     }
+
+
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -107,10 +188,28 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
             drawPolygon();
 
+            if (!markersLocations.isEmpty()) {
+                for (MarkerOptions marker : markersLocations) {
+                    locationMarkerList.add(mGoolgeMap.addMarker(marker.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA))));
+                }
+                if(!locationEnableCheckbox.isChecked()) {
+                    for (Marker marker : locationMarkerList) {
+                        marker.setVisible(false);
+                    }
+                }
+            }
+
             if (!markersPOI.isEmpty()) {
                 for (MarkerOptions marker : markersPOI) {
-                    mGoolgeMap.addMarker(marker.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+                    Marker poiMarker = mGoolgeMap.addMarker(marker.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+                    poiMarkerList.add(poiMarker);
                 }
+                if(!POIEnableCheckbox.isChecked()) {
+                    for (Marker marker : poiMarkerList) {
+                        marker.setVisible(false);
+                    }
+                }
+
             }
 
             if (!markersVisit.isEmpty()) {
@@ -124,18 +223,28 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                             break;
                         }
                     }
+
+                    Marker visitMarker = null;
                     if (isMarkerInsideZoi){
                         if(zoiSelected.period.equals("HOME_PERIOD")) {
                             marker.zIndex(1.0F);
-                            mGoolgeMap.addMarker(marker.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+                            visitMarker = mGoolgeMap.addMarker(marker.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
                         }else if (zoiSelected.period.equals("WORK_PERIOD")) {
                             marker.zIndex(1.0F);
-                            mGoolgeMap.addMarker(marker.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+                            visitMarker = mGoolgeMap.addMarker(marker.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
                         } else {
-                            mGoolgeMap.addMarker(marker.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
+                            visitMarker = mGoolgeMap.addMarker(marker.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
                         }
                     }else {
-                        mGoolgeMap.addMarker(marker.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
+                        visitMarker = mGoolgeMap.addMarker(marker.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
+                    }
+                    if(visitMarker != null) {
+                        visitMarkerList.add(visitMarker);
+                    }
+                }
+                if(!visitEnableCheckbox.isChecked()) {
+                    for (Marker marker : visitMarkerList) {
+                        marker.setVisible(false);
                     }
                 }
             }
@@ -143,6 +252,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     }
 
     public void drawPolygon() {
+        if(!ZOIEnableCheckbox.isChecked()) {
+            return;
+        }
         if (!zois.isEmpty()) {
             for (ZOI zoiPoint : zois) {
                 int fillZoiColor = 0x7F00ffff; //transparent cyan
@@ -231,6 +343,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     public void clearMarkers() {
         if (mGoolgeMap != null)
             mGoolgeMap.clear();
+        markersLocations.clear();
         markersPOI.clear();
         markersVisit.clear();
         zois.clear();

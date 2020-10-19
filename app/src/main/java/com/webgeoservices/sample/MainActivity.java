@@ -27,6 +27,7 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -347,7 +348,12 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
                 mActivity.mapFragment.markersPOI.add(markerOptions);
-                mActivity.mapFragment.mGoolgeMap.addMarker(markerOptions);
+                mActivity.mapFragment.poiMarkerList.add(mActivity.mapFragment.mGoolgeMap.addMarker(markerOptions));
+                if(!mActivity.mapFragment.POIEnableCheckbox.isChecked()){
+                    for (Marker marker : mActivity.mapFragment.poiMarkerList) {
+                        marker.setVisible(false);
+                    }
+                }
             }
             if (mActivity.locationFragment.mLocationInfo != null && mActivity.locationFragment.isVisible()) {
                 String poiHTML = mContext.getString(R.string.html_POI, Double.toString(poiToShow.lat),
@@ -418,6 +424,27 @@ public class MainActivity extends AppCompatActivity {
 
             if (movingPosition == null)
                 return;
+
+            if (mActivity.mapFragment.mGoolgeMap != null && mActivity.mapFragment.isVisible()) {
+
+                LatLng latLng = new LatLng(movingPosition.lat, movingPosition.lng);
+                MarkerOptions markerOptions = new MarkerOptions().position(latLng).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
+                if (!mActivity.mapFragment.markersLocations.isEmpty()) {
+                    for (MarkerOptions marker : mActivity.mapFragment.markersLocations) {
+                        if (marker.getPosition().equals(markerOptions.getPosition())) {
+                            return;
+                        }
+                    }
+                }
+                mActivity.mapFragment.markersLocations.add(markerOptions);
+                mActivity.mapFragment.locationMarkerList.add(mActivity.mapFragment.mGoolgeMap.addMarker(markerOptions));
+                if (!mActivity.mapFragment.locationEnableCheckbox.isChecked()){
+                    for (Marker marker : mActivity.mapFragment.locationMarkerList) {
+                        marker.setVisible(false);
+                    }
+                }
+            }
+
             SimpleDateFormat displayDateFormat = new SimpleDateFormat("HH:mm:ss");
             if (mActivity.locationFragment.mLocationInfo != null && mActivity.locationFragment.isVisible()) {
                 String locHTML = mContext.getString(R.string.html_position, Double.toString(movingPosition.lat),
@@ -455,6 +482,21 @@ public class MainActivity extends AppCompatActivity {
             if (mActivity.locationFragment.mLocationInfo != null) {
                 mActivity.locationFragment.mLocationInfo.setText("");
             }
+
+            for (MovingPosition locationToShow : movingPositionList) {
+                LatLng latLng = new LatLng(locationToShow.lat, locationToShow.lng);
+                boolean markerToAdd = true;
+                MarkerOptions markerOptions = new MarkerOptions().position(latLng);
+                for (MarkerOptions marker : mActivity.mapFragment.markersLocations) {
+                    if (marker.getPosition().equals(markerOptions.getPosition())) {
+                        markerToAdd = false;
+                    }
+                }
+                if (markerToAdd) {
+                    mActivity.mapFragment.markersLocations.add(markerOptions);
+                }
+            }
+
             for (MovingPosition  movingPositionToShow: movingPositionList) {
                 String locHTML = mContext.getString(R.string.html_position, Double.toString(movingPositionToShow.lat),
                         Double.toString(movingPositionToShow.lng), displayDateFormat.format(movingPositionToShow.dateTime));
@@ -556,8 +598,14 @@ public class MainActivity extends AppCompatActivity {
                     }
                     if (!markerToUpdate) {
                         mActivity.mapFragment.markersVisit.add(markerOptions);
-                        if (mActivity.mapFragment.mGoolgeMap != null)
-                            mActivity.mapFragment.mGoolgeMap.addMarker(markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
+                        if (mActivity.mapFragment.mGoolgeMap != null) {
+                            mActivity.mapFragment.visitMarkerList.add(mActivity.mapFragment.mGoolgeMap.addMarker(markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE))));
+                            if(!mActivity.mapFragment.visitEnableCheckbox.isChecked()){
+                                for (Marker marker : mActivity.mapFragment.visitMarkerList) {
+                                    marker.setVisible(false);
+                                }
+                            }
+                        }
                     }
                     if (mActivity.visitFragment.mVisitInfo != null) {
                         String visitHTML = mContext.getString(R.string.html_visit, Double.toString(visitToShow.lat),
