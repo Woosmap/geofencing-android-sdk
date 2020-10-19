@@ -6,6 +6,11 @@
         It should describe the category of notifications that will be sent through this channel
      -->
     <string name="default_notification_channel_name" translatable="true">WoosmapGeofencing</string>
+    <string name="insufficient_permissions">Insufficient permissions.</string>
+    <string name="permission_rationale">Location permission is needed for core functionality</string>
+    <string name="permission_denied_explanation">Permission was denied, but is needed for core
+        functionality.</string>
+    <string name="settings">Settings</string>
     <string name="html_position"><![CDATA[" <h3><font color=#000000>&#160; Location : %1$s,%2$s</font>&#160;&#160;&#160; at %3$s</h3>]]></string>
     <string name="html_POI"><![CDATA[" <h3><font color=#03a9f4>&#160; POI : %1$s,%2$s</font>&#160; &#160; &#160; &#160; at %3$s<br>
     <h4> &#160; City = %4$s <br>
