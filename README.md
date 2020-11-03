@@ -274,6 +274,12 @@ private void onPOICallback(POI poi) {
 }
 ```
 
+### Enable or disable Search API request
+The Search API request on each location is enable by default. For disable that, in your MainActivity, you can change the value in the settings of the SDK as follow:
+```java
+WoosmapSettings.searchAPIEnable(true);
+```
+
 ### Retrieve visit detection
 
 In your `mainActivity`, create a listener connected to the interface `Woosmap.VisitReadyListener` and set a callback to retrieve visits.
@@ -381,6 +387,12 @@ public long duration;
 - The classification of the period (HOME, WORK, OTHER or NO QUALIFIER)
 ```java
 public String period;
+```
+
+### Enable or disable location refresh
+The location monitoring is enable by default. For disable that, in your MainActivity, you can change the value in the settings of the SDK as follow:
+```java
+woosmap.enableTracking(true);
 ```
 
 ### Enable location after a device reboot

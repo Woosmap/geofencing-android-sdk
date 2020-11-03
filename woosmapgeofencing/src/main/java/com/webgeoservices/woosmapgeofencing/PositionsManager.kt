@@ -227,6 +227,9 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
             requestQueue = Volley.newRequestQueue(this.context)
         }
 
+        if (WoosmapSettings.searchAPIEnable == false)
+            return
+
         if(WoosmapSettings.privateKeySearchAPI.isEmpty()){
             return
         }

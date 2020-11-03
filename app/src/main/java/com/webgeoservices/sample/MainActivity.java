@@ -59,6 +59,8 @@ public class MainActivity extends AppCompatActivity {
     private MapFragment mapFragment;
     private VisitFragment visitFragment;
 
+    private boolean isMenuOpen = false;
+
     private Woosmap woosmap;
 
     public class WoosLocationReadyListener implements Woosmap.LocationReadyListener {
@@ -161,7 +163,7 @@ public class MainActivity extends AppCompatActivity {
 
         });
 
-        FloatingActionButton clearDBBtn = findViewById(R.id.clearDB);
+        final FloatingActionButton clearDBBtn = findViewById(R.id.clearDB);
         clearDBBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -171,13 +173,67 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        FloatingActionButton testZOIBtn = findViewById(R.id.TestZOI);
+        final FloatingActionButton testZOIBtn = findViewById(R.id.TestZOI);
         testZOIBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Snackbar.make(view, "Create ZOI", 8000)
                         .setAction("Action", null).show();
                 new testZOITask(getApplicationContext(), MainActivity.this).execute();
+            }
+        });
+
+        final FloatingActionButton enableLocationBtn = findViewById(R.id.EnableLocation);
+        enableLocationBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                WoosmapSettings.trackingEnable = !WoosmapSettings.trackingEnable;
+                String msg = "";
+                if(WoosmapSettings.trackingEnable) {
+                    msg = "Tracking Enable";
+
+                } else {
+                    msg = "Tracking Disable";
+                }
+                woosmap.enableTracking(WoosmapSettings.trackingEnable);
+                Snackbar.make(view, msg, Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+            }
+        });
+
+        final FloatingActionButton enableSearchAPIBtn = findViewById(R.id.EnableSearchAPI);
+        enableSearchAPIBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                WoosmapSettings.searchAPIEnable = !WoosmapSettings.searchAPIEnable;
+                String msg = "";
+                if(WoosmapSettings.searchAPIEnable)
+                    msg = "SearchAPI Enable";
+                else
+                    msg = "SearchAPI Disable";
+
+                Snackbar.make(view, msg, Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+            }
+        });
+
+        FloatingActionButton menuSettings = findViewById(R.id.Menu);
+        menuSettings.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(!isMenuOpen) {
+                    isMenuOpen = true;
+                    clearDBBtn.animate().translationY(-180);
+                    testZOIBtn.animate().translationY(-360);
+                    enableSearchAPIBtn.animate().translationY(-540);
+                    enableLocationBtn.animate().translationY(-720);
+                } else {
+                    isMenuOpen = false;
+                    clearDBBtn.animate().translationY(0);
+                    testZOIBtn.animate().translationY(0);
+                    enableSearchAPIBtn.animate().translationY(0);
+                    enableLocationBtn.animate().translationY(0);
+                }
             }
         });
 

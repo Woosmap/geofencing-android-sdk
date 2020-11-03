@@ -112,6 +112,15 @@ class LocationManager {
         }
     }
 
+    void removeLocationUpdates() {
+        try {
+            mFusedLocationClient.removeLocationUpdates(mLocationIntent);
+            mFusedLocationClient.removeLocationUpdates(mLocationCallback);
+        } catch (SecurityException e) {
+            Log.e(WoosmapSdkTag, "security exception");
+        }
+    }
+
     void removeLocationCallback() {
         mFusedLocationClient.removeLocationUpdates(mLocationCallback);
     }
