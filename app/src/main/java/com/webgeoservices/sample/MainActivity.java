@@ -81,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void onPOICallback(POI poi) {
-        new POITask(getApplicationContext(), this).execute();
+        new POITask(getApplicationContext(), this,poi).execute();
     }
 
     public class WoosVisitReadyListener implements Woosmap.VisitReadyListener {
@@ -374,22 +374,25 @@ public class MainActivity extends AppCompatActivity {
     private static class POITask extends AsyncTask<Void, Void, POI> {
         private final Context mContext;
         public MainActivity mActivity;
+        private final POI mPOI;
 
-        POITask(Context context, MainActivity activity) {
+        POITask(Context context, MainActivity activity, POI poi) {
             mContext = context;
             mActivity = activity;
+            mPOI = poi;
         }
 
         @Override
         protected POI doInBackground(Void... voids) {
-            POI newPOI = WoosmapDb.getInstance(mContext, true).getPOIsDAO().getLastPOI();
+            POI newPOI = mPOI;
             return newPOI;
         }
 
         @Override
         protected void onPostExecute(POI poiToShow) {
-            if (poiToShow == null)
+            if (mPOI == null)
                 return;
+
 
             SimpleDateFormat displayDateFormat = new SimpleDateFormat("HH:mm:ss");
             if (mActivity.mapFragment.mGoolgeMap != null && mActivity.mapFragment.isVisible()) {

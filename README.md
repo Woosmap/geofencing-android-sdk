@@ -280,6 +280,17 @@ The Search API request on each location is enable by default. For disable that, 
 WoosmapSettings.searchAPIEnable(true);
 ```
 
+If you want call Search API "on demand", you can launch the request with this method :
+```java
+// Instantiate the PositionManager
+PositionsManager mPositionsManager = new PositionsManager(getContext(), WoosmapDb.getInstance(getContext(), true));
+
+// Launch the request
+ mPositionsManager.searchAPI(48.884722,2.401838);
+```
+
+You retrieve the result by the listener explain above.
+
 ### Retrieve visit detection
 
 In your `mainActivity`, create a listener connected to the interface `Woosmap.VisitReadyListener` and set a callback to retrieve visits.
