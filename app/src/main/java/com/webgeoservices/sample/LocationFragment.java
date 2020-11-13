@@ -42,6 +42,9 @@ public class LocationFragment extends Fragment {
         mLocationInfo.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
+                if(event.getAction() != MotionEvent.AXIS_Y) {
+                    return false;
+                }
                 Layout layout = ((TextView) v).getLayout();
                 int y = (int)event.getY();
                 if (layout!=null){
@@ -49,21 +52,19 @@ public class LocationFragment extends Fragment {
                     int start = mLocationInfo.getLayout().getLineStart(line);
                     int end = mLocationInfo.getLayout().getLineEnd(line);
                     String text = mLocationInfo.getText().toString().substring(start, end);
+                    Pattern patte = Pattern.compile("  Location : ([-0-9.]*),([-0-9.]*)");
+                    Matcher matcher = patte.matcher(text);
+                    Double lat = 0.0;
+                    Double lng = 0.0;
+                    while (matcher.find()) {
+                        lat = Double.valueOf(matcher.group(1));
+                        lng = Double.valueOf(matcher.group(2));
+                    }
                     if(text.contains("Location")) {
-                        Pattern patte = Pattern.compile("  Location : ([-0-9.]*),([-0-9.]*)");
-                        Matcher matcher = patte.matcher(text);
-                        Double lat = 0.0;
-                        Double lng = 0.0;
-                        while (matcher.find()) {
-                            lat = Double.valueOf(matcher.group(1));
-                            lng = Double.valueOf(matcher.group(2));
-
-                        }
                         mPositionsManager.searchAPI(lat,lng);
                     }
-
                 }
-                return true;
+                return false;
             }
         });
         return view;

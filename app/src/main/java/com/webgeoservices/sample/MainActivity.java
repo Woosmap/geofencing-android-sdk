@@ -184,6 +184,11 @@ public class MainActivity extends AppCompatActivity {
         });
 
         final FloatingActionButton enableLocationBtn = findViewById(R.id.EnableLocation);
+        if(WoosmapSettings.trackingEnable) {
+            enableLocationBtn.setBackgroundTintList(getResources().getColorStateList(R.color.colorPrimary));
+        } else {
+            enableLocationBtn.setBackgroundTintList(getResources().getColorStateList(R.color.colorAccent));
+        }
         enableLocationBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -191,9 +196,10 @@ public class MainActivity extends AppCompatActivity {
                 String msg = "";
                 if(WoosmapSettings.trackingEnable) {
                     msg = "Tracking Enable";
-
+                    enableLocationBtn.setBackgroundTintList(getResources().getColorStateList(R.color.colorPrimary));
                 } else {
                     msg = "Tracking Disable";
+                    enableLocationBtn.setBackgroundTintList(getResources().getColorStateList(R.color.colorAccent));
                 }
                 woosmap.enableTracking(WoosmapSettings.trackingEnable);
                 Snackbar.make(view, msg, Snackbar.LENGTH_LONG)
@@ -202,16 +208,23 @@ public class MainActivity extends AppCompatActivity {
         });
 
         final FloatingActionButton enableSearchAPIBtn = findViewById(R.id.EnableSearchAPI);
+        if(WoosmapSettings.searchAPIEnable) {
+            enableSearchAPIBtn.setBackgroundTintList(getResources().getColorStateList(R.color.colorPrimary));
+        } else {
+            enableSearchAPIBtn.setBackgroundTintList(getResources().getColorStateList(R.color.colorAccent));
+        }
         enableSearchAPIBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 WoosmapSettings.searchAPIEnable = !WoosmapSettings.searchAPIEnable;
                 String msg = "";
-                if(WoosmapSettings.searchAPIEnable)
+                if(WoosmapSettings.searchAPIEnable) {
                     msg = "SearchAPI Enable";
-                else
+                    enableSearchAPIBtn.setBackgroundTintList(getResources().getColorStateList(R.color.colorPrimary));
+                } else {
                     msg = "SearchAPI Disable";
-
+                    enableSearchAPIBtn.setBackgroundTintList(getResources().getColorStateList(R.color.colorAccent));
+                }
                 Snackbar.make(view, msg, Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
             }
