@@ -59,6 +59,8 @@ public class MainActivity extends AppCompatActivity {
     private MapFragment mapFragment;
     private VisitFragment visitFragment;
 
+    private boolean isMenuOpen = false;
+
     private Woosmap woosmap;
 
     public class WoosLocationReadyListener implements Woosmap.LocationReadyListener {
@@ -79,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void onPOICallback(POI poi) {
-        new POITask(getApplicationContext(), this).execute();
+        new POITask(getApplicationContext(), this,poi).execute();
     }
 
     public class WoosVisitReadyListener implements Woosmap.VisitReadyListener {
@@ -161,7 +163,7 @@ public class MainActivity extends AppCompatActivity {
 
         });
 
-        FloatingActionButton clearDBBtn = findViewById(R.id.clearDB);
+        final FloatingActionButton clearDBBtn = findViewById(R.id.clearDB);
         clearDBBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -171,13 +173,80 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        FloatingActionButton testZOIBtn = findViewById(R.id.TestZOI);
+        final FloatingActionButton testZOIBtn = findViewById(R.id.TestZOI);
         testZOIBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Snackbar.make(view, "Create ZOI", 8000)
                         .setAction("Action", null).show();
                 new testZOITask(getApplicationContext(), MainActivity.this).execute();
+            }
+        });
+
+        final FloatingActionButton enableLocationBtn = findViewById(R.id.EnableLocation);
+        if(WoosmapSettings.trackingEnable) {
+            enableLocationBtn.setBackgroundTintList(getResources().getColorStateList(R.color.colorPrimary));
+        } else {
+            enableLocationBtn.setBackgroundTintList(getResources().getColorStateList(R.color.colorAccent));
+        }
+        enableLocationBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                WoosmapSettings.trackingEnable = !WoosmapSettings.trackingEnable;
+                String msg = "";
+                if(WoosmapSettings.trackingEnable) {
+                    msg = "Tracking Enable";
+                    enableLocationBtn.setBackgroundTintList(getResources().getColorStateList(R.color.colorPrimary));
+                } else {
+                    msg = "Tracking Disable";
+                    enableLocationBtn.setBackgroundTintList(getResources().getColorStateList(R.color.colorAccent));
+                }
+                woosmap.enableTracking(WoosmapSettings.trackingEnable);
+                Snackbar.make(view, msg, Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+            }
+        });
+
+        final FloatingActionButton enableSearchAPIBtn = findViewById(R.id.EnableSearchAPI);
+        if(WoosmapSettings.searchAPIEnable) {
+            enableSearchAPIBtn.setBackgroundTintList(getResources().getColorStateList(R.color.colorPrimary));
+        } else {
+            enableSearchAPIBtn.setBackgroundTintList(getResources().getColorStateList(R.color.colorAccent));
+        }
+        enableSearchAPIBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                WoosmapSettings.searchAPIEnable = !WoosmapSettings.searchAPIEnable;
+                String msg = "";
+                if(WoosmapSettings.searchAPIEnable) {
+                    msg = "SearchAPI Enable";
+                    enableSearchAPIBtn.setBackgroundTintList(getResources().getColorStateList(R.color.colorPrimary));
+                } else {
+                    msg = "SearchAPI Disable";
+                    enableSearchAPIBtn.setBackgroundTintList(getResources().getColorStateList(R.color.colorAccent));
+                }
+                Snackbar.make(view, msg, Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+            }
+        });
+
+        FloatingActionButton menuSettings = findViewById(R.id.Menu);
+        menuSettings.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(!isMenuOpen) {
+                    isMenuOpen = true;
+                    clearDBBtn.animate().translationY(-180);
+                    testZOIBtn.animate().translationY(-360);
+                    enableSearchAPIBtn.animate().translationY(-540);
+                    enableLocationBtn.animate().translationY(-720);
+                } else {
+                    isMenuOpen = false;
+                    clearDBBtn.animate().translationY(0);
+                    testZOIBtn.animate().translationY(0);
+                    enableSearchAPIBtn.animate().translationY(0);
+                    enableLocationBtn.animate().translationY(0);
+                }
             }
         });
 
@@ -318,22 +387,25 @@ public class MainActivity extends AppCompatActivity {
     private static class POITask extends AsyncTask<Void, Void, POI> {
         private final Context mContext;
         public MainActivity mActivity;
+        private final POI mPOI;
 
-        POITask(Context context, MainActivity activity) {
+        POITask(Context context, MainActivity activity, POI poi) {
             mContext = context;
             mActivity = activity;
+            mPOI = poi;
         }
 
         @Override
         protected POI doInBackground(Void... voids) {
-            POI newPOI = WoosmapDb.getInstance(mContext, true).getPOIsDAO().getLastPOI();
+            POI newPOI = mPOI;
             return newPOI;
         }
 
         @Override
         protected void onPostExecute(POI poiToShow) {
-            if (poiToShow == null)
+            if (mPOI == null)
                 return;
+
 
             SimpleDateFormat displayDateFormat = new SimpleDateFormat("HH:mm:ss");
             if (mActivity.mapFragment.mGoolgeMap != null && mActivity.mapFragment.isVisible()) {

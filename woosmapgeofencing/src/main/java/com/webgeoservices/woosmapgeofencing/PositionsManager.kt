@@ -120,7 +120,9 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
         if (filterTimeBetweenRequestSearAPI(movingPosition))
             return movingPosition
 
-        requestSearchAPI(movingPosition)
+        if (WoosmapSettings.searchAPIEnable == true)
+            requestSearchAPI(movingPosition)
+
         return movingPosition
     }
 
@@ -268,6 +270,47 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
         requestQueue?.add(req)
     }
 
+    fun searchAPI(lat: Double, lng: Double) {
+        if (requestQueue == null) {
+            requestQueue = Volley.newRequestQueue(this.context)
+        }
+
+        if(WoosmapSettings.privateKeySearchAPI.isEmpty()){
+            return
+        }
+
+        val url = String.format(WoosmapSettings.Urls.SearchAPIUrl, WoosmapSettings.privateKeySearchAPI, lat, lng)
+        val req = StringRequest(Request.Method.GET, url,
+                Response.Listener<String> { response ->
+                    Thread {
+                        val gson = Gson()
+                        val data = gson.fromJson(response, SearchAPI::class.java)
+                        val featureSearch = data.features[0]
+                        val city = featureSearch.properties.address.city
+                        val zipcode = featureSearch.properties.address.zipcode
+                        val distance = featureSearch.properties.distance.toString()
+                        val longitudePOI = featureSearch.geometry.coordinates[0]
+                        val latitudePOI = featureSearch.geometry.coordinates[1]
+                        val POIaround = POI()
+                        POIaround.city = city
+                        POIaround.zipCode = zipcode
+                        POIaround.distance = distance.toDouble()
+                        POIaround.dateTime = System.currentTimeMillis();
+                        POIaround.lat = latitudePOI
+                        POIaround.lng = longitudePOI
+
+                        if (Woosmap.getInstance().searchAPIReadyListener != null) {
+                            Woosmap.getInstance().searchAPIReadyListener.SearchAPIReadyCallback(POIaround)
+                        }
+
+                    }.start()
+                },
+                Response.ErrorListener { error ->
+                    Log.e(WoosmapSettings.Tags.WoosmapSdkTag, error.toString() + " search API")
+                })
+        requestQueue?.add(req)
+    }
+
     private fun createVisit(visit: Visit) {
         this.db.visitsDao.createStaticPosition(visit)
         temporaryCurrentVisits.add(visit)
@@ -312,4 +355,7 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
             return false
         return true
     }
+
+
+
 }

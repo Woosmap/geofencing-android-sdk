@@ -15,11 +15,17 @@ public class WoosmapSettings {
     static final String WoosmapNotification = "woosmapNotification";
     static public final String WoosmapNotificationChannel = "woosmap_01";
 
+    //Enable/disable Location
+    static public boolean trackingEnable = true;
+
     //filter time to refresh user location
     static public int currentLocationTimeFilter = 0;
 
     //filter distance to refresh user location
     static public int currentLocationDistanceFilter = 0;
+
+    //Enable/disable SearchAPI
+    static public boolean searchAPIEnable = true;
 
     //filter time to request Search API
     static public int searchAPITimeFilter = 0;

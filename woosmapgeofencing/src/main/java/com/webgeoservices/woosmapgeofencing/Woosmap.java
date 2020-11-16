@@ -177,6 +177,9 @@ public class Woosmap {
      * Should be call on your mainActivity onResume method
      */
     public void onResume() {
+        if(!WoosmapSettings.trackingEnable) {
+            return;
+        }
         this.isForegroundEnabled = true;
         if (this.shouldTrackUser()) {
             this.locationManager.updateLocationForeground();
@@ -196,6 +199,9 @@ public class Woosmap {
      * Should be call on your mainActivity onPause method
      */
     public void onPause() {
+        if(!WoosmapSettings.trackingEnable) {
+            return;
+        }
         try {
             if (this.shouldTrackUser()) {
                 this.isForegroundEnabled = false;
@@ -210,6 +216,9 @@ public class Woosmap {
 
     void onReboot() {
         this.isForegroundEnabled = false;
+        if(!WoosmapSettings.trackingEnable) {
+            return;
+        }
         if (this.shouldTrackUser()) {
             this.locationManager.setmLocationRequest();
             this.locationManager.updateLocationBackground();
@@ -221,6 +230,17 @@ public class Woosmap {
 
     private Boolean shouldTrackUser() {
         return this.locationManager.checkPermissions();
+    }
+
+    public Boolean enableTracking(boolean trackingEnable) {
+        WoosmapSettings.trackingEnable = trackingEnable;
+        if(WoosmapSettings.trackingEnable) {
+            onResume();
+            return true;
+        } else {
+            this.locationManager.removeLocationUpdates();
+            return false;
+        }
     }
 
 
