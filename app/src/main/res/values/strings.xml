@@ -17,6 +17,12 @@
     <h4> &#160; ZipCode = %5$s <br>
     <h4> &#160; Distance = %6$s <br>]]></string>
 
+    <string name="html_POI_duration"><![CDATA[" <h3><font color=#03a9f4>&#160; POI : %1$s,%2$s</font>&#160; &#160; &#160; &#160; at %3$s<br>
+    <h4> &#160; City = %4$s <br>
+    <h4> &#160; ZipCode = %5$s <br>
+    <h4> &#160; Distance = %6$s <br>
+    <h4> &#160; Duration = %7$s <br>]]></string>
+
     <string name="html_visit"><![CDATA[" <h3><font color=#FFA500>&#160; Visit : %1$s,%2$s</font>
     <h4> &#160; startTime = %3$s <br>
     <h4> &#160; endTime = %4$s <br>

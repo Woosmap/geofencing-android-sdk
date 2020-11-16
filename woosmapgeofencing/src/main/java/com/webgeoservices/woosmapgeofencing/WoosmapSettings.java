@@ -33,6 +33,15 @@ public class WoosmapSettings {
     //filter distance to request Search API
     static public int searchAPIDistanceFilter = 0;
 
+    //Enable/disable DistanceAPI
+    static public boolean distanceAPIEnable = true;
+
+    //Mode transportation DistanceAPI
+    private static String drivingMode  = "driving";
+    private static String walkingMode  = "walking";
+    private static String cyclingMode  = "cycling";
+    static public String modeDistance = drivingMode;
+
     //Filter Accuracy of the location
     static public int accuracyFilter = 100;
 
@@ -55,7 +64,7 @@ public class WoosmapSettings {
 
     // Key for APIs
     static public String privateKeyGMPStatic = "";
-    static public String privateKeySearchAPI = "";
+    static public String privateKeyWoosmapAPI = "";
 
     public static class Tags {
         public static final String WoosmapSdkTag = "WoosmapSdk";
@@ -66,7 +75,9 @@ public class WoosmapSettings {
     }
 
     static class Urls {
-        static String SearchAPIUrl = "https://api.woosmap.com/stores/search/?private_key=%s&lat=%s&lng=%s&stores_by_page=1";
+        static String WoosmapURL = "https://api.woosmap.com";
+        static String SearchAPIUrl = "%s/stores/search/?private_key=%s&lat=%s&lng=%s&stores_by_page=1";
+        static String DistanceAPIUrl ="%s/distance/distancematrix/json?mode=%s&units=metric&origins=%s,%s&destinations=%s&private_key=%s&elements=duration_distance";
         static String GoogleMapStaticUrl = "https://maps.google.com/maps/api/staticmap?markers=color:red%%7C%s,%s&markers=color:blue%%7C%s,%s&zoom=14&size=400x400&sensor=true&key=%s";
         static String GoogleMapStaticUrl1POI = "https://maps.google.com/maps/api/staticmap?markers=color:red%%7C%s,%s&zoom=14&size=400x400&sensor=true&key=%s";
     }

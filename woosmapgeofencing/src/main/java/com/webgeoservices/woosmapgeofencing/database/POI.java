@@ -12,8 +12,9 @@ public class POI {
     public double lat;
     public double lng;
     public String city;
-    public String  zipCode;
-    public double  distance;
+    public String zipCode;
+    public double distance;
+    public String duration;
     public long dateTime;
     public int isUpload = 0;
 

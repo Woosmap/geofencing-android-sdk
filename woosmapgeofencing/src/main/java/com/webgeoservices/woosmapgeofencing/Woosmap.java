@@ -14,6 +14,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 
+import com.webgeoservices.woosmapgeofencing.DistanceAPIDataModel.DistanceAPI;
 import com.webgeoservices.woosmapgeofencing.database.POI;
 import com.webgeoservices.woosmapgeofencing.database.Visit;
 import com.webgeoservices.woosmapgeofencing.database.WoosmapDb;
@@ -39,6 +40,7 @@ public class Woosmap {
     LocationReadyListener locationReadyListener = null;
     SearchAPIReadyListener searchAPIReadyListener = null;
     VisitReadyListener visitReadyListener = null;
+    DistanceAPIReadyListener distanceAPIReadyListener = null;
 
 
     /**
@@ -63,6 +65,18 @@ public class Woosmap {
          * @param poi an user's location
          */
         void SearchAPIReadyCallback(POI poi);
+    }
+
+    /**
+     * An interface to add callback on Distance API retrieving
+     */
+    public interface DistanceAPIReadyListener {
+        /**
+         * When Woosmap get a new distance it calls this method
+         *
+         * @param distanceAPIData an user's location
+         */
+        void DistanceAPIReadyCallback(DistanceAPI distanceAPIData);
     }
 
     /**
@@ -143,6 +157,16 @@ public class Woosmap {
      */
     public void setSearchAPIReadyListener(SearchAPIReadyListener searchAPIReadyListener) {
         this.searchAPIReadyListener = searchAPIReadyListener;
+    }
+
+    /**
+     * Add a listener to get callback on new Distance
+     *
+     * @param distanceAPIReadyListener
+     * @see DistanceAPIReadyListener
+     */
+    public void setDistanceAPIReadyListener(DistanceAPIReadyListener distanceAPIReadyListener) {
+        this.distanceAPIReadyListener = distanceAPIReadyListener;
     }
 
     /**

@@ -130,9 +130,9 @@ protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
 
-   // Set Keys
-   WoosmapSettings.privateKeySearchAPI = "";
-   WoosmapSettings.privateKeyGMPStatic = "";
+    // Set Keys
+    WoosmapSettings.privateKeyWoosmapAPI = "";
+    WoosmapSettings.privateKeyGMPStatic = "";
 
     // Instanciate woosmap object
     this.woosmap = Woosmap.getInstance().initializeWoosmap(this);
@@ -140,6 +140,7 @@ protected void onCreate(Bundle savedInstanceState) {
 
     this.woosmap.setLocationReadyListener(new WoosLocationReadyListener());
     this.woosmap.setSearchAPIReadyListener (new WoosSearchAPIReadyListener ());
+    this.woosmap.setDistanceAPIReadyListener (new WoosDistanceAPIReadyListener ());
     this.woosmap.setVisitReadyListener (new WoosVisitReadyListener ());
 
     // Visit Detection Enable
@@ -257,6 +258,8 @@ private void onLocationCallback(Location currentLocation) {
 }
 ```
 
+
+
 ### Retrieve POIs from Search API
 
 In your `mainActivity`, create a listener connected to the interface `Woosmap.SearchAPIReadyListener` and set a callback to retrieve POIs from the Search API request.
@@ -287,6 +290,44 @@ PositionsManager mPositionsManager = new PositionsManager(getContext(), WoosmapD
 
 // Launch the request
  mPositionsManager.searchAPI(48.884722,2.401838);
+```
+
+You retrieve the result by the listener explain above.
+
+### Retrieve Distance from Distance API
+
+In your `mainActivity`, create a listener connected to the interface `Woosmap.DistanceAPIReadyListener` and set a callback to retrieve distance from the Distance API request.
+```java
+public class WoosDistanceAPIReadyListener implements Woosmap.DistanceAPIReadyListener
+{
+    public void DistanceAPIReadyCallback(DistanceAPI distanceAPIData);
+    {
+        onDistanceCallback(distanceAPIData);
+  }
+}
+
+private void onDistanceCallback(DistanceAPI distanceAPIData) {
+    // get Distance
+
+}
+```
+
+### Enable or disable Distance API request
+The Distance API request on each POI is enable by default. For disable that, in your MainActivity, you can change the value in the settings of the SDK as follow:
+```java
+WoosmapSettings.distanceAPIEnable(true);
+```
+
+If you want call Distance API "on demand", you can launch the request with this method :
+```java
+// Instantiate the PositionManager
+PositionsManager mPositionsManager = new PositionsManager(getContext(), WoosmapDb.getInstance(getContext(), true));
+
+// Launch the request
+// Set distination coordinate
+    List<Pair<Double, Double>> listDestinationPoint = new ArrayList<>();
+    listDestinationPoint.add(new Pair(lat, lng));
+    mPositionsManager.distanceAPI(48.884722,2.401838,listDestinationPoint);
 ```
 
 You retrieve the result by the listener explain above.
