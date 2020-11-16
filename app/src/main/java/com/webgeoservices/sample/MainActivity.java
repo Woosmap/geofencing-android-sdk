@@ -4,6 +4,8 @@ package com.webgeoservices.sample;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.location.Location;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -32,6 +34,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
+import com.webgeoservices.woosmapgeofencing.DistanceAPIDataModel.DistanceAPI;
 import com.webgeoservices.woosmapgeofencing.FigmmForVisitsCreator;
 import com.webgeoservices.woosmapgeofencing.Woosmap;
 import com.webgeoservices.woosmapgeofencing.WoosmapSettings;
@@ -84,6 +87,26 @@ public class MainActivity extends AppCompatActivity {
         new POITask(getApplicationContext(), this,poi).execute();
     }
 
+    public class WoosDistanceAPIReadyListener implements Woosmap.DistanceAPIReadyListener {
+        public void DistanceAPIReadyCallback(DistanceAPI distanceAPIData) {
+            onDistanceAPICallback(distanceAPIData);
+        }
+    }
+
+    private void onDistanceAPICallback(DistanceAPI distanceAPIData) {
+        String resultDistanceAPI = "";
+        if("OK".contains(distanceAPIData.status)) {
+            String distance = distanceAPIData.rows.get(0).elements.get(0).distance.text;
+            String duration = distanceAPIData.rows.get(0).elements.get(0).duration.text;
+            resultDistanceAPI = "Distance : " + distance + " Duration : " + duration;
+        } else {
+            resultDistanceAPI = distanceAPIData.status;
+        }
+
+        Snackbar.make(locationFragment.getView(),resultDistanceAPI, 5000)
+                .setAction("Action", null).show();
+    }
+
     public class WoosVisitReadyListener implements Woosmap.VisitReadyListener {
         public void VisitReadyCallback(Visit visit) {
             onVisitCallback(visit);
@@ -122,6 +145,8 @@ public class MainActivity extends AppCompatActivity {
             this.woosmap.onPause();
         }
     }
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -184,11 +209,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
         final FloatingActionButton enableLocationBtn = findViewById(R.id.EnableLocation);
-        if(WoosmapSettings.trackingEnable) {
-            enableLocationBtn.setBackgroundTintList(getResources().getColorStateList(R.color.colorPrimary));
-        } else {
-            enableLocationBtn.setBackgroundTintList(getResources().getColorStateList(R.color.colorAccent));
-        }
         enableLocationBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -208,11 +228,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
         final FloatingActionButton enableSearchAPIBtn = findViewById(R.id.EnableSearchAPI);
-        if(WoosmapSettings.searchAPIEnable) {
-            enableSearchAPIBtn.setBackgroundTintList(getResources().getColorStateList(R.color.colorPrimary));
-        } else {
-            enableSearchAPIBtn.setBackgroundTintList(getResources().getColorStateList(R.color.colorAccent));
-        }
         enableSearchAPIBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -221,7 +236,7 @@ public class MainActivity extends AppCompatActivity {
                 if(WoosmapSettings.searchAPIEnable) {
                     msg = "SearchAPI Enable";
                     enableSearchAPIBtn.setBackgroundTintList(getResources().getColorStateList(R.color.colorPrimary));
-                } else {
+                }else {
                     msg = "SearchAPI Disable";
                     enableSearchAPIBtn.setBackgroundTintList(getResources().getColorStateList(R.color.colorAccent));
                 }
@@ -230,7 +245,25 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        FloatingActionButton menuSettings = findViewById(R.id.Menu);
+        final FloatingActionButton enableDistanceAPIBtn = findViewById(R.id.EnableDistanceAPI);
+        enableDistanceAPIBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                WoosmapSettings.distanceAPIEnable = !WoosmapSettings.distanceAPIEnable;
+                String msg = "";
+                if(WoosmapSettings.distanceAPIEnable) {
+                    msg = "DistanceAPI Enable";
+                    enableDistanceAPIBtn.setBackgroundTintList(getResources().getColorStateList(R.color.colorPrimary));
+                }else {
+                    msg = "DistanceAPI Disable";
+                    enableDistanceAPIBtn.setBackgroundTintList(getResources().getColorStateList(R.color.colorAccent));
+                }
+                Snackbar.make(view, msg, Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+            }
+        });
+
+        final FloatingActionButton menuSettings = findViewById(R.id.Menu);
         menuSettings.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -238,12 +271,14 @@ public class MainActivity extends AppCompatActivity {
                     isMenuOpen = true;
                     clearDBBtn.animate().translationY(-180);
                     testZOIBtn.animate().translationY(-360);
-                    enableSearchAPIBtn.animate().translationY(-540);
-                    enableLocationBtn.animate().translationY(-720);
+                    enableDistanceAPIBtn.animate().translationY(-540);
+                    enableSearchAPIBtn.animate().translationY(-720);
+                    enableLocationBtn.animate().translationY(-900);
                 } else {
                     isMenuOpen = false;
                     clearDBBtn.animate().translationY(0);
                     testZOIBtn.animate().translationY(0);
+                    enableDistanceAPIBtn.animate().translationY(0);
                     enableSearchAPIBtn.animate().translationY(0);
                     enableLocationBtn.animate().translationY(0);
                 }
@@ -270,11 +305,12 @@ public class MainActivity extends AppCompatActivity {
         WoosmapSettings.numberOfDayDataDuration = 30;
 
         // Set Keys
-        WoosmapSettings.privateKeySearchAPI = "";
+        WoosmapSettings.privateKeyWoosmapAPI = "";
         WoosmapSettings.privateKeyGMPStatic = "";
 
         this.woosmap.setLocationReadyListener(new WoosLocationReadyListener());
         this.woosmap.setSearchAPIReadyListener(new WoosSearchAPIReadyListener());
+        this.woosmap.setDistanceAPIReadyListener(new WoosDistanceAPIReadyListener());
         this.woosmap.setVisitReadyListener(new WoosVisitReadyListener());
 
         // Visit Detection Enable
@@ -428,9 +464,16 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
             if (mActivity.locationFragment.mLocationInfo != null && mActivity.locationFragment.isVisible()) {
-                String poiHTML = mContext.getString(R.string.html_POI, Double.toString(poiToShow.lat),
-                        Double.toString(poiToShow.lng), displayDateFormat.format(poiToShow.dateTime),
-                        poiToShow.city, poiToShow.zipCode, Double.toString(poiToShow.distance));
+                String poiHTML =  "";
+                if (poiToShow.duration != null) {
+                    poiHTML = mContext.getString(R.string.html_POI_duration, Double.toString(poiToShow.lat),
+                            Double.toString(poiToShow.lng), displayDateFormat.format(poiToShow.dateTime),
+                            poiToShow.city, poiToShow.zipCode, Double.toString(poiToShow.distance), poiToShow.duration);
+                } else {
+                    poiHTML = mContext.getString(R.string.html_POI, Double.toString(poiToShow.lat),
+                            Double.toString(poiToShow.lng), displayDateFormat.format(poiToShow.dateTime),
+                            poiToShow.city, poiToShow.zipCode, Double.toString(poiToShow.distance));
+                }
                 Spanned locationHTMLAsText = Html.fromHtml(poiHTML);
                 TextView locationInfoView = mActivity.locationFragment.mLocationInfo;
                 Spanned text = (Spanned) TextUtils.concat(locationHTMLAsText, locationInfoView.getText());
@@ -488,6 +531,8 @@ public class MainActivity extends AppCompatActivity {
             movingPosition.lng = mCurrentLocation.getLongitude();
             movingPosition.accuracy = mCurrentLocation.getAccuracy();
             movingPosition.dateTime = mCurrentLocation.getTime();
+
+            mActivity.locationFragment.currentPosition = mCurrentLocation;
             return movingPosition;
         }
 

@@ -3,6 +3,7 @@ package com.webgeoservices.woosmapgeofencing
 import android.content.Context
 import android.location.Location
 import android.util.Log
+import android.util.Pair
 import com.android.volley.Request
 import com.android.volley.Response
 import com.android.volley.toolbox.StringRequest
@@ -14,6 +15,8 @@ import com.webgeoservices.woosmapgeofencing.database.*
 import org.jetbrains.anko.doAsync
 import java.util.*
 import com.android.volley.RequestQueue
+import com.webgeoservices.woosmapgeofencing.DistanceAPIDataModel.DistanceAPI
+import kotlin.collections.ArrayList
 
 
 class PositionsManager(val context: Context, private val db: WoosmapDb) {
@@ -229,11 +232,11 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
             requestQueue = Volley.newRequestQueue(this.context)
         }
 
-        if(WoosmapSettings.privateKeySearchAPI.isEmpty()){
+        if(WoosmapSettings.privateKeyWoosmapAPI.isEmpty()){
             return
         }
 
-        val url = String.format(WoosmapSettings.Urls.SearchAPIUrl, WoosmapSettings.privateKeySearchAPI, positon.lat, positon.lng)
+        val url = String.format(WoosmapSettings.Urls.SearchAPIUrl, WoosmapSettings.Urls.WoosmapURL, WoosmapSettings.privateKeyWoosmapAPI, positon.lat, positon.lng)
         val req = StringRequest(Request.Method.GET, url,
                 Response.Listener<String> { response ->
                     Thread {
@@ -255,12 +258,15 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
                         POIaround.lng = longitudePOI
 
                         if (!filterDistanceBetweenRequestSearAPI(POIaround)) {
-                            this.db.poIsDAO.createPOI(POIaround)
-                            if (Woosmap.getInstance().searchAPIReadyListener != null) {
-                                Woosmap.getInstance().searchAPIReadyListener.SearchAPIReadyCallback(POIaround)
+                            if(WoosmapSettings.distanceAPIEnable) {
+                                requestDistanceAPI(POIaround,positon)
+                            }else {
+                                this.db.poIsDAO.createPOI(POIaround)
+                                if (Woosmap.getInstance().searchAPIReadyListener != null) {
+                                    Woosmap.getInstance().searchAPIReadyListener.SearchAPIReadyCallback(POIaround)
+                                }
                             }
                         }
-
 
                     }.start()
                 },
@@ -270,16 +276,53 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
         requestQueue?.add(req)
     }
 
+    fun requestDistanceAPI(POIaround: POI, positon: MovingPosition) {
+        if (requestQueue == null) {
+            requestQueue = Volley.newRequestQueue(this.context)
+        }
+
+        if(WoosmapSettings.privateKeyWoosmapAPI.isEmpty()){
+            return
+        }
+
+        val destination = POIaround.lat.toString() + "," + POIaround.lng.toString()
+
+        val url = String.format(WoosmapSettings.Urls.DistanceAPIUrl, WoosmapSettings.Urls.WoosmapURL, WoosmapSettings.modeDistance, positon.lat, positon.lng, destination, WoosmapSettings.privateKeyWoosmapAPI)
+        val req = StringRequest(Request.Method.GET, url,
+                Response.Listener<String> { response ->
+                    Thread {
+                        val gson = Gson()
+                        val data = gson.fromJson(response, DistanceAPI::class.java)
+                        val status = data.status
+
+                        if(status == "OK"){
+                            POIaround.distance = data.rows[0].elements[0].distance.value.toDouble()
+                            POIaround.duration = data.rows[0].elements[0].duration.text
+                        }
+
+                        this.db.poIsDAO.createPOI(POIaround)
+                        if (Woosmap.getInstance().searchAPIReadyListener != null) {
+                            Woosmap.getInstance().searchAPIReadyListener.SearchAPIReadyCallback(POIaround)
+                        }
+
+                    }.start()
+                },
+                Response.ErrorListener { error ->
+                    Log.e(WoosmapSettings.Tags.WoosmapSdkTag, error.toString() + " Distance API")
+                })
+        requestQueue?.add(req)
+    }
+
     fun searchAPI(lat: Double, lng: Double) {
         if (requestQueue == null) {
             requestQueue = Volley.newRequestQueue(this.context)
         }
 
-        if(WoosmapSettings.privateKeySearchAPI.isEmpty()){
+        if(WoosmapSettings.privateKeyWoosmapAPI.isEmpty()){
             return
         }
 
-        val url = String.format(WoosmapSettings.Urls.SearchAPIUrl, WoosmapSettings.privateKeySearchAPI, lat, lng)
+        val url = String.format(WoosmapSettings.Urls.SearchAPIUrl, WoosmapSettings.Urls.WoosmapURL, WoosmapSettings.privateKeyWoosmapAPI, lat, lng)
         val req = StringRequest(Request.Method.GET, url,
                 Response.Listener<String> { response ->
                     Thread {
@@ -307,6 +350,41 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
                 },
                 Response.ErrorListener { error ->
                     Log.e(WoosmapSettings.Tags.WoosmapSdkTag, error.toString() + " search API")
+                })
+        requestQueue?.add(req)
+    }
+
+
+    fun distanceAPI(latOrigin: Double, lngOrigin: Double, listPosition: MutableList<Pair<Double, Double>>) {
+        if (requestQueue == null) {
+            requestQueue = Volley.newRequestQueue(this.context)
+        }
+
+        if(WoosmapSettings.privateKeyWoosmapAPI.isEmpty()){
+            return
+        }
+
+        var destination = ""
+        listPosition.forEach {
+            destination += it.first.toString() + "," + it.second.toString() + "|"
+        }
+
+        val url = String.format(WoosmapSettings.Urls.DistanceAPIUrl, WoosmapSettings.Urls.WoosmapURL, WoosmapSettings.modeDistance, latOrigin, lngOrigin, destination, WoosmapSettings.privateKeyWoosmapAPI)
+        val req = StringRequest(Request.Method.GET, url,
+                Response.Listener<String> { response ->
+                    Thread {
+                        val gson = Gson()
+                        val data = gson.fromJson(response, DistanceAPI::class.java)
+                        val status = data.status
+
+                        if (Woosmap.getInstance().distanceAPIReadyListener != null) {
+                            Woosmap.getInstance().distanceAPIReadyListener.DistanceAPIReadyCallback(data)
+                        }
+
+                    }.start()
+                },
+                Response.ErrorListener { error ->
+                    Log.e(WoosmapSettings.Tags.WoosmapSdkTag, error.toString() + " Distance API")
                 })
         requestQueue?.add(req)
     }

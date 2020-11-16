@@ -1,8 +1,10 @@
 package com.webgeoservices.sample;
 
+import android.location.Location;
 import android.os.Bundle;
 import android.text.Layout;
 import android.text.method.ScrollingMovementMethod;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -14,8 +16,11 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.webgeoservices.woosmapgeofencing.PositionsManager;
+import com.webgeoservices.woosmapgeofencing.database.MovingPosition;
 import com.webgeoservices.woosmapgeofencing.database.WoosmapDb;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -24,6 +29,7 @@ public class LocationFragment extends Fragment {
 
     TextView mLocationInfo;
     PositionsManager mPositionsManager;
+    Location currentPosition;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -52,7 +58,7 @@ public class LocationFragment extends Fragment {
                     int start = mLocationInfo.getLayout().getLineStart(line);
                     int end = mLocationInfo.getLayout().getLineEnd(line);
                     String text = mLocationInfo.getText().toString().substring(start, end);
-                    Pattern patte = Pattern.compile("  Location : ([-0-9.]*),([-0-9.]*)");
+                    Pattern patte = Pattern.compile(" ([-0-9.]*),([-0-9.]*)");
                     Matcher matcher = patte.matcher(text);
                     Double lat = 0.0;
                     Double lng = 0.0;
@@ -62,6 +68,13 @@ public class LocationFragment extends Fragment {
                     }
                     if(text.contains("Location")) {
                         mPositionsManager.searchAPI(lat,lng);
+                    }
+                    if(text.contains("POI")) {
+                        List<Pair<Double, Double>> listDestinationPoint = new ArrayList<>();
+                        listDestinationPoint.add(new Pair(lat, lng));
+                        Double latOrigin = currentPosition.getLatitude();
+                        Double lngOrigin = currentPosition.getLongitude();
+                        mPositionsManager.distanceAPI(latOrigin,lngOrigin,listDestinationPoint);
                     }
                 }
                 return false;

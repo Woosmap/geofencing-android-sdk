@@ -155,11 +155,11 @@ public class WoosmapMessageBuilderMaps {
         mPendingIntent = PendingIntent.getActivity(this.context, 0, resultIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
 
-        if (!WoosmapSettings.privateKeyGMPStatic.isEmpty() && !WoosmapSettings.privateKeySearchAPI.isEmpty()) {
+        if (!WoosmapSettings.privateKeyGMPStatic.isEmpty() && !WoosmapSettings.privateKeyWoosmapAPI.isEmpty()) {
             sendNotificationWithSearchAPIAndStaticMap();
-        } else if (WoosmapSettings.privateKeyGMPStatic.isEmpty() && !WoosmapSettings.privateKeySearchAPI.isEmpty()) {
+        } else if (WoosmapSettings.privateKeyGMPStatic.isEmpty() && !WoosmapSettings.privateKeyWoosmapAPI.isEmpty()) {
             sendNotificationWithSearchAPI();
-        } else if (!WoosmapSettings.privateKeyGMPStatic.isEmpty() && WoosmapSettings.privateKeySearchAPI.isEmpty()) {
+        } else if (!WoosmapSettings.privateKeyGMPStatic.isEmpty() && WoosmapSettings.privateKeyWoosmapAPI.isEmpty()) {
             sendNotificationWithGMPStatic();
         } else {
             sendNotificationWithLocation();
@@ -287,7 +287,7 @@ public class WoosmapMessageBuilderMaps {
      */
     private void searchAPIRequest(final Location location, final boolean withGoogleMapStatic) {
         final RequestQueue requestQueue = Volley.newRequestQueue(context);
-        String urlAPI = String.format(WoosmapSettings.Urls.SearchAPIUrl, WoosmapSettings.privateKeySearchAPI, location.getLatitude(), location.getLongitude());
+        String urlAPI = String.format(WoosmapSettings.Urls.SearchAPIUrl, WoosmapSettings.Urls.WoosmapURL, WoosmapSettings.privateKeyWoosmapAPI, location.getLatitude(), location.getLongitude());
         StringRequest stringRequest = new StringRequest(urlAPI, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
