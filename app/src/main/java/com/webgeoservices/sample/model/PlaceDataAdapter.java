@@ -22,23 +22,6 @@ public class PlaceDataAdapter extends ArrayAdapter<PlaceData> {
     }
 
     @Override
-    public void add(PlaceData object) {
-        super.add(object);
-        this.sort(new Comparator<PlaceData>() {
-            @Override
-            public int compare(PlaceData o1, PlaceData o2) {
-                return Long.compare(o2.getDate(), o1.getDate());
-            }
-        });
-    }
-    @Override
-    public void notifyDataSetChanged() {
-        //do your sorting here
-
-        super.notifyDataSetChanged();
-    }
-
-    @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         SimpleDateFormat displayDateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
         convertView = LayoutInflater.from(getContext()).inflate( R.layout.item_location, parent, false);
@@ -81,18 +64,19 @@ public class PlaceDataAdapter extends ArrayAdapter<PlaceData> {
                 if(mins != 0)
                     endVisitInformation += String.format( "%02d", mins ) + " mins ";
 
-                temp = temp - mins * 60;
-                int secs = temp;
-                if(mins != 0)
+                int secs = temp - mins * 60;
+                if(secs != 0)
                     endVisitInformation += String.format( "%02d", secs ) + " secs";
 
             }
 
             String visitDetails = "Start time = " + displayDateFormat.format(place.getArrivalDate()) + "\n" + endVisitInformation;
-            TextView tvdetails = (TextView) convertView.findViewById( R.id.details );
-            tvdetails.setText( visitDetails );
+            TextView tvDetails = (TextView) convertView.findViewById( R.id.details );
+            tvDetails.setText( visitDetails );
         }
 
         return convertView;
     }
+
+
 }

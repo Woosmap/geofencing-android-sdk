@@ -1,5 +1,7 @@
 package com.webgeoservices.sample.model;
 
+import java.util.Comparator;
+
 public class PlaceData {
     public enum dataType {
         POI,
@@ -160,3 +162,4 @@ public class PlaceData {
 
 
 }
+

@@ -381,7 +381,7 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
                         val gson = Gson()
                         val data = gson.fromJson(response, DistanceAPI::class.java)
                         val status = data.status
-                        if(locationId != 0) {
+                        if(locationId != 0 && status.contains("OK") && data.rows.get(0).elements.get(0).status.contains("OK")) {
                             var poiToUpdate = this.db.poIsDAO.getPOIbyLocationID(locationId)
                             poiToUpdate.distance = data.rows.get(0).elements.get(0).distance.value.toDouble()
                             poiToUpdate.duration = data.rows.get(0).elements.get(0).duration.text

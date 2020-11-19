@@ -15,6 +15,7 @@ import androidx.fragment.app.Fragment;
 
 import com.webgeoservices.sample.model.PlaceData;
 import com.webgeoservices.sample.model.PlaceDataAdapter;
+import com.webgeoservices.sample.model.PlaceDataComparator;
 import com.webgeoservices.woosmapgeofencing.PositionsManager;
 import com.webgeoservices.woosmapgeofencing.database.WoosmapDb;
 
@@ -67,12 +68,7 @@ public class LocationFragment extends Fragment {
         int top = (v == null) ? 0 : (v.getTop() - lvLocation.getPaddingTop());
 
         adapter = new PlaceDataAdapter(getContext(), arrayOfPlaceData);
-        adapter.sort(new Comparator<PlaceData>() {
-            @Override
-            public int compare(PlaceData o1, PlaceData o2) {
-                return Long.compare(o2.getDate(), o1.getDate());
-            }
-        });
+        Collections.sort( arrayOfPlaceData, new PlaceDataComparator());
 
         lvLocation.setAdapter(adapter);
         lvLocation.setSelectionFromTop(index, top);
@@ -81,6 +77,5 @@ public class LocationFragment extends Fragment {
     public void clearData() {
         adapter.clear();
     }
-
 
 }
