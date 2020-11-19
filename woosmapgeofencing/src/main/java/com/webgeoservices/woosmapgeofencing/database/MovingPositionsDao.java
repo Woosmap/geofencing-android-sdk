@@ -10,7 +10,7 @@ import androidx.room.Update;
 public interface MovingPositionsDao {
 
     @Insert
-    void createMovingPosition(MovingPosition movingPosition);
+    long createMovingPosition(MovingPosition movingPosition);
 
     @Update
     void updateMovingPosition(MovingPosition movingPosition);

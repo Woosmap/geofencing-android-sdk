@@ -1,31 +1,66 @@
 package com.webgeoservices.sample;
 
 import android.os.Bundle;
-import android.text.method.ScrollingMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
+import android.widget.ListView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.webgeoservices.sample.model.PlaceData;
+import com.webgeoservices.sample.model.PlaceDataAdapter;
+import com.webgeoservices.woosmapgeofencing.PositionsManager;
+import com.webgeoservices.woosmapgeofencing.database.WoosmapDb;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+
+
 public class VisitFragment extends Fragment {
-    TextView mVisitInfo;
+
+    PlaceDataAdapter adapter;
+    ListView lvVisit;
+    PositionsManager mPositionsManager;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mPositionsManager = new PositionsManager(getContext(), WoosmapDb.getInstance(getContext(), true));
+    }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.location, container, false);
-        mVisitInfo = view.findViewById(R.id.location);
-        mVisitInfo.setMovementMethod(new ScrollingMovementMethod());
+        View view = inflater.inflate( R.layout.visit, container, false );
+        lvVisit = (ListView) view.findViewById(R.id.lvVisit);
 
-        return view;
+        return  view;
     }
 
-    @Override
-    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
+
+    public void loadData(ArrayList<PlaceData> arrayOfPlaceData) {
+        int index = lvVisit.getFirstVisiblePosition();
+        View v = lvVisit.getChildAt(0);
+        int top = (v == null) ? 0 : (v.getTop() - lvVisit.getPaddingTop());
+
+        adapter = new PlaceDataAdapter(getContext(), arrayOfPlaceData);
+        adapter.sort(new Comparator<PlaceData>() {
+            @Override
+            public int compare(PlaceData o1, PlaceData o2) {
+                return Long.compare(o2.getDate(), o1.getDate());
+            }
+        });
+
+        lvVisit.setAdapter(adapter);
+        lvVisit.setSelectionFromTop(index, top);
     }
+
+    public void clearData() {
+        adapter.clear();
+    }
+
+
 }

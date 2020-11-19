@@ -34,6 +34,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
+import com.webgeoservices.sample.model.PlaceData;
 import com.webgeoservices.woosmapgeofencing.DistanceAPIDataModel.DistanceAPI;
 import com.webgeoservices.woosmapgeofencing.FigmmForVisitsCreator;
 import com.webgeoservices.woosmapgeofencing.Woosmap;
@@ -51,6 +52,7 @@ import java.io.InputStreamReader;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 
@@ -73,6 +75,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void onLocationCallback(Location currentLocation) {
+        new refreshDataTask(getApplicationContext(), MainActivity.this).execute();
         new LocationTask(getApplicationContext(), this, currentLocation).execute();
     }
 
@@ -84,6 +87,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void onPOICallback(POI poi) {
+        new refreshDataTask(getApplicationContext(), MainActivity.this).execute();
         new POITask(getApplicationContext(), this,poi).execute();
     }
 
@@ -94,17 +98,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void onDistanceAPICallback(DistanceAPI distanceAPIData) {
-        String resultDistanceAPI = "";
-        if("OK".contains(distanceAPIData.status)) {
-            String distance = distanceAPIData.rows.get(0).elements.get(0).distance.text;
-            String duration = distanceAPIData.rows.get(0).elements.get(0).duration.text;
-            resultDistanceAPI = "Distance : " + distance + " Duration : " + duration;
-        } else {
-            resultDistanceAPI = distanceAPIData.status;
-        }
-
-        Snackbar.make(locationFragment.getView(),resultDistanceAPI, 5000)
-                .setAction("Action", null).show();
+        new refreshDataTask(getApplicationContext(), MainActivity.this).execute();
     }
 
     public class WoosVisitReadyListener implements Woosmap.VisitReadyListener {
@@ -114,6 +108,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void onVisitCallback(Visit visit) {
+        new refreshVisitTask(getApplicationContext(), this).execute();
         new VisitTask(getApplicationContext(), this).execute();
     }
 
@@ -161,6 +156,7 @@ public class MainActivity extends AppCompatActivity {
         new AllPOITask(getApplicationContext(), MainActivity.this).execute();
         new VisitTask(getApplicationContext(), MainActivity.this).execute();
         new AllZOITask(getApplicationContext(), MainActivity.this).execute();
+        new refreshDataTask(getApplicationContext(), MainActivity.this).execute();
 
         BottomNavigationView bottomNav = findViewById(R.id.bottom_navigation);
         setFragment(locationFragment);
@@ -169,15 +165,17 @@ public class MainActivity extends AppCompatActivity {
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switch (item.getItemId()) {
                     case R.id.navigation_map:
+                        new AllLocationTask(getApplicationContext(), MainActivity.this).execute();
+                        new AllPOITask(getApplicationContext(), MainActivity.this).execute();
                         new AllZOITask(getApplicationContext(), MainActivity.this).execute();
                         setFragment(mapFragment);
                         return true;
                     case R.id.navigation_location:
-                        new AllLocationTask(getApplicationContext(), MainActivity.this).execute();
-                        new AllPOITask(getApplicationContext(), MainActivity.this).execute();
+                        new refreshDataTask(getApplicationContext(), MainActivity.this).execute();
                         setFragment(locationFragment);
                         return true;
                     case R.id.navigation_visit:
+                        new refreshVisitTask(getApplicationContext(), MainActivity.this).execute();
                         new VisitTask(getApplicationContext(), MainActivity.this).execute();
                         setFragment(visitFragment);
                         return true;
@@ -442,8 +440,6 @@ public class MainActivity extends AppCompatActivity {
             if (mPOI == null)
                 return;
 
-
-            SimpleDateFormat displayDateFormat = new SimpleDateFormat("HH:mm:ss");
             if (mActivity.mapFragment.mGoolgeMap != null && mActivity.mapFragment.isVisible()) {
 
                 LatLng latLng = new LatLng(poiToShow.lat, poiToShow.lng);
@@ -462,22 +458,6 @@ public class MainActivity extends AppCompatActivity {
                         marker.setVisible(false);
                     }
                 }
-            }
-            if (mActivity.locationFragment.mLocationInfo != null && mActivity.locationFragment.isVisible()) {
-                String poiHTML =  "";
-                if (poiToShow.duration != null) {
-                    poiHTML = mContext.getString(R.string.html_POI_duration, Double.toString(poiToShow.lat),
-                            Double.toString(poiToShow.lng), displayDateFormat.format(poiToShow.dateTime),
-                            poiToShow.city, poiToShow.zipCode, Double.toString(poiToShow.distance), poiToShow.duration);
-                } else {
-                    poiHTML = mContext.getString(R.string.html_POI, Double.toString(poiToShow.lat),
-                            Double.toString(poiToShow.lng), displayDateFormat.format(poiToShow.dateTime),
-                            poiToShow.city, poiToShow.zipCode, Double.toString(poiToShow.distance));
-                }
-                Spanned locationHTMLAsText = Html.fromHtml(poiHTML);
-                TextView locationInfoView = mActivity.locationFragment.mLocationInfo;
-                Spanned text = (Spanned) TextUtils.concat(locationHTMLAsText, locationInfoView.getText());
-                locationInfoView.setText(text, TextView.BufferType.SPANNABLE);
             }
         }
     }
@@ -543,7 +523,6 @@ public class MainActivity extends AppCompatActivity {
                 return;
 
             if (mActivity.mapFragment.mGoolgeMap != null && mActivity.mapFragment.isVisible()) {
-
                 LatLng latLng = new LatLng(movingPosition.lat, movingPosition.lng);
                 MarkerOptions markerOptions = new MarkerOptions().position(latLng).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
                 if (!mActivity.mapFragment.markersLocations.isEmpty()) {
@@ -561,17 +540,51 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
             }
+        }
+    }
 
-            SimpleDateFormat displayDateFormat = new SimpleDateFormat("HH:mm:ss");
-            if (mActivity.locationFragment.mLocationInfo != null && mActivity.locationFragment.isVisible()) {
-                String locHTML = mContext.getString(R.string.html_position, Double.toString(movingPosition.lat),
-                        Double.toString(movingPosition.lng), displayDateFormat.format(movingPosition.dateTime));
-                Spanned locationHTMLAsText = Html.fromHtml(locHTML);
-                TextView locationInfoView = mActivity.locationFragment.mLocationInfo;
-                Spanned text = (Spanned) TextUtils.concat(locationHTMLAsText, locationInfoView.getText());
-                locationInfoView.setText(text, TextView.BufferType.SPANNABLE);
+    public static class refreshDataTask extends AsyncTask<Void, Void, ArrayList<PlaceData>> {
+        private final Context mContext;
+        public MainActivity mActivity;
+
+        refreshDataTask(Context context, MainActivity activity) {
+            mContext = context;
+            mActivity = activity;
+        }
+
+        @Override
+        protected ArrayList<PlaceData> doInBackground(Void... voids) {
+            MovingPosition[] movingPositionList = WoosmapDb.getInstance(mContext, true).getMovingPositionsDao().getMovingPositions(-1);
+            ArrayList<PlaceData> arrayOfPlaceData = new ArrayList<>();
+
+            for (MovingPosition locationToShow : movingPositionList) {
+                PlaceData place = new PlaceData();
+                place.setType( PlaceData.dataType.location );
+                place.setLatitude( locationToShow.lat );
+                place.setLongitude( locationToShow.lng );
+                place.setDate(locationToShow.dateTime);
+                place.setLocationId( locationToShow.id );
+                POI poibyLocationID =  WoosmapDb.getInstance(mContext, true).getPOIsDAO().getPOIbyLocationID( locationToShow.id );
+                if(poibyLocationID != null) {
+                    place.setZipCode( poibyLocationID.zipCode );
+                    place.setCity( poibyLocationID.city );
+                    place.setDistance( poibyLocationID.distance );
+                    place.setType( PlaceData.dataType.POI );
+                    place.setMovingDuration( poibyLocationID.duration );
+                }
+
+                arrayOfPlaceData.add( place );
+            }
+            return arrayOfPlaceData;
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<PlaceData> placeDataArrayList) {
+            if (mActivity.locationFragment.isVisible()) {
+                mActivity.locationFragment.loadData( placeDataArrayList );
             }
         }
+
     }
 
     public static class AllLocationTask extends AsyncTask<Void, Void, MovingPosition[]> {
@@ -594,30 +607,18 @@ public class MainActivity extends AppCompatActivity {
             if(movingPositionList.length == 0)
                 return;
 
-            SimpleDateFormat displayDateFormat = new SimpleDateFormat("HH:mm:ss");
-
-            if (mActivity.locationFragment.mLocationInfo != null) {
-                mActivity.locationFragment.mLocationInfo.setText("");
-            }
-
             for (MovingPosition locationToShow : movingPositionList) {
-                LatLng latLng = new LatLng(locationToShow.lat, locationToShow.lng);
+                LatLng latLng = new LatLng( locationToShow.lat, locationToShow.lng );
                 boolean markerToAdd = true;
-                MarkerOptions markerOptions = new MarkerOptions().position(latLng);
+                MarkerOptions markerOptions = new MarkerOptions().position( latLng );
                 for (MarkerOptions marker : mActivity.mapFragment.markersLocations) {
-                    if (marker.getPosition().equals(markerOptions.getPosition())) {
+                    if (marker.getPosition().equals( markerOptions.getPosition() )) {
                         markerToAdd = false;
                     }
                 }
                 if (markerToAdd) {
-                    mActivity.mapFragment.markersLocations.add(markerOptions);
+                    mActivity.mapFragment.markersLocations.add( markerOptions );
                 }
-            }
-
-            for (MovingPosition  movingPositionToShow: movingPositionList) {
-                String locHTML = mContext.getString(R.string.html_position, Double.toString(movingPositionToShow.lat),
-                        Double.toString(movingPositionToShow.lng), displayDateFormat.format(movingPositionToShow.dateTime));
-                mActivity.locationFragment.mLocationInfo.append(Html.fromHtml(locHTML));
             }
         }
     }
@@ -644,11 +645,6 @@ public class MainActivity extends AppCompatActivity {
 
             SimpleDateFormat displayDateFormat = new SimpleDateFormat("HH:mm:ss");
 
-            if (mActivity.locationFragment.mLocationInfo != null) {
-                mActivity.locationFragment.mLocationInfo.setText("");
-                mActivity.mapFragment.markersPOI.clear();
-            }
-
             for (POI poiToShow : poiList) {
                 LatLng latLng = new LatLng(poiToShow.lat, poiToShow.lng);
                 boolean markerToAdd = true;
@@ -661,10 +657,6 @@ public class MainActivity extends AppCompatActivity {
                 if (markerToAdd) {
                     mActivity.mapFragment.markersPOI.add(markerOptions);
                 }
-                String poiHTML = mContext.getString(R.string.html_POI, Double.toString(poiToShow.lat),
-                        Double.toString(poiToShow.lng), displayDateFormat.format(poiToShow.dateTime),
-                        poiToShow.city, poiToShow.zipCode, Double.toString(poiToShow.distance));
-                mActivity.locationFragment.mLocationInfo.append(Html.fromHtml(poiHTML));
             }
         }
     }
@@ -688,10 +680,6 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Visit[] staticList) {
             SimpleDateFormat displayDateFormat = new SimpleDateFormat("HH:mm:ss");
-            if (mActivity.visitFragment.mVisitInfo != null) {
-                mActivity.visitFragment.mVisitInfo.setText("");
-                mActivity.mapFragment.markersVisit.clear();
-            }
             for (Visit visitToShow : staticList) {
                 if(visitToShow.duration >= WoosmapSettings.durationVisitFilter) {
                     LatLng latLng = new LatLng(visitToShow.lat, visitToShow.lng);
@@ -724,17 +712,46 @@ public class MainActivity extends AppCompatActivity {
                             }
                         }
                     }
-                    if (mActivity.visitFragment.mVisitInfo != null) {
-                        String visitHTML = mContext.getString(R.string.html_visit, Double.toString(visitToShow.lat),
-                                Double.toString(visitToShow.lng), startFormatedDate,
-                                endFormatedDate, visitToShow.nbPoint);
-
-                        mActivity.visitFragment.mVisitInfo.append(Html.fromHtml(visitHTML));
-                    }
                 }
             }
             //Refresh zoi on map on visit
             new AllZOITask(mContext, mActivity).execute();
+        }
+    }
+
+    public static class refreshVisitTask extends AsyncTask<Void, Void, ArrayList<PlaceData>> {
+        private final Context mContext;
+        public MainActivity mActivity;
+
+        refreshVisitTask(Context context, MainActivity activity) {
+            mContext = context;
+            mActivity = activity;
+        }
+
+        @Override
+        protected ArrayList<PlaceData> doInBackground(Void... voids) {
+
+            Visit[] visitList = WoosmapDb.getInstance(mContext, true).getVisitsDao().getAllStaticPositions();
+            ArrayList<PlaceData> arrayOfPlaceData = new ArrayList<>();
+
+            for (Visit visitToShow : visitList) {
+                PlaceData place = new PlaceData();
+                place.setType( PlaceData.dataType.visit );
+                place.setLatitude( visitToShow.lat );
+                place.setLongitude( visitToShow.lng );
+                place.setArrivalDate( visitToShow.startTime );
+                place.setDepartureDate( visitToShow.endTime );
+                place.setDuration( visitToShow.duration );
+                arrayOfPlaceData.add( place );
+            }
+            return arrayOfPlaceData;
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<PlaceData> placeDataArrayList) {
+            if (mActivity.visitFragment.isVisible()) {
+                mActivity.visitFragment.loadData( placeDataArrayList );
+            }
         }
     }
 
@@ -755,10 +772,10 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(Void result) {
-            if (mActivity.locationFragment.mLocationInfo != null)
-                mActivity.locationFragment.mLocationInfo.setText("");
-            if (mActivity.visitFragment.mVisitInfo != null)
-                mActivity.visitFragment.mVisitInfo.setText("");
+            if (mActivity.locationFragment.adapter != null)
+               mActivity.locationFragment.clearData();
+            if (mActivity.visitFragment.adapter != null)
+                mActivity.visitFragment.clearData();
             mActivity.mapFragment.clearMarkers();
         }
     }
