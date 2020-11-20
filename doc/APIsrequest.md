@@ -54,7 +54,67 @@ All result of request SerachAPI are strored in the SDK database, you can retriev
 ```
 Important :  all retrieve from the database must be launch in a asynchronous task. 
 
+Informations about the search API : https://developers.woosmap.com/products/search-api/get-started/
+
+## How to use DistanceAPI 
+
+To obtain on demand a distance and duration between an origin and destinations, you must instanciate the class `PositionsManager` call the method `DistanceAPI` and get the result on the callback `DistanceAPIReadyCallback` or get the POI completed with informations about distance and duration in the database inside the SDK. 
+
+In your activity, instanciate Woosmap, set keys, specifies the mode of transport to use when calculating distance and set a listener to monitor result of the DistanceAPI request :
+```java
+public class MainActivity extends AppCompatActivity {
+  private Woosmap woosmap;
+
+  public class WoosDistanceAPIReadyListener implements Woosmap.DistanceAPIReadyListener {
+        public void DistanceAPIReadyCallback(DistanceAPI distanceAPIData) {
+            onDistanceAPICallback(distanceAPIData);
+        }
+   }
   
+  @Override
+  protected void onCreate(Bundle savedInstanceState) {
+       // Instanciate woosmap object
+       this.woosmap = Woosmap.getInstance().initializeWoosmap(this);
+       
+       // Set Keys
+       WoosmapSettings.privateKeyWoosmapAPI = "";
+       
+       //Specifies the mode of transport to use when calculating distance. Valid values are "driving", "cycling", "walking". (if not specified default is driving)
+       WoosmapSettings.modeDistance = "driving";
+       
+       // Set the Distance API listener 
+       this.woosmap.setDistanceAPIReadyListener(new WoosDistanceAPIReadyListener());
+       
+       ...
+       
+  }
+```
+
+Launch request DistanceAPI :
+
+```java
+  PositionsManager mPositionsManager = new PositionsManager(getContext(), WoosmapDb.getInstance(getContext(), true));
+  
+       // set latitude and longitude of the origin, 
+       // set the latitude and longitude of the destinations,
+       // and the id of the location if you want to update a POI in database of the SDK or you can set to 0 for the id location.
+      List<Pair<Double, Double>> listDestinationPoint = new ArrayList<>();
+      listDestinationPoint.add(new Pair(place.getLatitude(), place.getLongitude()));
+      Double latOrigin = currentPosition.getLatitude();
+      Double lngOrigin = currentPosition.getLongitude();
+      mPositionsManager.distanceAPI(latOrigin,lngOrigin,listDestinationPoint,place.getLocationId());
+```
+
+Get the result of the request Distance API in the callback `onDistanceAPICallback` definie in your activity below :
+
+```java
+   private void onDistanceAPICallback(DistanceAPI distanceAPIData) {
+       //Get the data of the reponse distanceAPI
+   }
+```
+
+
+Informations about the Distance API :https://developers.woosmap.com/products/distance-api/get-started/
 
 ## Find the Closest POIs and Display a Result Map
 
