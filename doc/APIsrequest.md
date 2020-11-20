@@ -1,4 +1,61 @@
 ﻿
+## How to use SearchAPI 
+
+To obtain on demand the closest POI from a location, you must instanciate the class `PositionsManager` call the method `searchAPI` and get the result on the callback `SearchAPIReadyCallback` or get the POI in the database inside the SDK. 
+
+In your activity, instanciate Woosmap, set keys, and set a listener to monitor result of the SearchAPI request :
+
+```java
+public class MainActivity extends AppCompatActivity {
+  private Woosmap woosmap;
+
+  public class WoosSearchAPIReadyListener implements Woosmap.SearchAPIReadyListener {
+        public void SearchAPIReadyCallback(POI poi) {
+            onPOICallback(poi);
+        }
+  }
+  
+  @Override
+  protected void onCreate(Bundle savedInstanceState) {
+       // Instanciate woosmap object
+       this.woosmap = Woosmap.getInstance().initializeWoosmap(this);
+       
+       // Set Keys
+        WoosmapSettings.privateKeyWoosmapAPI = "";
+       
+       // Set the Search API listener 
+       this.woosmap.setSearchAPIReadyListener(new WoosSearchAPIReadyListener());
+       
+       ...
+       
+  }
+```
+On a refresh location event or ever you want :
+
+```java
+  PositionsManager mPositionsManager = new PositionsManager(getContext(), WoosmapDb.getInstance(getContext(), true));
+  
+  // set latitude and longitude of the location, and the id of the location if you want to update a location in database of the SDK or you can set to 0 for the id location.
+  mPositionsManager.searchAPI( location.getLatitude(), location.getLongitude(), location.getLocationId() );
+```
+
+
+Get the result of the request Search API in the callback `onPOICallback` definie in your activity below :
+
+```java
+  private void onPOICallback(POI poi) {
+    // Get data of the POI
+  }
+```
+
+All result of request SerachAPI are strored in the SDK database, you can retrieve data from the SDK database like this : 
+```java
+  POI[] poiList = WoosmapDb.getInstance(mContext, true).getPOIsDAO().getAllPOIs();
+```
+Important :  all retrieve from the database must be launch in a asynchronous task. 
+
+  
+
 ## Find the Closest POIs and Display a Result Map
 
 Location of the mobile is the first step but you may need to contextualize this location. Answering questions like “Where might be the user?”, “What could he be visiting?” is one step further to provide value to your users.
