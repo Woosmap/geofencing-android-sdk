@@ -13,7 +13,10 @@ public class PlaceData {
     private long date;
     private Double latitude;
     private Double longitude;
+    private Double POILatitude;
+    private Double POILongitude;
     private String city;
+    private String travelingDistance;
     private Double distance;
     private String zipCode;
     private dataType type;
@@ -38,6 +41,30 @@ public class PlaceData {
 
     public void setLongitude(Double longitude) {
         this.longitude = longitude;
+    }
+
+    public Double getPOILatitude() {
+        return POILatitude;
+    }
+
+    public void setPOILatitude(Double POILatitude) {
+        this.POILatitude = POILatitude;
+    }
+
+    public Double getPOILongitude() {
+        return POILongitude;
+    }
+
+    public void setPOILongitude(Double POILongitude) {
+        this.POILongitude = POILongitude;
+    }
+
+    public String getTravelingDistance() {
+        return travelingDistance;
+    }
+
+    public void setTravelingDistance(String travelingDistance) {
+        this.travelingDistance = travelingDistance;
     }
 
     public String getCity() {
@@ -148,6 +175,8 @@ public class PlaceData {
         this.date = 0;
         this.latitude = 0.0;
         this.longitude = 0.0;
+        this.POILatitude = 0.0;
+        this.POILongitude = 0.0;
         this.city = "";
         this.distance = 0.0;
         this.zipCode = "";
@@ -156,6 +185,7 @@ public class PlaceData {
         this.arrivalDate = 0;
         this.departureDate = 0;
         this.duration = 0;
+        this.travelingDistance = "";
         this.movingDuration = "";
         this.locationId = 0;
     }

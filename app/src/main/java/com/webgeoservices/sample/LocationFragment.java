@@ -51,7 +51,7 @@ public class LocationFragment extends Fragment {
                     mPositionsManager.searchAPI( place.getLatitude(), place.getLongitude(), place.getLocationId() );
                 } else if (place.getType() == PlaceData.dataType.POI && place.getMovingDuration() == null){
                     List<Pair<Double, Double>> listDestinationPoint = new ArrayList<>();
-                    listDestinationPoint.add(new Pair(place.getLatitude(), place.getLongitude()));
+                    listDestinationPoint.add(new Pair(place.getPOILatitude(), place.getPOILongitude()));
                     Double latOrigin = currentPosition.getLatitude();
                     Double lngOrigin = currentPosition.getLongitude();
                     mPositionsManager.distanceAPI(latOrigin,lngOrigin,listDestinationPoint,place.getLocationId());

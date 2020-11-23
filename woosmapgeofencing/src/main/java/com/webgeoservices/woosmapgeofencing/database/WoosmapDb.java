@@ -13,7 +13,7 @@ import com.webgeoservices.woosmapgeofencing.WoosmapSettings;
 
 import static android.content.Context.MODE_PRIVATE;
 
-@Database(entities = {Visit.class, MovingPosition.class, POI.class, ZOI.class}, version = 9, exportSchema = false)
+@Database(entities = {Visit.class, MovingPosition.class, POI.class, ZOI.class}, version = 10, exportSchema = false)
 @TypeConverters({Converters.class})
 public abstract class WoosmapDb extends RoomDatabase {
 

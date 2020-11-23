@@ -12,10 +12,12 @@ import androidx.fragment.app.Fragment;
 
 import com.webgeoservices.sample.model.PlaceData;
 import com.webgeoservices.sample.model.PlaceDataAdapter;
+import com.webgeoservices.sample.model.PlaceDataComparator;
 import com.webgeoservices.woosmapgeofencing.PositionsManager;
 import com.webgeoservices.woosmapgeofencing.database.WoosmapDb;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 
 
@@ -47,12 +49,7 @@ public class VisitFragment extends Fragment {
         int top = (v == null) ? 0 : (v.getTop() - lvVisit.getPaddingTop());
 
         adapter = new PlaceDataAdapter(getContext(), arrayOfPlaceData);
-        adapter.sort(new Comparator<PlaceData>() {
-            @Override
-            public int compare(PlaceData o1, PlaceData o2) {
-                return Long.compare(o2.getDate(), o1.getDate());
-            }
-        });
+        Collections.sort( arrayOfPlaceData, new PlaceDataComparator());
 
         lvVisit.setAdapter(adapter);
         lvVisit.setSelectionFromTop(index, top);

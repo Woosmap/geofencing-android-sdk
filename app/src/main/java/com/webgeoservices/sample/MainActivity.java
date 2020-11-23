@@ -255,6 +255,24 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        if(WoosmapSettings.trackingEnable) {
+            enableLocationBtn.setBackgroundTintList(getResources().getColorStateList(R.color.colorPrimary));
+        } else {
+            enableLocationBtn.setBackgroundTintList(getResources().getColorStateList(R.color.colorAccent));
+        }
+
+        if(WoosmapSettings.distanceAPIEnable) {
+            enableDistanceAPIBtn.setBackgroundTintList(getResources().getColorStateList(R.color.colorPrimary));
+        }else {
+            enableDistanceAPIBtn.setBackgroundTintList(getResources().getColorStateList(R.color.colorAccent));
+        }
+
+        if(WoosmapSettings.searchAPIEnable) {
+            enableSearchAPIBtn.setBackgroundTintList(getResources().getColorStateList(R.color.colorPrimary));
+        }else {
+            enableSearchAPIBtn.setBackgroundTintList(getResources().getColorStateList(R.color.colorAccent));
+        }
+
         final FloatingActionButton menuSettings = findViewById(R.id.Menu);
         menuSettings.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -299,6 +317,8 @@ public class MainActivity extends AppCompatActivity {
         // Set Keys
         WoosmapSettings.privateKeyWoosmapAPI = "";
         WoosmapSettings.privateKeyGMPStatic = "";
+
+        WoosmapSettings.modeDistance = "driving";
 
         this.woosmap.setLocationReadyListener(new WoosLocationReadyListener());
         this.woosmap.setSearchAPIReadyListener(new WoosSearchAPIReadyListener());
@@ -560,9 +580,12 @@ public class MainActivity extends AppCompatActivity {
                 place.setLocationId( locationToShow.id );
                 POI poibyLocationID =  WoosmapDb.getInstance(mContext, true).getPOIsDAO().getPOIbyLocationID( locationToShow.id );
                 if(poibyLocationID != null) {
+                    place.setPOILatitude( poibyLocationID.lat );
+                    place.setPOILongitude( poibyLocationID.lng );
                     place.setZipCode( poibyLocationID.zipCode );
                     place.setCity( poibyLocationID.city );
                     place.setDistance( poibyLocationID.distance );
+                    place.setTravelingDistance( poibyLocationID.travelingDistance );
                     place.setType( PlaceData.dataType.POI );
                     place.setMovingDuration( poibyLocationID.duration );
                 }

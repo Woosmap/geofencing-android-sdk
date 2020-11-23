@@ -40,7 +40,12 @@ public class PlaceDataAdapter extends ArrayAdapter<PlaceData> {
             TextView tvDate = (TextView) convertView.findViewById( R.id.date );
             tvDate.setText( displayDateFormat.format( place.getDate() ) );
 
-            String poiDetails = "City = " + place.getCity() + "\n" + "ZipCode = " + place.getZipCode() + "\n" + "Distance = " + place.getDistance().toString() + "\n";
+            String poiDetails = "City = " + place.getCity() + "\n" + "ZipCode = " + place.getZipCode() + "\n" + "Distance = ";
+            if(place.getTravelingDistance() != null) {
+                poiDetails += place.getTravelingDistance() + "\n";
+            } else {
+                poiDetails += place.getDistance().toString() + "\n";
+            }
             if(place.getMovingDuration() != null)
                 poiDetails += "Duration = " + place.getMovingDuration();
             TextView tvdetails = (TextView) convertView.findViewById( R.id.details );

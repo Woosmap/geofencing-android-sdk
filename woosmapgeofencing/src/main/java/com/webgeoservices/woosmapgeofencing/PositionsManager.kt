@@ -299,7 +299,7 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
                         val status = data.status
 
                         if(status == "OK"){
-                            POIaround.distance = data.rows[0].elements[0].distance.value.toDouble()
+                            POIaround.travelingDistance = data.rows.get(0).elements.get(0).distance.text
                             POIaround.duration = data.rows[0].elements[0].duration.text
                         }
 
@@ -383,7 +383,7 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
                         val status = data.status
                         if(locationId != 0 && status.contains("OK") && data.rows.get(0).elements.get(0).status.contains("OK")) {
                             var poiToUpdate = this.db.poIsDAO.getPOIbyLocationID(locationId)
-                            poiToUpdate.distance = data.rows.get(0).elements.get(0).distance.value.toDouble()
+                            poiToUpdate.travelingDistance = data.rows.get(0).elements.get(0).distance.text
                             poiToUpdate.duration = data.rows.get(0).elements.get(0).duration.text
                             this.db.poIsDAO.updatePOI(poiToUpdate)
                         }
