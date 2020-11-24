@@ -2,92 +2,79 @@ package com.webgeoservices.sample;
 
 import android.location.Location;
 import android.os.Bundle;
-import android.text.Layout;
-import android.text.method.ScrollingMovementMethod;
 import android.util.Pair;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
+import android.widget.AdapterView;
+import android.widget.ListView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.webgeoservices.sample.model.PlaceData;
+import com.webgeoservices.sample.model.PlaceDataAdapter;
+import com.webgeoservices.sample.model.PlaceDataComparator;
 import com.webgeoservices.woosmapgeofencing.PositionsManager;
-import com.webgeoservices.woosmapgeofencing.database.MovingPosition;
 import com.webgeoservices.woosmapgeofencing.database.WoosmapDb;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 
 public class LocationFragment extends Fragment {
 
-    TextView mLocationInfo;
+    PlaceDataAdapter adapter;
+    ListView lvLocation;
     PositionsManager mPositionsManager;
-    Location currentPosition;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mPositionsManager = new PositionsManager(getContext(), WoosmapDb.getInstance(getContext(), true));
-
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.location, container, false);
-        mLocationInfo = view.findViewById(R.id.location);
-        mLocationInfo.setMovementMethod(new ScrollingMovementMethod());
-
-        mLocationInfo.setOnTouchListener(new View.OnTouchListener() {
+        View view = inflater.inflate( R.layout.location, container, false );
+        lvLocation = (ListView) view.findViewById(R.id.lvLocation);
+        lvLocation.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if(event.getAction() != MotionEvent.AXIS_Y) {
-                    return false;
+            public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
+                PlaceData place = (PlaceData) lvLocation.getItemAtPosition(position);
+                if (place.getType() == PlaceData.dataType.location) {
+                    mPositionsManager.searchAPI( place.getLatitude(), place.getLongitude(), place.getLocationId() );
+                } else if (place.getType() == PlaceData.dataType.POI && place.getMovingDuration() == null){
+                    List<Pair<Double, Double>> listDestinationPoint = new ArrayList<>();
+                    listDestinationPoint.add(new Pair(place.getPOILatitude(), place.getPOILongitude()));
+                    Double latOrigin = place.getLatitude();
+                    Double lngOrigin = place.getLongitude();
+                    mPositionsManager.distanceAPI(latOrigin,lngOrigin,listDestinationPoint,place.getLocationId());
                 }
-                Layout layout = ((TextView) v).getLayout();
-                int y = (int)event.getY();
-                if (layout!=null){
-                    int line = layout.getLineForVertical(y);
-                    int start = mLocationInfo.getLayout().getLineStart(line);
-                    int end = mLocationInfo.getLayout().getLineEnd(line);
-                    String text = mLocationInfo.getText().toString().substring(start, end);
-                    Pattern patte = Pattern.compile(" ([-0-9.]*),([-0-9.]*)");
-                    Matcher matcher = patte.matcher(text);
-                    Double lat = 0.0;
-                    Double lng = 0.0;
-                    while (matcher.find()) {
-                        lat = Double.valueOf(matcher.group(1));
-                        lng = Double.valueOf(matcher.group(2));
-                    }
-                    if(text.contains("Location")) {
-                        mPositionsManager.searchAPI(lat,lng);
-                    }
-                    if(text.contains("POI")) {
-                        List<Pair<Double, Double>> listDestinationPoint = new ArrayList<>();
-                        listDestinationPoint.add(new Pair(lat, lng));
-                        Double latOrigin = currentPosition.getLatitude();
-                        Double lngOrigin = currentPosition.getLongitude();
-                        mPositionsManager.distanceAPI(latOrigin,lngOrigin,listDestinationPoint);
-                    }
-                }
-                return false;
             }
         });
-        return view;
-    }
-
-    @Override
-    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
+        return  view;
     }
 
 
+    public void loadData(ArrayList<PlaceData> arrayOfPlaceData) {
+        int index = lvLocation.getFirstVisiblePosition();
+        View v = lvLocation.getChildAt(0);
+        int top = (v == null) ? 0 : (v.getTop() - lvLocation.getPaddingTop());
+
+        adapter = new PlaceDataAdapter(getContext(), arrayOfPlaceData);
+        Collections.sort( arrayOfPlaceData, new PlaceDataComparator());
+
+        lvLocation.setAdapter(adapter);
+        lvLocation.setSelectionFromTop(index, top);
+    }
+
+    public void clearData() {
+        adapter.clear();
+    }
 
 }

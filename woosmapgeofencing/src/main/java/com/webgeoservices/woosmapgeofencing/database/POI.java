@@ -14,6 +14,7 @@ public class POI {
     public String city;
     public String zipCode;
     public double distance;
+    public String travelingDistance;
     public String duration;
     public long dateTime;
     public int isUpload = 0;

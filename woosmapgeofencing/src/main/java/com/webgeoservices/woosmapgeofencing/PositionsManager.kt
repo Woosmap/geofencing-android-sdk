@@ -5,18 +5,20 @@ import android.location.Location
 import android.util.Log
 import android.util.Pair
 import com.android.volley.Request
+import com.android.volley.RequestQueue
 import com.android.volley.Response
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import com.google.gson.Gson
+import com.webgeoservices.woosmapgeofencing.DistanceAPIDataModel.DistanceAPI
 import com.webgeoservices.woosmapgeofencing.SearchAPIDataModel.SearchAPI
 import com.webgeoservices.woosmapgeofencing.WoosmapSettings.Tags.WoosmapVisitsTag
-import com.webgeoservices.woosmapgeofencing.database.*
+import com.webgeoservices.woosmapgeofencing.database.MovingPosition
+import com.webgeoservices.woosmapgeofencing.database.POI
+import com.webgeoservices.woosmapgeofencing.database.Visit
+import com.webgeoservices.woosmapgeofencing.database.WoosmapDb
 import org.jetbrains.anko.doAsync
 import java.util.*
-import com.android.volley.RequestQueue
-import com.webgeoservices.woosmapgeofencing.DistanceAPIDataModel.DistanceAPI
-import kotlin.collections.ArrayList
 
 
 class PositionsManager(val context: Context, private val db: WoosmapDb) {
@@ -118,7 +120,8 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
         movingPosition.accuracy = location.accuracy
         movingPosition.dateTime = location.time
         movingPosition.isUpload = 0
-        this.db.movingPositionsDao.createMovingPosition(movingPosition)
+        val id = this.db.movingPositionsDao.createMovingPosition(movingPosition)
+        movingPosition.id = id.toInt();
 
         if (filterTimeBetweenRequestSearAPI(movingPosition))
             return movingPosition
@@ -296,7 +299,7 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
                         val status = data.status
 
                         if(status == "OK"){
-                            POIaround.distance = data.rows[0].elements[0].distance.value.toDouble()
+                            POIaround.travelingDistance = data.rows.get(0).elements.get(0).distance.text
                             POIaround.duration = data.rows[0].elements[0].duration.text
                         }
 
@@ -313,7 +316,7 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
         requestQueue?.add(req)
     }
 
-    fun searchAPI(lat: Double, lng: Double) {
+    fun searchAPI(lat: Double, lng: Double, positionId: Int = 0) {
         if (requestQueue == null) {
             requestQueue = Volley.newRequestQueue(this.context)
         }
@@ -341,7 +344,9 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
                         POIaround.dateTime = System.currentTimeMillis();
                         POIaround.lat = latitudePOI
                         POIaround.lng = longitudePOI
+                        POIaround.locationId = positionId
 
+                        this.db.poIsDAO.createPOI(POIaround)
                         if (Woosmap.getInstance().searchAPIReadyListener != null) {
                             Woosmap.getInstance().searchAPIReadyListener.SearchAPIReadyCallback(POIaround)
                         }
@@ -355,7 +360,7 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
     }
 
 
-    fun distanceAPI(latOrigin: Double, lngOrigin: Double, listPosition: MutableList<Pair<Double, Double>>) {
+    fun distanceAPI(latOrigin: Double, lngOrigin: Double, listPosition: MutableList<Pair<Double, Double>>, locationId: Int = 0) {
         if (requestQueue == null) {
             requestQueue = Volley.newRequestQueue(this.context)
         }
@@ -376,6 +381,12 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
                         val gson = Gson()
                         val data = gson.fromJson(response, DistanceAPI::class.java)
                         val status = data.status
+                        if(locationId != 0 && status.contains("OK") && data.rows.get(0).elements.get(0).status.contains("OK")) {
+                            var poiToUpdate = this.db.poIsDAO.getPOIbyLocationID(locationId)
+                            poiToUpdate.travelingDistance = data.rows.get(0).elements.get(0).distance.text
+                            poiToUpdate.duration = data.rows.get(0).elements.get(0).duration.text
+                            this.db.poIsDAO.updatePOI(poiToUpdate)
+                        }
 
                         if (Woosmap.getInstance().distanceAPIReadyListener != null) {
                             Woosmap.getInstance().distanceAPIReadyListener.DistanceAPIReadyCallback(data)

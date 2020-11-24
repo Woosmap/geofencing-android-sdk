@@ -3,23 +3,18 @@ package com.webgeoservices.sample;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.content.res.ColorStateList;
-import android.graphics.Color;
 import android.location.Location;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.text.Html;
-import android.text.Spanned;
-import android.text.TextUtils;
+
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.TextView;
-
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -34,6 +29,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
+import com.webgeoservices.sample.model.PlaceData;
 import com.webgeoservices.woosmapgeofencing.DistanceAPIDataModel.DistanceAPI;
 import com.webgeoservices.woosmapgeofencing.FigmmForVisitsCreator;
 import com.webgeoservices.woosmapgeofencing.Woosmap;
@@ -51,6 +47,7 @@ import java.io.InputStreamReader;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 
@@ -64,6 +61,8 @@ public class MainActivity extends AppCompatActivity {
 
     private boolean isMenuOpen = false;
 
+    private BottomNavigationView bottomNav;
+
     private Woosmap woosmap;
 
     public class WoosLocationReadyListener implements Woosmap.LocationReadyListener {
@@ -73,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void onLocationCallback(Location currentLocation) {
+        new refreshDataTask(getApplicationContext(), MainActivity.this).execute();
         new LocationTask(getApplicationContext(), this, currentLocation).execute();
     }
 
@@ -84,6 +84,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void onPOICallback(POI poi) {
+        new refreshDataTask(getApplicationContext(), MainActivity.this).execute();
         new POITask(getApplicationContext(), this,poi).execute();
     }
 
@@ -94,17 +95,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void onDistanceAPICallback(DistanceAPI distanceAPIData) {
-        String resultDistanceAPI = "";
-        if("OK".contains(distanceAPIData.status)) {
-            String distance = distanceAPIData.rows.get(0).elements.get(0).distance.text;
-            String duration = distanceAPIData.rows.get(0).elements.get(0).duration.text;
-            resultDistanceAPI = "Distance : " + distance + " Duration : " + duration;
-        } else {
-            resultDistanceAPI = distanceAPIData.status;
-        }
-
-        Snackbar.make(locationFragment.getView(),resultDistanceAPI, 5000)
-                .setAction("Action", null).show();
+        new refreshDataTask(getApplicationContext(), MainActivity.this).execute();
     }
 
     public class WoosVisitReadyListener implements Woosmap.VisitReadyListener {
@@ -114,6 +105,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void onVisitCallback(Visit visit) {
+        new refreshVisitTask(getApplicationContext(), this).execute();
         new VisitTask(getApplicationContext(), this).execute();
     }
 
@@ -157,27 +149,31 @@ public class MainActivity extends AppCompatActivity {
         mapFragment = new MapFragment();
         visitFragment = new VisitFragment();
 
+        setFragment(locationFragment);
+
         new AllLocationTask(getApplicationContext(), MainActivity.this).execute();
         new AllPOITask(getApplicationContext(), MainActivity.this).execute();
         new VisitTask(getApplicationContext(), MainActivity.this).execute();
         new AllZOITask(getApplicationContext(), MainActivity.this).execute();
+        new refreshDataTask(getApplicationContext(), MainActivity.this).execute();
 
-        BottomNavigationView bottomNav = findViewById(R.id.bottom_navigation);
-        setFragment(locationFragment);
+        bottomNav = findViewById(R.id.bottom_navigation);
         bottomNav.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switch (item.getItemId()) {
                     case R.id.navigation_map:
+                        new AllLocationTask(getApplicationContext(), MainActivity.this).execute();
+                        new AllPOITask(getApplicationContext(), MainActivity.this).execute();
                         new AllZOITask(getApplicationContext(), MainActivity.this).execute();
                         setFragment(mapFragment);
                         return true;
                     case R.id.navigation_location:
-                        new AllLocationTask(getApplicationContext(), MainActivity.this).execute();
-                        new AllPOITask(getApplicationContext(), MainActivity.this).execute();
+                        new refreshDataTask(getApplicationContext(), MainActivity.this).execute();
                         setFragment(locationFragment);
                         return true;
                     case R.id.navigation_visit:
+                        new refreshVisitTask(getApplicationContext(), MainActivity.this).execute();
                         new VisitTask(getApplicationContext(), MainActivity.this).execute();
                         setFragment(visitFragment);
                         return true;
@@ -187,6 +183,15 @@ public class MainActivity extends AppCompatActivity {
             }
 
         });
+
+        final SharedPreferences mPrefs = getApplicationContext().getSharedPreferences("WGSGeofencingPref",MODE_PRIVATE);
+        final SharedPreferences.Editor editor = mPrefs.edit();
+        boolean trackingEnable = mPrefs.getBoolean("trackingEnable",true);
+        boolean searchAPIEnable = mPrefs.getBoolean("searchAPIEnable",true);
+        boolean distanceAPIEnable = mPrefs.getBoolean("distanceAPIEnable",true);
+        WoosmapSettings.trackingEnable = trackingEnable;
+        WoosmapSettings.searchAPIEnable = searchAPIEnable;
+        WoosmapSettings.distanceAPIEnable = distanceAPIEnable;
 
         final FloatingActionButton clearDBBtn = findViewById(R.id.clearDB);
         clearDBBtn.setOnClickListener(new View.OnClickListener() {
@@ -216,9 +221,13 @@ public class MainActivity extends AppCompatActivity {
                 String msg = "";
                 if(WoosmapSettings.trackingEnable) {
                     msg = "Tracking Enable";
+                    editor.putBoolean( "trackingEnable",true);
+                    editor.apply();
                     enableLocationBtn.setBackgroundTintList(getResources().getColorStateList(R.color.colorPrimary));
                 } else {
                     msg = "Tracking Disable";
+                    editor.putBoolean( "trackingEnable",false);
+                    editor.apply();
                     enableLocationBtn.setBackgroundTintList(getResources().getColorStateList(R.color.colorAccent));
                 }
                 woosmap.enableTracking(WoosmapSettings.trackingEnable);
@@ -235,9 +244,13 @@ public class MainActivity extends AppCompatActivity {
                 String msg = "";
                 if(WoosmapSettings.searchAPIEnable) {
                     msg = "SearchAPI Enable";
+                    editor.putBoolean( "searchAPIEnable",true);
+                    editor.apply();
                     enableSearchAPIBtn.setBackgroundTintList(getResources().getColorStateList(R.color.colorPrimary));
                 }else {
                     msg = "SearchAPI Disable";
+                    editor.putBoolean( "searchAPIEnable",false);
+                    editor.apply();
                     enableSearchAPIBtn.setBackgroundTintList(getResources().getColorStateList(R.color.colorAccent));
                 }
                 Snackbar.make(view, msg, Snackbar.LENGTH_LONG)
@@ -253,15 +266,37 @@ public class MainActivity extends AppCompatActivity {
                 String msg = "";
                 if(WoosmapSettings.distanceAPIEnable) {
                     msg = "DistanceAPI Enable";
+                    editor.putBoolean( "distanceAPIEnable",false);
+                    editor.apply();
                     enableDistanceAPIBtn.setBackgroundTintList(getResources().getColorStateList(R.color.colorPrimary));
                 }else {
                     msg = "DistanceAPI Disable";
+                    editor.putBoolean( "distanceAPIEnable",false);
+                    editor.apply();
                     enableDistanceAPIBtn.setBackgroundTintList(getResources().getColorStateList(R.color.colorAccent));
                 }
                 Snackbar.make(view, msg, Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
             }
         });
+
+        if(WoosmapSettings.trackingEnable) {
+            enableLocationBtn.setBackgroundTintList(getResources().getColorStateList(R.color.colorPrimary));
+        } else {
+            enableLocationBtn.setBackgroundTintList(getResources().getColorStateList(R.color.colorAccent));
+        }
+
+        if(WoosmapSettings.distanceAPIEnable) {
+            enableDistanceAPIBtn.setBackgroundTintList(getResources().getColorStateList(R.color.colorPrimary));
+        }else {
+            enableDistanceAPIBtn.setBackgroundTintList(getResources().getColorStateList(R.color.colorAccent));
+        }
+
+        if(WoosmapSettings.searchAPIEnable) {
+            enableSearchAPIBtn.setBackgroundTintList(getResources().getColorStateList(R.color.colorPrimary));
+        }else {
+            enableSearchAPIBtn.setBackgroundTintList(getResources().getColorStateList(R.color.colorAccent));
+        }
 
         final FloatingActionButton menuSettings = findViewById(R.id.Menu);
         menuSettings.setOnClickListener(new View.OnClickListener() {
@@ -307,6 +342,8 @@ public class MainActivity extends AppCompatActivity {
         // Set Keys
         WoosmapSettings.privateKeyWoosmapAPI = "";
         WoosmapSettings.privateKeyGMPStatic = "";
+
+        WoosmapSettings.modeDistance = "driving";
 
         this.woosmap.setLocationReadyListener(new WoosLocationReadyListener());
         this.woosmap.setSearchAPIReadyListener(new WoosSearchAPIReadyListener());
@@ -442,8 +479,6 @@ public class MainActivity extends AppCompatActivity {
             if (mPOI == null)
                 return;
 
-
-            SimpleDateFormat displayDateFormat = new SimpleDateFormat("HH:mm:ss");
             if (mActivity.mapFragment.mGoolgeMap != null && mActivity.mapFragment.isVisible()) {
 
                 LatLng latLng = new LatLng(poiToShow.lat, poiToShow.lng);
@@ -462,22 +497,6 @@ public class MainActivity extends AppCompatActivity {
                         marker.setVisible(false);
                     }
                 }
-            }
-            if (mActivity.locationFragment.mLocationInfo != null && mActivity.locationFragment.isVisible()) {
-                String poiHTML =  "";
-                if (poiToShow.duration != null) {
-                    poiHTML = mContext.getString(R.string.html_POI_duration, Double.toString(poiToShow.lat),
-                            Double.toString(poiToShow.lng), displayDateFormat.format(poiToShow.dateTime),
-                            poiToShow.city, poiToShow.zipCode, Double.toString(poiToShow.distance), poiToShow.duration);
-                } else {
-                    poiHTML = mContext.getString(R.string.html_POI, Double.toString(poiToShow.lat),
-                            Double.toString(poiToShow.lng), displayDateFormat.format(poiToShow.dateTime),
-                            poiToShow.city, poiToShow.zipCode, Double.toString(poiToShow.distance));
-                }
-                Spanned locationHTMLAsText = Html.fromHtml(poiHTML);
-                TextView locationInfoView = mActivity.locationFragment.mLocationInfo;
-                Spanned text = (Spanned) TextUtils.concat(locationHTMLAsText, locationInfoView.getText());
-                locationInfoView.setText(text, TextView.BufferType.SPANNABLE);
             }
         }
     }
@@ -532,7 +551,6 @@ public class MainActivity extends AppCompatActivity {
             movingPosition.accuracy = mCurrentLocation.getAccuracy();
             movingPosition.dateTime = mCurrentLocation.getTime();
 
-            mActivity.locationFragment.currentPosition = mCurrentLocation;
             return movingPosition;
         }
 
@@ -543,7 +561,6 @@ public class MainActivity extends AppCompatActivity {
                 return;
 
             if (mActivity.mapFragment.mGoolgeMap != null && mActivity.mapFragment.isVisible()) {
-
                 LatLng latLng = new LatLng(movingPosition.lat, movingPosition.lng);
                 MarkerOptions markerOptions = new MarkerOptions().position(latLng).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
                 if (!mActivity.mapFragment.markersLocations.isEmpty()) {
@@ -561,17 +578,52 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
             }
-
-            SimpleDateFormat displayDateFormat = new SimpleDateFormat("HH:mm:ss");
-            if (mActivity.locationFragment.mLocationInfo != null && mActivity.locationFragment.isVisible()) {
-                String locHTML = mContext.getString(R.string.html_position, Double.toString(movingPosition.lat),
-                        Double.toString(movingPosition.lng), displayDateFormat.format(movingPosition.dateTime));
-                Spanned locationHTMLAsText = Html.fromHtml(locHTML);
-                TextView locationInfoView = mActivity.locationFragment.mLocationInfo;
-                Spanned text = (Spanned) TextUtils.concat(locationHTMLAsText, locationInfoView.getText());
-                locationInfoView.setText(text, TextView.BufferType.SPANNABLE);
-            }
         }
+    }
+
+    public static class refreshDataTask extends AsyncTask<Void, Void, ArrayList<PlaceData>> {
+        private final Context mContext;
+        public MainActivity mActivity;
+
+        refreshDataTask(Context context, MainActivity activity) {
+            mContext = context;
+            mActivity = activity;
+        }
+
+        @Override
+        protected ArrayList<PlaceData> doInBackground(Void... voids) {
+            MovingPosition[] movingPositionList = WoosmapDb.getInstance(mContext, true).getMovingPositionsDao().getMovingPositions(-1);
+            ArrayList<PlaceData> arrayOfPlaceData = new ArrayList<>();
+            for (MovingPosition locationToShow : movingPositionList) {
+                PlaceData place = new PlaceData();
+                place.setType( PlaceData.dataType.location );
+                place.setLatitude( locationToShow.lat );
+                place.setLongitude( locationToShow.lng );
+                place.setDate(locationToShow.dateTime);
+                place.setLocationId( locationToShow.id );
+                POI poibyLocationID =  WoosmapDb.getInstance(mContext, true).getPOIsDAO().getPOIbyLocationID( locationToShow.id );
+                if(poibyLocationID != null) {
+                    place.setPOILatitude( poibyLocationID.lat );
+                    place.setPOILongitude( poibyLocationID.lng );
+                    place.setZipCode( poibyLocationID.zipCode );
+                    place.setCity( poibyLocationID.city );
+                    place.setDistance( poibyLocationID.distance );
+                    place.setTravelingDistance( poibyLocationID.travelingDistance );
+                    place.setType( PlaceData.dataType.POI );
+                    place.setMovingDuration( poibyLocationID.duration );
+                }
+
+                arrayOfPlaceData.add( place );
+            }
+            return arrayOfPlaceData;
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<PlaceData> placeDataArrayList) {
+            if(mActivity.bottomNav.getMenu().getItem( 0 ).isChecked())
+                mActivity.locationFragment.loadData( placeDataArrayList );
+        }
+
     }
 
     public static class AllLocationTask extends AsyncTask<Void, Void, MovingPosition[]> {
@@ -594,30 +646,18 @@ public class MainActivity extends AppCompatActivity {
             if(movingPositionList.length == 0)
                 return;
 
-            SimpleDateFormat displayDateFormat = new SimpleDateFormat("HH:mm:ss");
-
-            if (mActivity.locationFragment.mLocationInfo != null) {
-                mActivity.locationFragment.mLocationInfo.setText("");
-            }
-
             for (MovingPosition locationToShow : movingPositionList) {
-                LatLng latLng = new LatLng(locationToShow.lat, locationToShow.lng);
+                LatLng latLng = new LatLng( locationToShow.lat, locationToShow.lng );
                 boolean markerToAdd = true;
-                MarkerOptions markerOptions = new MarkerOptions().position(latLng);
+                MarkerOptions markerOptions = new MarkerOptions().position( latLng );
                 for (MarkerOptions marker : mActivity.mapFragment.markersLocations) {
-                    if (marker.getPosition().equals(markerOptions.getPosition())) {
+                    if (marker.getPosition().equals( markerOptions.getPosition() )) {
                         markerToAdd = false;
                     }
                 }
                 if (markerToAdd) {
-                    mActivity.mapFragment.markersLocations.add(markerOptions);
+                    mActivity.mapFragment.markersLocations.add( markerOptions );
                 }
-            }
-
-            for (MovingPosition  movingPositionToShow: movingPositionList) {
-                String locHTML = mContext.getString(R.string.html_position, Double.toString(movingPositionToShow.lat),
-                        Double.toString(movingPositionToShow.lng), displayDateFormat.format(movingPositionToShow.dateTime));
-                mActivity.locationFragment.mLocationInfo.append(Html.fromHtml(locHTML));
             }
         }
     }
@@ -644,11 +684,6 @@ public class MainActivity extends AppCompatActivity {
 
             SimpleDateFormat displayDateFormat = new SimpleDateFormat("HH:mm:ss");
 
-            if (mActivity.locationFragment.mLocationInfo != null) {
-                mActivity.locationFragment.mLocationInfo.setText("");
-                mActivity.mapFragment.markersPOI.clear();
-            }
-
             for (POI poiToShow : poiList) {
                 LatLng latLng = new LatLng(poiToShow.lat, poiToShow.lng);
                 boolean markerToAdd = true;
@@ -661,10 +696,6 @@ public class MainActivity extends AppCompatActivity {
                 if (markerToAdd) {
                     mActivity.mapFragment.markersPOI.add(markerOptions);
                 }
-                String poiHTML = mContext.getString(R.string.html_POI, Double.toString(poiToShow.lat),
-                        Double.toString(poiToShow.lng), displayDateFormat.format(poiToShow.dateTime),
-                        poiToShow.city, poiToShow.zipCode, Double.toString(poiToShow.distance));
-                mActivity.locationFragment.mLocationInfo.append(Html.fromHtml(poiHTML));
             }
         }
     }
@@ -688,10 +719,6 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Visit[] staticList) {
             SimpleDateFormat displayDateFormat = new SimpleDateFormat("HH:mm:ss");
-            if (mActivity.visitFragment.mVisitInfo != null) {
-                mActivity.visitFragment.mVisitInfo.setText("");
-                mActivity.mapFragment.markersVisit.clear();
-            }
             for (Visit visitToShow : staticList) {
                 if(visitToShow.duration >= WoosmapSettings.durationVisitFilter) {
                     LatLng latLng = new LatLng(visitToShow.lat, visitToShow.lng);
@@ -724,17 +751,46 @@ public class MainActivity extends AppCompatActivity {
                             }
                         }
                     }
-                    if (mActivity.visitFragment.mVisitInfo != null) {
-                        String visitHTML = mContext.getString(R.string.html_visit, Double.toString(visitToShow.lat),
-                                Double.toString(visitToShow.lng), startFormatedDate,
-                                endFormatedDate, visitToShow.nbPoint);
-
-                        mActivity.visitFragment.mVisitInfo.append(Html.fromHtml(visitHTML));
-                    }
                 }
             }
             //Refresh zoi on map on visit
             new AllZOITask(mContext, mActivity).execute();
+        }
+    }
+
+    public static class refreshVisitTask extends AsyncTask<Void, Void, ArrayList<PlaceData>> {
+        private final Context mContext;
+        public MainActivity mActivity;
+
+        refreshVisitTask(Context context, MainActivity activity) {
+            mContext = context;
+            mActivity = activity;
+        }
+
+        @Override
+        protected ArrayList<PlaceData> doInBackground(Void... voids) {
+
+            Visit[] visitList = WoosmapDb.getInstance(mContext, true).getVisitsDao().getAllStaticPositions();
+            ArrayList<PlaceData> arrayOfPlaceData = new ArrayList<>();
+
+            for (Visit visitToShow : visitList) {
+                PlaceData place = new PlaceData();
+                place.setType( PlaceData.dataType.visit );
+                place.setLatitude( visitToShow.lat );
+                place.setLongitude( visitToShow.lng );
+                place.setArrivalDate( visitToShow.startTime );
+                place.setDepartureDate( visitToShow.endTime );
+                place.setDuration( visitToShow.duration );
+                arrayOfPlaceData.add( place );
+            }
+            return arrayOfPlaceData;
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<PlaceData> placeDataArrayList) {
+            if (mActivity.visitFragment.isVisible()) {
+                mActivity.visitFragment.loadData( placeDataArrayList );
+            }
         }
     }
 
@@ -755,10 +811,10 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(Void result) {
-            if (mActivity.locationFragment.mLocationInfo != null)
-                mActivity.locationFragment.mLocationInfo.setText("");
-            if (mActivity.visitFragment.mVisitInfo != null)
-                mActivity.visitFragment.mVisitInfo.setText("");
+            if (mActivity.locationFragment.adapter != null)
+               mActivity.locationFragment.clearData();
+            if (mActivity.visitFragment.adapter != null)
+                mActivity.visitFragment.clearData();
             mActivity.mapFragment.clearMarkers();
         }
     }
