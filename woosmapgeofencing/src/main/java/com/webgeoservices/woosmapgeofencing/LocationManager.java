@@ -32,11 +32,15 @@ class LocationManager {
 
     private final Woosmap woos;
     private final Context context;
+    private WoosmapDb db = null;
+    private PositionsManager positionsManager = null;
 
     public LocationManager(Context context, Woosmap woos) {
         this.woos = woos;
         this.context = context;
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(context);
+        db = WoosmapDb.getInstance(context, true);
+        positionsManager = new PositionsManager(context, db);
 
         createLocationCallback();
         createLocationPendingIntent();
@@ -53,8 +57,6 @@ class LocationManager {
                 Location currentLocation = locationResult.getLastLocation();
                 Log.d("WoosmapSdk", currentLocation.toString());
 
-                WoosmapDb db = WoosmapDb.getInstance(context, true);
-                PositionsManager positionsManager = new PositionsManager(context, db);
                 List<Location> listLocations = new ArrayList<Location>();
                 listLocations.add(currentLocation);
                 if (woos.locationReadyListener != null) {

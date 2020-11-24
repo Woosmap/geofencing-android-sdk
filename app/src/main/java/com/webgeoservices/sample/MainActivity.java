@@ -150,11 +150,6 @@ public class MainActivity extends AppCompatActivity {
         visitFragment = new VisitFragment();
 
         setFragment(locationFragment);
-
-        new AllLocationTask(getApplicationContext(), MainActivity.this).execute();
-        new AllPOITask(getApplicationContext(), MainActivity.this).execute();
-        new VisitTask(getApplicationContext(), MainActivity.this).execute();
-        new AllZOITask(getApplicationContext(), MainActivity.this).execute();
         new refreshDataTask(getApplicationContext(), MainActivity.this).execute();
 
         bottomNav = findViewById(R.id.bottom_navigation);
@@ -266,7 +261,7 @@ public class MainActivity extends AppCompatActivity {
                 String msg = "";
                 if(WoosmapSettings.distanceAPIEnable) {
                     msg = "DistanceAPI Enable";
-                    editor.putBoolean( "distanceAPIEnable",false);
+                    editor.putBoolean( "distanceAPIEnable",true);
                     editor.apply();
                     enableDistanceAPIBtn.setBackgroundTintList(getResources().getColorStateList(R.color.colorPrimary));
                 }else {
@@ -304,11 +299,11 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 if(!isMenuOpen) {
                     isMenuOpen = true;
-                    clearDBBtn.animate().translationY(-180);
-                    testZOIBtn.animate().translationY(-360);
-                    enableDistanceAPIBtn.animate().translationY(-540);
-                    enableSearchAPIBtn.animate().translationY(-720);
-                    enableLocationBtn.animate().translationY(-900);
+                    clearDBBtn.animate().translationY(-200);
+                    testZOIBtn.animate().translationY(-400);
+                    enableDistanceAPIBtn.animate().translationY(-600);
+                    enableSearchAPIBtn.animate().translationY(-800);
+                    enableLocationBtn.animate().translationY(-1000);
                 } else {
                     isMenuOpen = false;
                     clearDBBtn.animate().translationY(0);
