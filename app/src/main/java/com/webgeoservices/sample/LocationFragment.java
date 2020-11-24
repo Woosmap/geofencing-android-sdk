@@ -30,7 +30,6 @@ public class LocationFragment extends Fragment {
     PlaceDataAdapter adapter;
     ListView lvLocation;
     PositionsManager mPositionsManager;
-    Location currentPosition;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -52,8 +51,8 @@ public class LocationFragment extends Fragment {
                 } else if (place.getType() == PlaceData.dataType.POI && place.getMovingDuration() == null){
                     List<Pair<Double, Double>> listDestinationPoint = new ArrayList<>();
                     listDestinationPoint.add(new Pair(place.getPOILatitude(), place.getPOILongitude()));
-                    Double latOrigin = currentPosition.getLatitude();
-                    Double lngOrigin = currentPosition.getLongitude();
+                    Double latOrigin = place.getLatitude();
+                    Double lngOrigin = place.getLongitude();
                     mPositionsManager.distanceAPI(latOrigin,lngOrigin,listDestinationPoint,place.getLocationId());
                 }
             }

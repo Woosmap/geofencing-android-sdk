@@ -3,6 +3,7 @@ package com.webgeoservices.sample;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.net.Uri;
@@ -59,6 +60,8 @@ public class MainActivity extends AppCompatActivity {
     private VisitFragment visitFragment;
 
     private boolean isMenuOpen = false;
+
+    private BottomNavigationView bottomNav;
 
     private Woosmap woosmap;
 
@@ -146,14 +149,15 @@ public class MainActivity extends AppCompatActivity {
         mapFragment = new MapFragment();
         visitFragment = new VisitFragment();
 
+        setFragment(locationFragment);
+
         new AllLocationTask(getApplicationContext(), MainActivity.this).execute();
         new AllPOITask(getApplicationContext(), MainActivity.this).execute();
         new VisitTask(getApplicationContext(), MainActivity.this).execute();
         new AllZOITask(getApplicationContext(), MainActivity.this).execute();
         new refreshDataTask(getApplicationContext(), MainActivity.this).execute();
 
-        BottomNavigationView bottomNav = findViewById(R.id.bottom_navigation);
-        setFragment(locationFragment);
+        bottomNav = findViewById(R.id.bottom_navigation);
         bottomNav.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -179,6 +183,15 @@ public class MainActivity extends AppCompatActivity {
             }
 
         });
+
+        final SharedPreferences mPrefs = getApplicationContext().getSharedPreferences("WGSGeofencingPref",MODE_PRIVATE);
+        final SharedPreferences.Editor editor = mPrefs.edit();
+        boolean trackingEnable = mPrefs.getBoolean("trackingEnable",true);
+        boolean searchAPIEnable = mPrefs.getBoolean("searchAPIEnable",true);
+        boolean distanceAPIEnable = mPrefs.getBoolean("distanceAPIEnable",true);
+        WoosmapSettings.trackingEnable = trackingEnable;
+        WoosmapSettings.searchAPIEnable = searchAPIEnable;
+        WoosmapSettings.distanceAPIEnable = distanceAPIEnable;
 
         final FloatingActionButton clearDBBtn = findViewById(R.id.clearDB);
         clearDBBtn.setOnClickListener(new View.OnClickListener() {
@@ -208,9 +221,13 @@ public class MainActivity extends AppCompatActivity {
                 String msg = "";
                 if(WoosmapSettings.trackingEnable) {
                     msg = "Tracking Enable";
+                    editor.putBoolean( "trackingEnable",true);
+                    editor.apply();
                     enableLocationBtn.setBackgroundTintList(getResources().getColorStateList(R.color.colorPrimary));
                 } else {
                     msg = "Tracking Disable";
+                    editor.putBoolean( "trackingEnable",false);
+                    editor.apply();
                     enableLocationBtn.setBackgroundTintList(getResources().getColorStateList(R.color.colorAccent));
                 }
                 woosmap.enableTracking(WoosmapSettings.trackingEnable);
@@ -227,9 +244,13 @@ public class MainActivity extends AppCompatActivity {
                 String msg = "";
                 if(WoosmapSettings.searchAPIEnable) {
                     msg = "SearchAPI Enable";
+                    editor.putBoolean( "searchAPIEnable",true);
+                    editor.apply();
                     enableSearchAPIBtn.setBackgroundTintList(getResources().getColorStateList(R.color.colorPrimary));
                 }else {
                     msg = "SearchAPI Disable";
+                    editor.putBoolean( "searchAPIEnable",false);
+                    editor.apply();
                     enableSearchAPIBtn.setBackgroundTintList(getResources().getColorStateList(R.color.colorAccent));
                 }
                 Snackbar.make(view, msg, Snackbar.LENGTH_LONG)
@@ -245,9 +266,13 @@ public class MainActivity extends AppCompatActivity {
                 String msg = "";
                 if(WoosmapSettings.distanceAPIEnable) {
                     msg = "DistanceAPI Enable";
+                    editor.putBoolean( "distanceAPIEnable",false);
+                    editor.apply();
                     enableDistanceAPIBtn.setBackgroundTintList(getResources().getColorStateList(R.color.colorPrimary));
                 }else {
                     msg = "DistanceAPI Disable";
+                    editor.putBoolean( "distanceAPIEnable",false);
+                    editor.apply();
                     enableDistanceAPIBtn.setBackgroundTintList(getResources().getColorStateList(R.color.colorAccent));
                 }
                 Snackbar.make(view, msg, Snackbar.LENGTH_LONG)
@@ -526,7 +551,6 @@ public class MainActivity extends AppCompatActivity {
             movingPosition.accuracy = mCurrentLocation.getAccuracy();
             movingPosition.dateTime = mCurrentLocation.getTime();
 
-            mActivity.locationFragment.currentPosition = mCurrentLocation;
             return movingPosition;
         }
 
@@ -570,7 +594,6 @@ public class MainActivity extends AppCompatActivity {
         protected ArrayList<PlaceData> doInBackground(Void... voids) {
             MovingPosition[] movingPositionList = WoosmapDb.getInstance(mContext, true).getMovingPositionsDao().getMovingPositions(-1);
             ArrayList<PlaceData> arrayOfPlaceData = new ArrayList<>();
-
             for (MovingPosition locationToShow : movingPositionList) {
                 PlaceData place = new PlaceData();
                 place.setType( PlaceData.dataType.location );
@@ -597,9 +620,8 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(ArrayList<PlaceData> placeDataArrayList) {
-            if (mActivity.locationFragment.isVisible()) {
+            if(mActivity.bottomNav.getMenu().getItem( 0 ).isChecked())
                 mActivity.locationFragment.loadData( placeDataArrayList );
-            }
         }
 
     }
