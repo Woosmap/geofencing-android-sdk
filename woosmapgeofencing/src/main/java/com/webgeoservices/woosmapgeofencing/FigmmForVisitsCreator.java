@@ -517,9 +517,7 @@ public class FigmmForVisitsCreator {
 
         zoi_gmminfo.put("updated", true);
         zoi_gmminfo.put("mean", new double[]{matrix_mean_plus_delta_mean.get(0,0), matrix_mean_plus_delta_mean.get(0,1)});
-        double[] mean_array2 = (double[]) zoi_gmminfo.get("mean");
-        System.out.println("zoi_gmminfo.put(mean) = " + mean_array2[0] + " " + mean_array2[1]);
-
+        
         if (new_covariance_determinant > 0) {
             zoi_gmminfo.put("covariance_matrix_inverse", new_inv_matrix);
             zoi_gmminfo.put("covariance_det", new_covariance_determinant);
