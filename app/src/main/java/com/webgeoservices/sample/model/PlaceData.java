@@ -3,10 +3,13 @@ package com.webgeoservices.sample.model;
 import java.util.Comparator;
 
 public class PlaceData {
+
     public enum dataType {
         POI,
         location,
         visit,
+        region,
+        regionLog,
         ZOI
     }
 
@@ -26,6 +29,10 @@ public class PlaceData {
     private long duration;
     private String movingDuration;
     private int locationId;
+    private String regionIdentifier;
+    private boolean didEnter;
+    private String idStore;
+    private double radius;
 
     public Double getLatitude() {
         return latitude;
@@ -155,6 +162,40 @@ public class PlaceData {
         this.date = date;
     }
 
+    public boolean isDidEnter() {
+        return didEnter;
+    }
+
+    public void setDidEnter(boolean didEnter) {
+        this.didEnter = didEnter;
+    }
+
+    public String getRegionIdentifier() {
+        return regionIdentifier;
+    }
+
+    public void setRegionIdentifier(String regionIdentifier) {
+        this.regionIdentifier = regionIdentifier;
+    }
+
+    public double getRadius() {
+        return radius;
+    }
+
+    public void setRadius(double radius) {
+        this.radius = radius;
+    }
+
+
+    public String getIdStore() {
+        return idStore;
+    }
+
+    public void setIdStore(String idStore) {
+        this.idStore = idStore;
+    }
+
+
     public PlaceData(long date, Double latitude, Double longitude, String city, Double distance, String zipCode, dataType type, Double accuracy, long arrivalDate, long departureDate, long duration, String movingDuration, int locationId) {
         this.date = date;
         this.latitude = latitude;
@@ -188,6 +229,10 @@ public class PlaceData {
         this.travelingDistance = "";
         this.movingDuration = "";
         this.locationId = 0;
+        this.radius = 0.0;
+        this.regionIdentifier = "";
+        this.didEnter = false;
+        this.idStore = "";
     }
 
 

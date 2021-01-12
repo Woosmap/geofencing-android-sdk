@@ -1,5 +1,6 @@
 package com.webgeoservices.woosmapgeofencing;
 
+import android.annotation.SuppressLint;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -7,18 +8,27 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Build;
 
+import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 
 import android.util.Log;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.Geofence;
+import com.google.android.gms.location.GeofencingClient;
+import com.google.android.gms.location.GeofencingRequest;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.webgeoservices.woosmapgeofencing.database.Region;
 import com.webgeoservices.woosmapgeofencing.database.WoosmapDb;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static com.webgeoservices.woosmapgeofencing.WoosmapSettings.Tags.WoosmapSdkTag;
@@ -29,6 +39,10 @@ class LocationManager {
     private final FusedLocationProviderClient mFusedLocationClient;
     private LocationCallback mLocationCallback;
     private PendingIntent mLocationIntent;
+
+    private GeofencingClient mGeofencingClient;
+    private PendingIntent mGeofencePendingIntent;
+    private GeofenceHelper geofenceHelper;
 
     private final Woosmap woos;
     private final Context context;
@@ -42,8 +56,40 @@ class LocationManager {
         db = WoosmapDb.getInstance(context, true);
         positionsManager = new PositionsManager(context, db);
 
+        mGeofencingClient = LocationServices.getGeofencingClient(context);
+        geofenceHelper = new GeofenceHelper(context);
+
         createLocationCallback();
         createLocationPendingIntent();
+    }
+
+    public void removeGeofences() {
+        mGeofencingClient.removeGeofences(getGeofencePendingIntent());
+    }
+
+    public void removeGeofences(String id) {
+        mGeofencingClient.removeGeofences( Collections.singletonList( id ) );
+        positionsManager.removeGeofence(id);
+    }
+
+
+    public void addGeofence(final String id, final LatLng latLng, final float radius) {
+        Geofence geofence = geofenceHelper.getGeofence(id, latLng, radius, Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_DWELL | Geofence.GEOFENCE_TRANSITION_EXIT);
+        GeofencingRequest geofencingRequest = geofenceHelper.getGeofencingRequest(geofence);
+        positionsManager.addGeofence(geofenceHelper, geofencingRequest, getGeofencePendingIntent(),mGeofencingClient,id,radius,latLng.latitude,latLng.longitude,"");
+    }
+
+
+    private PendingIntent getGeofencePendingIntent() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            Intent intent = new Intent(context, GeofenceBroadcastReceiver.class);
+            mGeofencePendingIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.
+                    FLAG_UPDATE_CURRENT);
+        } else {
+            Intent intent = new Intent(context, GeofenceTransitionsIntentService.class);
+            mGeofencePendingIntent = PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        }
+        return mGeofencePendingIntent;
     }
 
     /**
@@ -131,5 +177,30 @@ class LocationManager {
         int permissionState = ActivityCompat.checkSelfPermission(this.context,
                 android.Manifest.permission.ACCESS_FINE_LOCATION);
         return permissionState == PackageManager.PERMISSION_GRANTED;
+    }
+
+    @SuppressLint("MissingPermission")
+    public void setMonitoringRegions() {
+        Log.d(WoosmapSdkTag,"Geofence Add on Reboot");
+        removeGeofences();
+        Region[] regions = db.getRegionsDAO().getAllRegions();
+        for (Region regionToAdd : regions) {
+            Geofence geofence = geofenceHelper.getGeofence(regionToAdd.identifier, new LatLng( regionToAdd.lng, regionToAdd.lat ), (float) regionToAdd.radius, Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_DWELL | Geofence.GEOFENCE_TRANSITION_EXIT);
+            GeofencingRequest geofencingRequest = geofenceHelper.getGeofencingRequest(geofence);
+            mGeofencingClient.addGeofences(geofencingRequest, getGeofencePendingIntent())
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Log.d(WoosmapSdkTag,"onSuccess: Geofence Added...");
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            String errorMessage=geofenceHelper.getErrorString(e);
+                            Log.d(WoosmapSdkTag,"onFailure "+errorMessage);
+                        }
+                    });
+        }
     }
 }

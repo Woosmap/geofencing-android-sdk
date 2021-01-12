@@ -14,8 +14,10 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 
+import com.google.android.gms.maps.model.LatLng;
 import com.webgeoservices.woosmapgeofencing.DistanceAPIDataModel.DistanceAPI;
 import com.webgeoservices.woosmapgeofencing.database.POI;
+import com.webgeoservices.woosmapgeofencing.database.Region;
 import com.webgeoservices.woosmapgeofencing.database.Visit;
 import com.webgeoservices.woosmapgeofencing.database.WoosmapDb;
 
@@ -41,6 +43,7 @@ public class Woosmap {
     SearchAPIReadyListener searchAPIReadyListener = null;
     VisitReadyListener visitReadyListener = null;
     DistanceAPIReadyListener distanceAPIReadyListener = null;
+    RegionReadyListener regionReadyListener = null;
 
 
     /**
@@ -89,6 +92,18 @@ public class Woosmap {
          * @param visit an user's location
          */
         void VisitReadyCallback(Visit visit);
+    }
+
+    /**
+     * An interface to add callback on Region retrieving
+     */
+    public interface RegionReadyListener {
+        /**
+         * When Woosmap get a region when event (enter,exit) it calls this method
+         *
+         * @param region an user's location
+         */
+        void RegionReadyCallback(Region region);
     }
 
     private Woosmap() {
@@ -179,6 +194,16 @@ public class Woosmap {
         this.visitReadyListener = visitReadyListener;
     }
 
+    /**
+     * Add a listener to get callback on event region
+     *
+     * @param regionReadyListener
+     * @see RegionReadyListener
+     */
+    public void setRegionReadyListener(RegionReadyListener regionReadyListener) {
+        this.regionReadyListener = regionReadyListener;
+    }
+
     private void setupWoosmap(Context context) {
         this.context = context;
         this.locationManager = new LocationManager(context, this);
@@ -246,6 +271,7 @@ public class Woosmap {
         if (this.shouldTrackUser()) {
             this.locationManager.setmLocationRequest();
             this.locationManager.updateLocationBackground();
+            this.locationManager.setMonitoringRegions();
         } else {
             Log.d(WoosmapSdkTag, "Get Location permissions error");
         }
@@ -325,4 +351,13 @@ public class Woosmap {
     public static void setMessageToken(String messageToken) {
         Woosmap.getInstance().fcmToken = messageToken;
     }
+
+    public void addGeofence(String id, LatLng latLng, float radius) {
+        locationManager.addGeofence( id,latLng,radius );
+    }
+
+    public void removeGeofence(String id) {
+        locationManager.removeGeofences(id);
+    }
+    public void removeGeofence() { locationManager.removeGeofences();}
 }

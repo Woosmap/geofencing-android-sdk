@@ -13,7 +13,7 @@ import com.webgeoservices.woosmapgeofencing.WoosmapSettings;
 
 import static android.content.Context.MODE_PRIVATE;
 
-@Database(entities = {Visit.class, MovingPosition.class, POI.class, ZOI.class}, version = 10, exportSchema = false)
+@Database(entities = {Visit.class, MovingPosition.class, POI.class, ZOI.class, Region.class, RegionLog.class}, version = 12, exportSchema = false)
 @TypeConverters({Converters.class})
 public abstract class WoosmapDb extends RoomDatabase {
 
@@ -24,6 +24,10 @@ public abstract class WoosmapDb extends RoomDatabase {
     public abstract POIsDAO getPOIsDAO();
 
     public abstract ZOIsDAO getZOIsDAO();
+
+    public abstract RegionsPAO getRegionsDAO();
+
+    public abstract RegionLogsPAO getRegionLogsDAO();
 
     private static volatile WoosmapDb instance;
 

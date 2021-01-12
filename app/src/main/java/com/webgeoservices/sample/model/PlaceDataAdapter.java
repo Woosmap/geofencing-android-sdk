@@ -78,6 +78,27 @@ public class PlaceDataAdapter extends ArrayAdapter<PlaceData> {
             String visitDetails = "Start time = " + displayDateFormat.format(place.getArrivalDate()) + "\n" + endVisitInformation;
             TextView tvDetails = (TextView) convertView.findViewById( R.id.details );
             tvDetails.setText( visitDetails );
+        } else if (place.getType() == PlaceData.dataType.regionLog) {
+            convertView = LayoutInflater.from(getContext()).inflate( R.layout.item_region, parent, false);
+            TextView tvCoord = (TextView) convertView.findViewById( R.id.coordinate );
+            tvCoord.setText( String.format("%.5f", place.getLatitude()) + "," + String.format("%.5f", place.getLongitude()) );
+            TextView tvDate = (TextView) convertView.findViewById( R.id.date );
+            tvDate.setText( displayDateFormat.format( place.getDate() ) );
+
+            String regionDetails = "Identifier = " + place.getRegionIdentifier() + "\n";
+            if(place.getIdStore() != "") {
+                regionDetails += "Id store = " + place.getIdStore() + "\n";
+            }
+            regionDetails += "Radius = " + place.getRadius() + "\n";
+            if(place.isDidEnter()) {
+                regionDetails += "Transition : Enter \n";
+            } else {
+                regionDetails += "Transition : Exit \n";
+            }
+
+            TextView tvdetails = (TextView) convertView.findViewById( R.id.details );
+            tvdetails.setText( regionDetails );
+
         }
 
         return convertView;

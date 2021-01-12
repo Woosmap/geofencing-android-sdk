@@ -62,7 +62,7 @@ public class visitTest {
                 tmpPositionManager.manageLocation(location)
             }.run()
         }
-        val positions = db.movingPositionsDao.allMovingPositions
+        val positions = db.movingPositionsDao.getMovingPositions(-1)
         Log.e("debug", positions.toString())
         val visits = db.visitsDao.allStaticPositions
         assertThat(visits.size, equalTo(2))
