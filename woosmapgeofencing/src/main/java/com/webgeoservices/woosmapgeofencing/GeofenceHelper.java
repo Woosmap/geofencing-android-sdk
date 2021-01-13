@@ -46,6 +46,8 @@ public class GeofenceHelper extends ContextWrapper {
                 case GeofenceStatusCodes
                         .GEOFENCE_TOO_MANY_PENDING_INTENTS:
                     return "GEOFENCE_TOO_MANY_PENDING_INTENTS";
+                default:
+                    return "The client doesn't have sufficient location permission to perform geofencing operations.";
 
             }
         }

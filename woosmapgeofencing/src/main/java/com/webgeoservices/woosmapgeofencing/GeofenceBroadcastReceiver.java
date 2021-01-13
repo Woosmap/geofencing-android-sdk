@@ -28,8 +28,8 @@ public class GeofenceBroadcastReceiver extends BroadcastReceiver {
 
             WoosmapDb db = WoosmapDb.getInstance(context, true);
             PositionsManager positionsManager = new PositionsManager(context, db);
-            for (int i = 0; i < geofencingEvent.getTriggeringGeofences().size(); i++) {
-                positionsManager.didEventRegion(geofencingEvent.getTriggeringGeofences().get(i).getRequestId(), geofenceTransition );
+            for (int i = 0; i < triggeringGeofences.size(); i++) {
+                positionsManager.didEventRegion(triggeringGeofences.get(i).getRequestId(), geofenceTransition );
             }
         }
     }

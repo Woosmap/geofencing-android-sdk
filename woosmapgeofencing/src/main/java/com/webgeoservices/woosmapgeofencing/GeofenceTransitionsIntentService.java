@@ -13,6 +13,7 @@ import java.util.List;
 
 import static com.webgeoservices.woosmapgeofencing.WoosmapSettings.Tags.WoosmapGeofenceTag;
 
+
 public class GeofenceTransitionsIntentService extends IntentService {
 
     private static final String TAG = "GeofenceTransitionsIS";
@@ -21,6 +22,7 @@ public class GeofenceTransitionsIntentService extends IntentService {
         super(TAG);
     }
 
+    //On Android 8.0 (API level 26) and lower
     @Override
     protected void onHandleIntent(Intent intent) {
         final Context context = getApplicationContext();
@@ -37,8 +39,8 @@ public class GeofenceTransitionsIntentService extends IntentService {
             WoosmapDb db = WoosmapDb.getInstance(context, true);
             PositionsManager positionsManager = new PositionsManager(context, db);
 
-            for (int i = 0; i < geofencingEvent.getTriggeringGeofences().size(); i++) {
-                positionsManager.didEventRegion(geofencingEvent.getTriggeringGeofences().get(i).getRequestId(), geofenceTransition );
+            for (int i = 0; i < triggeringGeofences.size(); i++) {
+                positionsManager.didEventRegion(triggeringGeofences.get(i).getRequestId(), geofenceTransition );
             }
 
         }

@@ -1,5 +1,8 @@
 package com.webgeoservices.sample.model;
 
+import com.webgeoservices.woosmapgeofencing.database.Region;
+import com.webgeoservices.woosmapgeofencing.database.RegionLog;
+
 import java.util.Comparator;
 
 public class PlaceData {
@@ -235,6 +238,27 @@ public class PlaceData {
         this.idStore = "";
     }
 
+    public PlaceData(Region region) {
+        this.setType( PlaceData.dataType.region );
+        this.setLatitude( region.lat );
+        this.setLongitude( region.lng );
+        this.setDidEnter( region.didEnter );
+        this.setIdStore(region.idStore);
+        this.setRegionIdentifier( region.identifier );
+        this.setDate( region.dateTime );
+        this.setRadius( region.radius );
+    }
+
+    public PlaceData(RegionLog regionLog) {
+        this.setType( PlaceData.dataType.regionLog );
+        this.setLatitude( regionLog.lat );
+        this.setLongitude( regionLog.lng );
+        this.setDidEnter( regionLog.didEnter );
+        this.setIdStore( regionLog.idStore );
+        this.setRegionIdentifier( regionLog.identifier );
+        this.setDate( regionLog.dateTime );
+        this.setRadius( regionLog.radius );
+    }
 
 }
 

@@ -441,8 +441,7 @@ public class MainActivity extends AppCompatActivity {
                                 Intent intent = new Intent();
                                 intent.setAction(
                                         Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-                                Uri uri = Uri.fromParts("package",
-                                        BuildConfig.APPLICATION_ID, null);
+                                Uri uri =  Uri.fromParts("package", getPackageName(), null);
                                 intent.setData(uri);
                                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                                 startActivity(intent);
@@ -798,32 +797,15 @@ public class MainActivity extends AppCompatActivity {
             Region[] regionList = WoosmapDb.getInstance(mContext, true).getRegionsDAO().getAllRegions();
 
             for (Region regionToShow : regionList) {
-                PlaceData place = new PlaceData();
-                place.setType( PlaceData.dataType.region );
-                place.setLatitude( regionToShow.lat );
-                place.setLongitude( regionToShow.lng );
-                place.setDidEnter( regionToShow.didEnter );
-                place.setIdStore(regionToShow.idStore);
-                place.setRegionIdentifier( regionToShow.identifier );
-                place.setDate( regionToShow.dateTime );
-                place.setRadius( regionToShow.radius );
+                PlaceData place = new PlaceData(regionToShow);
                 arrayOfPlaceData.add( place );
 
             }
 
             RegionLog[] regionLogList = WoosmapDb.getInstance(mContext, true).getRegionLogsDAO().getAllRegionLogs();
-            for (RegionLog regionToShow : regionLogList) {
-                PlaceData place = new PlaceData();
-                place.setType( PlaceData.dataType.regionLog );
-                place.setLatitude( regionToShow.lat );
-                place.setLongitude( regionToShow.lng );
-                place.setDidEnter( regionToShow.didEnter );
-                place.setIdStore(regionToShow.idStore);
-                place.setRegionIdentifier( regionToShow.identifier );
-                place.setDate( regionToShow.dateTime );
-                place.setRadius( regionToShow.radius );
+            for (RegionLog regionLogToShow : regionLogList) {
+                PlaceData place = new PlaceData(regionLogToShow);
                 arrayOfPlaceData.add( place );
-
             }
             return arrayOfPlaceData;
         }
