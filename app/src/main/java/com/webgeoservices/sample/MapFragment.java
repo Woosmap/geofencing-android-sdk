@@ -1,9 +1,11 @@
 package com.webgeoservices.sample;
 
+import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,6 +25,8 @@ import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -31,14 +35,17 @@ import com.google.android.gms.maps.model.PolygonOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.maps.android.PolyUtil;
+import com.webgeoservices.woosmapgeofencing.Woosmap;
+import com.webgeoservices.woosmapgeofencing.database.Region;
 import com.webgeoservices.woosmapgeofencing.database.ZOI;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 
-public class MapFragment extends Fragment implements OnMapReadyCallback {
+public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleMap.OnMapLongClickListener {
 
     GoogleMap mGoolgeMap;
     MapView mMapView;
@@ -54,6 +61,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     List<MarkerOptions> markersVisit = new ArrayList<MarkerOptions>();
     List<Polygon> polygonsZOI = new ArrayList<Polygon>();
     List<ZOI> zois = new ArrayList<>();
+    List<Circle> circleGeofence = new ArrayList<Circle>();
+    List<Region> regions = new ArrayList<>();
     Location currentLocation;
     FusedLocationProviderClient fusedLocationProviderClient;
     private static final int REQUEST_CODE = 101;
@@ -172,8 +181,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     }
 
-
-
+    @SuppressLint("MissingPermission")
     @Override
     public void onMapReady(GoogleMap googleMap) {
 
@@ -185,8 +193,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
             googleMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
             googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 11));
+            mGoolgeMap.setOnMapLongClickListener(this);
 
             drawPolygon();
+            drawCircleGeofence();
 
             if (!markersLocations.isEmpty()) {
                 for (MarkerOptions marker : markersLocations) {
@@ -312,7 +322,47 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         }
     }
 
+    @Override
+    public void onMapLongClick(LatLng latLng) {
+        String id = UUID.randomUUID().toString();
+        Woosmap.getInstance().addGeofence( id, latLng, 100);
+        addCircle( id, latLng, 100,false );
+    }
 
+    public void addCircle(String id, LatLng latLng, float radius, boolean didEnter){
+        CircleOptions circleOptions=new CircleOptions();
+        circleOptions.center(latLng);
+        circleOptions.radius(radius);
+        if (didEnter) {
+            circleOptions.strokeColor(Color.argb(255,255,99,71));
+            circleOptions.fillColor(Color.argb(64,255,99,71));
+        } else {
+            circleOptions.strokeColor(Color.argb(255,152,251,152));
+            circleOptions.fillColor(Color.argb(64,152,251,152));
+        }
+        circleOptions.strokeWidth(4);
+
+        Circle circle = mGoolgeMap.addCircle(circleOptions);
+        circle.setTag( id );
+        circle.setClickable( true );
+        circleGeofence.add( circle );
+        mGoolgeMap.setOnCircleClickListener( new GoogleMap.OnCircleClickListener() {
+            @Override
+            public void onCircleClick(Circle circle) {
+                Log.d("map","name " + circle.getTag());
+                Woosmap.getInstance().removeGeofence( (String) circle.getTag() );
+                circle.remove();
+                circleGeofence.remove( circle );
+            }
+
+        });
+    }
+
+    public void drawCircleGeofence() {
+        for (Region region : regions) {
+           addCircle(region.identifier,new LatLng(region.lng,region.lat), (float) region.radius, region.didEnter) ;
+        }
+    }
 
     public LatLng[] GetPolygonPoints(String polygonWkt) {
         List<LatLng> points = new ArrayList<>();
@@ -328,6 +378,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         }
         return points.toArray(new LatLng[points.size()]);
     }
+
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -347,6 +399,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         markersPOI.clear();
         markersVisit.clear();
         zois.clear();
+        circleGeofence.clear();
+        regions.clear();
         polygonsZOI.clear();
     }
 
@@ -355,5 +409,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             poly.remove();
         }
         polygonsZOI.clear();
+    }
+
+    public void clearCircleGeofence()  {
+        for(Circle region : circleGeofence){
+            region.remove();
+        }
+        circleGeofence.clear();
     }
 }

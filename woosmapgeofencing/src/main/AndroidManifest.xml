@@ -25,6 +25,15 @@
         <service
             android:name="com.webgeoservices.woosmapgeofencing.WoosmapRebootJobService"
             android:permission="android.permission.BIND_JOB_SERVICE" />
+
+        <receiver
+        android:name=".GeofenceBroadcastReceiver"
+        android:enabled="true"
+        android:exported="true" />
+
+        <service
+            android:name=".GeofenceTransitionsIntentService"
+            android:exported="false" />
     </application>
 
 </manifest>

@@ -27,6 +27,14 @@ public class WoosmapSettings {
     //Enable/disable SearchAPI
     static public boolean searchAPIEnable = true;
 
+    //Enable/disable Creation region on SearchAPI
+    static public boolean searchAPICreationRegionEnable = true;
+
+    //Radius region From SearchAPI (m)
+    static public int firstSearchAPIRegionRadius = 100;
+    static public int secondSearchAPIRegionRadius = 200;
+    static public int thirdSearchAPIRegionRadius = 300;
+
     //filter time to request Search API
     static public int searchAPITimeFilter = 0;
 
@@ -71,7 +79,8 @@ public class WoosmapSettings {
         static final String WoosmapBackgroundTag = "WoosmapBackground";
         static String WoosmapVisitsTag = "WoosmapVisit";
         static String NotificationError = "NotificationError";
-
+        static String WoosmapBroadcastTag = "WoosmapBroadcast";
+        static String WoosmapGeofenceTag = "WoosmapGeofence";
     }
 
     static class Urls {

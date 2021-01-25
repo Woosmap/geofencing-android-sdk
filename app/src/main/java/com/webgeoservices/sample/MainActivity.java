@@ -22,7 +22,9 @@ import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.google.android.datatransport.BuildConfig;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -36,6 +38,8 @@ import com.webgeoservices.woosmapgeofencing.Woosmap;
 import com.webgeoservices.woosmapgeofencing.WoosmapSettings;
 import com.webgeoservices.woosmapgeofencing.database.MovingPosition;
 import com.webgeoservices.woosmapgeofencing.database.POI;
+import com.webgeoservices.woosmapgeofencing.database.Region;
+import com.webgeoservices.woosmapgeofencing.database.RegionLog;
 import com.webgeoservices.woosmapgeofencing.database.Visit;
 import com.webgeoservices.woosmapgeofencing.database.WoosmapDb;
 import com.webgeoservices.woosmapgeofencing.database.ZOI;
@@ -105,8 +109,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void onVisitCallback(Visit visit) {
-        new refreshVisitTask(getApplicationContext(), this).execute();
+        new refreshRegionAndVisitTask(getApplicationContext(), this).execute();
         new VisitTask(getApplicationContext(), this).execute();
+    }
+
+    public class WoosRegionReadyListener implements Woosmap.RegionReadyListener {
+        public void RegionReadyCallback(Region region) {
+            onRegionCallback(region);
+        }
+    }
+
+    private void onRegionCallback(Region region) {
+        new refreshRegionAndVisitTask(getApplicationContext(), this).execute();
     }
 
     @Override
@@ -161,6 +175,7 @@ public class MainActivity extends AppCompatActivity {
                         new AllLocationTask(getApplicationContext(), MainActivity.this).execute();
                         new AllPOITask(getApplicationContext(), MainActivity.this).execute();
                         new AllZOITask(getApplicationContext(), MainActivity.this).execute();
+                        new refreshRegionAndVisitTask(getApplicationContext(), MainActivity.this).execute();
                         setFragment(mapFragment);
                         return true;
                     case R.id.navigation_location:
@@ -168,7 +183,7 @@ public class MainActivity extends AppCompatActivity {
                         setFragment(locationFragment);
                         return true;
                     case R.id.navigation_visit:
-                        new refreshVisitTask(getApplicationContext(), MainActivity.this).execute();
+                        new refreshRegionAndVisitTask(getApplicationContext(), MainActivity.this).execute();
                         new VisitTask(getApplicationContext(), MainActivity.this).execute();
                         setFragment(visitFragment);
                         return true;
@@ -344,6 +359,7 @@ public class MainActivity extends AppCompatActivity {
         this.woosmap.setSearchAPIReadyListener(new WoosSearchAPIReadyListener());
         this.woosmap.setDistanceAPIReadyListener(new WoosDistanceAPIReadyListener());
         this.woosmap.setVisitReadyListener(new WoosVisitReadyListener());
+        this.woosmap.setRegionReadyListener( new WoosRegionReadyListener() );
 
         // Visit Detection Enable
         this.woosmap.setVisitEnable(true);
@@ -425,8 +441,7 @@ public class MainActivity extends AppCompatActivity {
                                 Intent intent = new Intent();
                                 intent.setAction(
                                         Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-                                Uri uri = Uri.fromParts("package",
-                                        BuildConfig.APPLICATION_ID, null);
+                                Uri uri =  Uri.fromParts("package", getPackageName(), null);
                                 intent.setData(uri);
                                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                                 startActivity(intent);
@@ -632,7 +647,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected MovingPosition[] doInBackground(Void... voids) {
-            MovingPosition[] MovingPositionList = WoosmapDb.getInstance(mContext, true).getMovingPositionsDao().getMovingPositions(50);
+            MovingPosition[] MovingPositionList = WoosmapDb.getInstance(mContext, true).getMovingPositionsDao().getMovingPositions(-1);
             return MovingPositionList;
         }
 
@@ -753,11 +768,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public static class refreshVisitTask extends AsyncTask<Void, Void, ArrayList<PlaceData>> {
+    public static class refreshRegionAndVisitTask extends AsyncTask<Void, Void, ArrayList<PlaceData>> {
         private final Context mContext;
         public MainActivity mActivity;
 
-        refreshVisitTask(Context context, MainActivity activity) {
+        refreshRegionAndVisitTask(Context context, MainActivity activity) {
             mContext = context;
             mActivity = activity;
         }
@@ -778,16 +793,61 @@ public class MainActivity extends AppCompatActivity {
                 place.setDuration( visitToShow.duration );
                 arrayOfPlaceData.add( place );
             }
+
+            Region[] regionList = WoosmapDb.getInstance(mContext, true).getRegionsDAO().getAllRegions();
+
+            for (Region regionToShow : regionList) {
+                PlaceData place = new PlaceData(regionToShow);
+                arrayOfPlaceData.add( place );
+
+            }
+
+            RegionLog[] regionLogList = WoosmapDb.getInstance(mContext, true).getRegionLogsDAO().getAllRegionLogs();
+            for (RegionLog regionLogToShow : regionLogList) {
+                PlaceData place = new PlaceData(regionLogToShow);
+                arrayOfPlaceData.add( place );
+            }
             return arrayOfPlaceData;
         }
 
         @Override
         protected void onPostExecute(ArrayList<PlaceData> placeDataArrayList) {
+            mActivity.mapFragment.clearCircleGeofence();
+            mActivity.mapFragment.regions.clear();
+
+            if(placeDataArrayList.size() == 0)
+                return;
+
+
+            for (PlaceData place : placeDataArrayList) {
+                if(place.getType() == PlaceData.dataType.region) {
+                    Region regionToAdd = new Region();
+                    regionToAdd.lng = place.getLatitude();
+                    regionToAdd.lat = place.getLongitude();
+                    regionToAdd.radius = place.getRadius();
+                    regionToAdd.identifier = place.getRegionIdentifier();
+                    regionToAdd.didEnter = place.isDidEnter();
+                    mActivity.mapFragment.regions.add(regionToAdd);
+                }
+            }
+
+
+            if (mActivity.mapFragment.mGoolgeMap != null) {
+                mActivity.mapFragment.drawCircleGeofence();
+            }
+
             if (mActivity.visitFragment.isVisible()) {
-                mActivity.visitFragment.loadData( placeDataArrayList );
+                ArrayList<PlaceData> arrayOfVisitandRegionLogData = new ArrayList<>();
+                for (PlaceData place : placeDataArrayList) {
+                    if(place.getType() == PlaceData.dataType.visit || place.getType() == PlaceData.dataType.regionLog) {
+                       arrayOfVisitandRegionLogData.add( place );
+                    }
+                }
+                mActivity.visitFragment.loadData( arrayOfVisitandRegionLogData );
             }
         }
     }
+
 
     public class clearDBTask extends AsyncTask<Void, Void, Void> {
         private final Context mContext;
@@ -801,6 +861,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected Void doInBackground(Void... voids) {
             WoosmapDb.getInstance(mContext, true).clearAllTables();
+            Woosmap.getInstance().removeGeofence();
             return null;
         }
 

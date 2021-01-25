@@ -54,6 +54,7 @@ dependencies {
     implementation 'org.ojalgo:ojalgo:37.1.1'
 
     implementation 'com.google.truth:truth:0.42'
+    implementation 'com.google.android.gms:play-services-maps:17.0.0'
 
     testImplementation 'junit:junit:4.12'
 
