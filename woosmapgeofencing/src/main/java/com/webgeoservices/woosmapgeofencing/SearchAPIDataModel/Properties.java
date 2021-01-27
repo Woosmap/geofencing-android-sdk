@@ -1,7 +1,7 @@
 package com.webgeoservices.woosmapgeofencing.SearchAPIDataModel;
 
 public class Properties {
-    private String storeID;
+    private String store_id;
     private String name;
     private Object contact;
     private Address address;
@@ -11,11 +11,11 @@ public class Properties {
     private Double distance;
 
     public String getStoreID() {
-        return storeID;
+        return store_id;
     }
 
     public void setStoreID(String value) {
-        this.storeID = value;
+        this.store_id = value;
     }
 
     public String getName() {

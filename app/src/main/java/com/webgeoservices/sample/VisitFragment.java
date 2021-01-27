@@ -18,8 +18,6 @@ import com.webgeoservices.woosmapgeofencing.database.WoosmapDb;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
-
 
 public class VisitFragment extends Fragment {
 
@@ -30,7 +28,7 @@ public class VisitFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mPositionsManager = new PositionsManager(getContext(), WoosmapDb.getInstance(getContext(), true));
+        mPositionsManager = new PositionsManager(getContext(), WoosmapDb.getInstance(getContext()));
     }
 
     @Nullable

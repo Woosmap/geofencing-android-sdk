@@ -7,7 +7,6 @@ import com.webgeoservices.woosmapgeofencing.database.Visit;
 import com.webgeoservices.woosmapgeofencing.database.WoosmapDb;
 import com.webgeoservices.woosmapgeofencing.database.ZOI;
 
-import org.jetbrains.annotations.NotNull;
 import org.ojalgo.matrix.PrimitiveMatrix;
 import org.ojalgo.matrix.decomposition.Eigenvalue;
 import org.ojalgo.matrix.decomposition.EigenvalueDecomposition;

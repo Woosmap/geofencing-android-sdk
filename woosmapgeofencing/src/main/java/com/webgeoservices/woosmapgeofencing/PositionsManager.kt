@@ -133,7 +133,7 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
         movingPosition.isUpload = 0
 
         val id = this.db.movingPositionsDao.createMovingPosition(movingPosition)
-        movingPosition.id = id.toInt();
+        movingPosition.id = id.toInt()
 
         if (filterTimeBetweenRequestSearAPI(movingPosition))
             return movingPosition
@@ -229,7 +229,7 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
         return false
     }
 
-    public fun asyncManageLocation(locations: List<Location>) {
+    fun asyncManageLocation(locations: List<Location>) {
         doAsync {
             try {
                 temporaryCurrentVisits = mutableListOf<Visit>()
@@ -260,8 +260,10 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
                         val gson = Gson()
                         val data = gson.fromJson(response, SearchAPI::class.java)
                         val featureSearch = data.features[0]
+                        val name = featureSearch.properties.name
                         val city = featureSearch.properties.address.city
                         val zipcode = featureSearch.properties.address.zipcode
+                        val idStore = featureSearch.properties.storeID
                         val distance = featureSearch.properties.distance.toString()
                         val longitudePOI = featureSearch.geometry.coordinates[0]
                         val latitudePOI = featureSearch.geometry.coordinates[1]
@@ -271,10 +273,12 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
                         POIaround.dateTime = positon.dateTime
                         POIaround.distance = distance.toDouble()
                         POIaround.locationId = positon.id
+                        POIaround.idStore = idStore
+                        POIaround.name = name
                         POIaround.lat = latitudePOI
                         POIaround.lng = longitudePOI
 
-                        createPOIRegion("POI_" + featureSearch.properties.name, latitudePOI, longitudePOI );
+                        createPOIRegion("POI_" + featureSearch.properties.name, latitudePOI, longitudePOI, idStore )
 
                         if (!filterDistanceBetweenRequestSearAPI(POIaround)) {
                             if(WoosmapSettings.distanceAPIEnable) {
@@ -350,6 +354,8 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
                         val gson = Gson()
                         val data = gson.fromJson(response, SearchAPI::class.java)
                         val featureSearch = data.features[0]
+                        val name = featureSearch.properties.name
+                        val idStore = featureSearch.properties.storeID
                         val city = featureSearch.properties.address.city
                         val zipcode = featureSearch.properties.address.zipcode
                         val distance = featureSearch.properties.distance.toString()
@@ -357,9 +363,11 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
                         val latitudePOI = featureSearch.geometry.coordinates[1]
                         val POIaround = POI()
                         POIaround.city = city
+                        POIaround.name = name
+                        POIaround.idStore = idStore
                         POIaround.zipCode = zipcode
                         POIaround.distance = distance.toDouble()
-                        POIaround.dateTime = System.currentTimeMillis();
+                        POIaround.dateTime = System.currentTimeMillis()
                         POIaround.lat = latitudePOI
                         POIaround.lng = longitudePOI
                         POIaround.locationId = positionId
@@ -377,7 +385,7 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
         requestQueue?.add(req)
     }
 
-    private fun createPOIRegion(POIid: String, latitudePOI: Double, longitudePOI: Double) {
+    private fun createPOIRegion(POIid: String, latitudePOI: Double, longitudePOI: Double, POIidStore: String) {
 
         Thread {
 
@@ -397,9 +405,9 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
             }
 
             if (!regionExist) {
-                Woosmap.getInstance().addGeofence(POIid + "_" + firstSearchAPIRegionRadius, LatLng(latitudePOI, longitudePOI), firstSearchAPIRegionRadius.toFloat())
-                Woosmap.getInstance().addGeofence(POIid + "_" + secondSearchAPIRegionRadius, LatLng(latitudePOI, longitudePOI), secondSearchAPIRegionRadius.toFloat())
-                Woosmap.getInstance().addGeofence(POIid + "_" + thirdSearchAPIRegionRadius, LatLng(latitudePOI, longitudePOI), thirdSearchAPIRegionRadius.toFloat())
+                Woosmap.getInstance().addGeofence(POIid + "_" + firstSearchAPIRegionRadius, LatLng(latitudePOI, longitudePOI), firstSearchAPIRegionRadius.toFloat(), POIidStore)
+                Woosmap.getInstance().addGeofence(POIid + "_" + secondSearchAPIRegionRadius, LatLng(latitudePOI, longitudePOI), secondSearchAPIRegionRadius.toFloat(), POIidStore)
+                Woosmap.getInstance().addGeofence(POIid + "_" + thirdSearchAPIRegionRadius, LatLng(latitudePOI, longitudePOI), thirdSearchAPIRegionRadius.toFloat(), POIidStore)
             }
 
         }.start()
@@ -453,7 +461,7 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
     }
 
     private fun finishVisit(visit: Visit) {
-        visit.duration = visit.endTime - visit.startTime;
+        visit.duration = visit.endTime - visit.startTime
         this.db.visitsDao.updateStaticPosition(visit)
 
         if(visit.duration >= WoosmapSettings.durationVisitFilter) {
@@ -533,7 +541,7 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
             regionLog.lng = regionDetected.lng
             regionLog.idStore = regionDetected.idStore
             regionLog.radius =regionDetected.radius
-            this.db.regionLogsDAO.createRegionLog(regionLog);
+            this.db.regionLogsDAO.createRegionLog(regionLog)
 
             if (Woosmap.getInstance().regionReadyListener != null) {
                 Woosmap.getInstance().regionReadyListener.RegionReadyCallback(regionDetected)
@@ -556,14 +564,14 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
             if(region != null) {
                 Log.d(WoosmapSettings.Tags.WoosmapSdkTag, "Region already exist")
             } else {
-                geofencingClient?.addGeofences(geofencingRequest, geofencePendingIntent)?.run {
+                geofencingClient.addGeofences(geofencingRequest, geofencePendingIntent)?.run {
                     addOnSuccessListener {
-                        Log.d(WoosmapSettings.Tags.WoosmapSdkTag,"onSuccess: Geofence Added...");
-                        createRegion(id, radius.toDouble(),latitude,longitude,idStore);
+                        Log.d(WoosmapSettings.Tags.WoosmapSdkTag,"onSuccess: Geofence Added...")
+                        createRegion(id, radius.toDouble(),latitude,longitude,idStore)
                     }
                     addOnFailureListener {
-                        val errorMessage = geofenceHelper.getErrorString(exception);
-                        Log.d(WoosmapSettings.Tags.WoosmapSdkTag,"onFailure "+errorMessage);
+                        val errorMessage = geofenceHelper.getErrorString(exception)
+                        Log.d(WoosmapSettings.Tags.WoosmapSdkTag,"onFailure "+errorMessage)
                     }
                 }
             }

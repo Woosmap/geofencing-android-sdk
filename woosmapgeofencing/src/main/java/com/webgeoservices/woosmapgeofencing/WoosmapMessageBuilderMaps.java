@@ -43,14 +43,14 @@ import static com.webgeoservices.woosmapgeofencing.WoosmapSettings.getNotificati
 
 public class WoosmapMessageBuilderMaps {
 
-    private Context context;
+    private final Context context;
     private Class<?> cls = null;
     ApplicationInfo mApplicationInfo;
     private int message_icon;
     private NotificationCompat.Builder mBuilder;
     private PendingIntent mPendingIntent;
     private NotificationManager mNotificationManager;
-    private NotificationCompat.Style[] mStyle = new NotificationCompat.Style[1];
+    private final NotificationCompat.Style[] mStyle = new NotificationCompat.Style[1];
 
 
     public WoosmapMessageBuilderMaps(Context context) {
@@ -254,9 +254,9 @@ public class WoosmapMessageBuilderMaps {
         // Request Google Maps Static
         String urlGMPStatic = "";
         if (longitudePOI == null) {
-            urlGMPStatic = String.format(WoosmapSettings.Urls.GoogleMapStaticUrl1POI, String.valueOf(location.getLatitude()), String.valueOf(location.getLongitude()), WoosmapSettings.privateKeyGMPStatic);
+            urlGMPStatic = String.format(WoosmapSettings.Urls.GoogleMapStaticUrl1POI, location.getLatitude(), location.getLongitude(), WoosmapSettings.privateKeyGMPStatic);
         } else {
-            urlGMPStatic = String.format(WoosmapSettings.Urls.GoogleMapStaticUrl, String.valueOf(location.getLatitude()), String.valueOf(location.getLongitude()), String.valueOf(latitudePOI), String.valueOf(longitudePOI), WoosmapSettings.privateKeyGMPStatic);
+            urlGMPStatic = String.format(WoosmapSettings.Urls.GoogleMapStaticUrl, location.getLatitude(), location.getLongitude(), latitudePOI, longitudePOI, WoosmapSettings.privateKeyGMPStatic);
         }
         // Retrieves an image specified by the URL, displays it in the UI.
         ImageRequest request = new ImageRequest(urlGMPStatic,

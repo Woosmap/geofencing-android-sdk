@@ -11,6 +11,8 @@ public class POI {
     public int locationId;
     public double lat;
     public double lng;
+    public String name;
+    public String idStore;
     public String city;
     public String zipCode;
     public double distance;

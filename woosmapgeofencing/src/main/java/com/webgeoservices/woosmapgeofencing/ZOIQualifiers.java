@@ -1,9 +1,5 @@
 package com.webgeoservices.woosmapgeofencing;
 
-import android.util.ArraySet;
-
-import org.jetbrains.annotations.NotNull;
-
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -210,7 +206,7 @@ public class ZOIQualifiers {
                 }
             }
 
-            boolean current_status = (daily_density[hour] >= density_mean) ? true : false;
+            boolean current_status = daily_density[hour] >= density_mean;
 
             if (previous_density_status != current_status) {
                 String event_type = EXIT_TYPE;
@@ -273,7 +269,7 @@ public class ZOIQualifiers {
                 }
             }
 
-            boolean current_status = (weekly_density[hour] >= weekly_density_mean) ? true : false;
+            boolean current_status = weekly_density[hour] >= weekly_density_mean;
 
             if (previous_density_status != current_status) {
 

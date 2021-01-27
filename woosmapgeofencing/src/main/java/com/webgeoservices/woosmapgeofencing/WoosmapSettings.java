@@ -45,9 +45,9 @@ public class WoosmapSettings {
     static public boolean distanceAPIEnable = true;
 
     //Mode transportation DistanceAPI
-    private static String drivingMode  = "driving";
-    private static String walkingMode  = "walking";
-    private static String cyclingMode  = "cycling";
+    private static final String drivingMode  = "driving";
+    private static final String walkingMode  = "walking";
+    private static final String cyclingMode  = "cycling";
     static public String modeDistance = drivingMode;
 
     //Filter Accuracy of the location

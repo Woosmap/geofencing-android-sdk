@@ -238,7 +238,7 @@ public class Woosmap {
         AsyncTask.execute(new Runnable() {
             @Override
             public void run() {
-                WoosmapDb.getInstance(context, true).cleanOldGeographicData(context);
+                WoosmapDb.getInstance(context).cleanOldGeographicData(context);
             }
         });
 
@@ -352,8 +352,8 @@ public class Woosmap {
         Woosmap.getInstance().fcmToken = messageToken;
     }
 
-    public void addGeofence(String id, LatLng latLng, float radius) {
-        locationManager.addGeofence( id,latLng,radius );
+    public void addGeofence(String id, LatLng latLng, float radius, String idStore) {
+        locationManager.addGeofence( id,latLng,radius, idStore );
     }
 
     public void removeGeofence(String id) {
