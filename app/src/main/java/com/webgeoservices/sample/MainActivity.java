@@ -22,7 +22,6 @@ import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
-import com.google.android.datatransport.BuildConfig;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 
 import com.google.android.gms.maps.model.LatLng;
@@ -522,7 +521,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected ZOI[] doInBackground(Void... voids) {
-            ZOI[] ZOIList = WoosmapDb.getInstance(mContext, true).getZOIsDAO().getAllZois();
+            ZOI[] ZOIList = WoosmapDb.getInstance(mContext).getZOIsDAO().getAllZois();
             return ZOIList;
         }
 
@@ -602,7 +601,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected ArrayList<PlaceData> doInBackground(Void... voids) {
-            MovingPosition[] movingPositionList = WoosmapDb.getInstance(mContext, true).getMovingPositionsDao().getMovingPositions(-1);
+            MovingPosition[] movingPositionList = WoosmapDb.getInstance(mContext).getMovingPositionsDao().getMovingPositions(-1);
             ArrayList<PlaceData> arrayOfPlaceData = new ArrayList<>();
             for (MovingPosition locationToShow : movingPositionList) {
                 PlaceData place = new PlaceData();
@@ -611,7 +610,7 @@ public class MainActivity extends AppCompatActivity {
                 place.setLongitude( locationToShow.lng );
                 place.setDate(locationToShow.dateTime);
                 place.setLocationId( locationToShow.id );
-                POI poibyLocationID =  WoosmapDb.getInstance(mContext, true).getPOIsDAO().getPOIbyLocationID( locationToShow.id );
+                POI poibyLocationID =  WoosmapDb.getInstance(mContext).getPOIsDAO().getPOIbyLocationID( locationToShow.id );
                 if(poibyLocationID != null) {
                     place.setPOILatitude( poibyLocationID.lat );
                     place.setPOILongitude( poibyLocationID.lng );
@@ -647,7 +646,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected MovingPosition[] doInBackground(Void... voids) {
-            MovingPosition[] MovingPositionList = WoosmapDb.getInstance(mContext, true).getMovingPositionsDao().getMovingPositions(-1);
+            MovingPosition[] MovingPositionList = WoosmapDb.getInstance(mContext).getMovingPositionsDao().getMovingPositions(-1);
             return MovingPositionList;
         }
 
@@ -683,7 +682,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected POI[] doInBackground(Void... voids) {
-            POI[] poiList = WoosmapDb.getInstance(mContext, true).getPOIsDAO().getAllPOIs();
+            POI[] poiList = WoosmapDb.getInstance(mContext).getPOIsDAO().getAllPOIs();
             return poiList;
         }
 
@@ -722,7 +721,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected Visit[] doInBackground(Void... voids) {
 
-            Visit[] staticList = WoosmapDb.getInstance(mContext, true).getVisitsDao().getAllStaticPositions();
+            Visit[] staticList = WoosmapDb.getInstance(mContext).getVisitsDao().getAllStaticPositions();
             return staticList;
         }
 
@@ -780,7 +779,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected ArrayList<PlaceData> doInBackground(Void... voids) {
 
-            Visit[] visitList = WoosmapDb.getInstance(mContext, true).getVisitsDao().getAllStaticPositions();
+            Visit[] visitList = WoosmapDb.getInstance(mContext).getVisitsDao().getAllStaticPositions();
             ArrayList<PlaceData> arrayOfPlaceData = new ArrayList<>();
 
             for (Visit visitToShow : visitList) {
@@ -794,7 +793,7 @@ public class MainActivity extends AppCompatActivity {
                 arrayOfPlaceData.add( place );
             }
 
-            Region[] regionList = WoosmapDb.getInstance(mContext, true).getRegionsDAO().getAllRegions();
+            Region[] regionList = WoosmapDb.getInstance(mContext).getRegionsDAO().getAllRegions();
 
             for (Region regionToShow : regionList) {
                 PlaceData place = new PlaceData(regionToShow);
@@ -802,7 +801,7 @@ public class MainActivity extends AppCompatActivity {
 
             }
 
-            RegionLog[] regionLogList = WoosmapDb.getInstance(mContext, true).getRegionLogsDAO().getAllRegionLogs();
+            RegionLog[] regionLogList = WoosmapDb.getInstance(mContext).getRegionLogsDAO().getAllRegionLogs();
             for (RegionLog regionLogToShow : regionLogList) {
                 PlaceData place = new PlaceData(regionLogToShow);
                 arrayOfPlaceData.add( place );
@@ -849,7 +848,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    public class clearDBTask extends AsyncTask<Void, Void, Void> {
+    public static class clearDBTask extends AsyncTask<Void, Void, Void> {
         private final Context mContext;
         public MainActivity mActivity;
 
@@ -860,7 +859,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected Void doInBackground(Void... voids) {
-            WoosmapDb.getInstance(mContext, true).clearAllTables();
+            WoosmapDb.getInstance(mContext).clearAllTables();
             Woosmap.getInstance().removeGeofence();
             return null;
         }
@@ -892,7 +891,7 @@ public class MainActivity extends AppCompatActivity {
             DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss+SS");
             BufferedReader reader = new BufferedReader(new InputStreamReader(in));
             String line = null;
-            FigmmForVisitsCreator figmmForVisitsCreator = new FigmmForVisitsCreator(WoosmapDb.getInstance(mContext, true));
+            FigmmForVisitsCreator figmmForVisitsCreator = new FigmmForVisitsCreator(WoosmapDb.getInstance(mContext));
             try {
                 int i = 0;
                 while ((line = reader.readLine()) != null) {
@@ -916,7 +915,7 @@ public class MainActivity extends AppCompatActivity {
                     visit.uuid = id;
                     visit.duration = visit.endTime - visit.startTime;
 
-                    WoosmapDb.getInstance(mContext, true).getVisitsDao().createStaticPosition(visit);
+                    WoosmapDb.getInstance(mContext).getVisitsDao().createStaticPosition(visit);
 
                     figmmForVisitsCreator.figmmForVisitTest(visit);
                     i++;

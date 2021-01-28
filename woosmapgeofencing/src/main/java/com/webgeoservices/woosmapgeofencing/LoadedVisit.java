@@ -2,10 +2,10 @@ package com.webgeoservices.woosmapgeofencing;
 
 public class LoadedVisit {
 
-    private double x;
-    private double y;
-    private double accuracy;
-    private String id;
+    private final double x;
+    private final double y;
+    private final double accuracy;
+    private final String id;
     public long startime;
     public long endtime;
 

@@ -325,7 +325,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
     @Override
     public void onMapLongClick(LatLng latLng) {
         String id = UUID.randomUUID().toString();
-        Woosmap.getInstance().addGeofence( id, latLng, 100);
+        Woosmap.getInstance().addGeofence( id, latLng, 100, "");
         addCircle( id, latLng, 100,false );
     }
 

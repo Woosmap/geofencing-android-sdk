@@ -11,7 +11,7 @@ public class WoosmapMessageDatas {
     public String longText;
     public String imageUrl;
     public String notificationId;
-    private String notifFromWoosmap;
+    private final String notifFromWoosmap;
     public String locationRequest;
     public String open_uri;
     public String icon_url;

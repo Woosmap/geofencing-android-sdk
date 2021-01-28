@@ -24,7 +24,7 @@ internal class WoosmapInstanceIDService : FirebaseMessagingService() {
                         }
 
                         // Get new Instance ID token
-                        val token = task.result!!.token
+                        val token = task.result?.token
                         Woosmap.setMessageToken(token)
                     })
         }

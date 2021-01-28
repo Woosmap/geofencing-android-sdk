@@ -69,7 +69,7 @@ public class WoosmapMessageBuilder {
      * @param datas FCM message body received.
      */
     public void sendWoosmapNotification(WoosmapMessageDatas datas) {
-        Log.d("WoosmapGeofencingMessage", datas.messageBody);
+        Log.d("WGS_Message", datas.messageBody);
 
         NotificationManager mNotificationManager =
                 (NotificationManager) this.context.getSystemService(Context.NOTIFICATION_SERVICE);
@@ -118,13 +118,13 @@ public class WoosmapMessageBuilder {
             if (datas.open_uri != null) {
                 resultIntent.setData(Uri.parse(datas.open_uri));
             } else {
-                Log.d("WoosmapGeofencingNotification", "Try to open empty URI");
+                Log.d("WGS_Notification", "Try to open empty URI");
                 resultIntent.setData(Uri.parse(getNotificationDefaultUri(this.context)));
             }
         }
         resultIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         resultIntent.putExtra(WoosmapSettings.WoosmapNotification, datas.notificationId);
-        Log.d("WoosmapGeofencingNotification", "notif: " + datas.notificationId);
+        Log.d("WGS_Notification", "notif: " + datas.notificationId);
         PendingIntent pendingIntent = PendingIntent.getActivity(this.context, 0, resultIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         mBuilder.setContentIntent(pendingIntent);
 

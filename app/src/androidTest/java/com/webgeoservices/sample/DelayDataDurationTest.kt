@@ -27,7 +27,7 @@ class DelayDataDurationTest {
     @Test
     fun cleanDatabase() {
         context =  ApplicationProvider.getApplicationContext<Context>()
-        WoosmapDb.getInstance(context, true).clearAllTables()
+        WoosmapDb.getInstance(context).clearAllTables()
     }
 
     @Test
@@ -43,7 +43,7 @@ class DelayDataDurationTest {
         val lat = 43.6053862
         val accuracy = 20.0
 
-        val figmmForVisitsCreator = FigmmForVisitsCreator(WoosmapDb.getInstance(context, true))
+        val figmmForVisitsCreator = FigmmForVisitsCreator(WoosmapDb.getInstance(context))
 
         //Calendar set to the current date
         val calendar = Calendar.getInstance()
@@ -59,7 +59,7 @@ class DelayDataDurationTest {
             visit.endTime = dateCaptured + (24 * 3600) * 1000
             visit.accuracy = accuracy.toFloat()
             visit.duration = visit.endTime - visit.startTime
-            WoosmapDb.getInstance(context, true).visitsDao.createStaticPosition(visit)
+            WoosmapDb.getInstance(context).visitsDao.createStaticPosition(visit)
 
             figmmForVisitsCreator.figmmForVisitTest(visit)
 
@@ -71,24 +71,24 @@ class DelayDataDurationTest {
             POIaround.locationId = day
             POIaround.lat = lat
             POIaround.lng = lng
-            WoosmapDb.getInstance(context, true).poIsDAO.createPOI(POIaround)
+            WoosmapDb.getInstance(context).poIsDAO.createPOI(POIaround)
 
             val movingPosition = MovingPosition()
             movingPosition.lat = lat
             movingPosition.lng = lng
             movingPosition.accuracy = accuracy.toFloat()
             movingPosition.dateTime = dateCaptured
-            WoosmapDb.getInstance(context, true).movingPositionsDao.createMovingPosition(movingPosition)
+            WoosmapDb.getInstance(context).movingPositionsDao.createMovingPosition(movingPosition)
 
             calendar.add(Calendar.DAY_OF_YEAR, -1)
         }
         figmmForVisitsCreator.update_db()
 
-        WoosmapDb.getInstance(context, true).cleanOldGeographicData(context)
+        WoosmapDb.getInstance(context).cleanOldGeographicData(context)
 
-        Assert.assertEquals( WoosmapDb.getInstance(context, true).visitsDao.allStaticPositions.size, 30)
-        Assert.assertEquals( WoosmapDb.getInstance(context, true).poIsDAO.allPOIs.size, 30)
-        Assert.assertEquals( WoosmapDb.getInstance(context, true).movingPositionsDao.getMovingPositions(-1).size, 30)
+        Assert.assertEquals( WoosmapDb.getInstance(context).visitsDao.allStaticPositions.size, 30)
+        Assert.assertEquals( WoosmapDb.getInstance(context).poIsDAO.allPOIs.size, 30)
+        Assert.assertEquals( WoosmapDb.getInstance(context).movingPositionsDao.getMovingPositions(-1).size, 30)
 
     }
 

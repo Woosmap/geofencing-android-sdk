@@ -1,6 +1,5 @@
 package com.webgeoservices.sample;
 
-import android.location.Location;
 import android.os.Bundle;
 import android.util.Pair;
 import android.view.LayoutInflater;
@@ -21,7 +20,6 @@ import com.webgeoservices.woosmapgeofencing.database.WoosmapDb;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 
@@ -34,7 +32,7 @@ public class LocationFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mPositionsManager = new PositionsManager(getContext(), WoosmapDb.getInstance(getContext(), true));
+        mPositionsManager = new PositionsManager(getContext(), WoosmapDb.getInstance(getContext()));
     }
 
     @Nullable

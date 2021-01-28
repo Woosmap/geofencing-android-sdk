@@ -7,13 +7,10 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
-
 import com.webgeoservices.sample.R;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Comparator;
 
 public class PlaceDataAdapter extends ArrayAdapter<PlaceData> {
 
@@ -86,7 +83,7 @@ public class PlaceDataAdapter extends ArrayAdapter<PlaceData> {
             tvDate.setText( displayDateFormat.format( place.getDate() ) );
 
             String regionDetails = "Identifier = " + place.getRegionIdentifier() + "\n";
-            if(place.getIdStore() != "") {
+            if(!place.getIdStore().isEmpty()) {
                 regionDetails += "Id store = " + place.getIdStore() + "\n";
             }
             regionDetails += "Radius = " + place.getRadius() + "\n";

@@ -3,8 +3,6 @@ package com.webgeoservices.sample.model;
 import com.webgeoservices.woosmapgeofencing.database.Region;
 import com.webgeoservices.woosmapgeofencing.database.RegionLog;
 
-import java.util.Comparator;
-
 public class PlaceData {
 
     public enum dataType {

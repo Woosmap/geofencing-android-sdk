@@ -16,7 +16,8 @@
         <receiver
             android:name="com.webgeoservices.woosmapgeofencing.LocationUpdatesBroadcastReceiver"
             android:enabled="true"
-            android:exported="true" />
+            android:exported="true"
+            android:permission="com.google.android.gms.location.sample.locationupdatespendingintent.action.PROCESS_UPDATES"/>
 
         <service
             android:name="com.webgeoservices.woosmapgeofencing.LocationUpdatesIntentService"

@@ -13,7 +13,7 @@ import com.webgeoservices.woosmapgeofencing.WoosmapSettings;
 
 import static android.content.Context.MODE_PRIVATE;
 
-@Database(entities = {Visit.class, MovingPosition.class, POI.class, ZOI.class, Region.class, RegionLog.class}, version = 12, exportSchema = false)
+@Database(entities = {Visit.class, MovingPosition.class, POI.class, ZOI.class, Region.class, RegionLog.class}, version = 13, exportSchema = false)
 @TypeConverters({Converters.class})
 public abstract class WoosmapDb extends RoomDatabase {
 
@@ -31,19 +31,11 @@ public abstract class WoosmapDb extends RoomDatabase {
 
     private static volatile WoosmapDb instance;
 
-    public static synchronized WoosmapDb getInstance(Context context, Boolean isProd) {
+    public static synchronized WoosmapDb getInstance(Context context) {
         if (instance == null) {
-            if (!isProd) {
-                instance = testCreate(context);
-            } else {
-                instance = create(context);
-            }
+            instance = create(context);
         }
         return instance;
-    }
-
-    public static synchronized WoosmapDb getDevelopInstance(Context context) {
-        return developCreate(context);
     }
 
     private static WoosmapDb create(final Context context) {
@@ -55,23 +47,6 @@ public abstract class WoosmapDb extends RoomDatabase {
                 .build();
     }
 
-    private static WoosmapDb developCreate(final Context context) {
-        return Room.databaseBuilder(
-                context,
-                WoosmapDb.class,
-                "database-woosmap")
-                .fallbackToDestructiveMigration()
-                .allowMainThreadQueries()
-                .build();
-    }
-
-    private static WoosmapDb testCreate(final Context context) {
-        return Room.inMemoryDatabaseBuilder(
-                context,
-                WoosmapDb.class)
-                .build();
-    }
-
     public void cleanOldGeographicData(final Context context) {
         SharedPreferences mPrefs = context.getSharedPreferences("WGSGeofencingPref",MODE_PRIVATE);
 
@@ -80,7 +55,7 @@ public abstract class WoosmapDb extends RoomDatabase {
             long dateNow = System.currentTimeMillis();
             long timeDiffFromNow = dateNow - lastUpdate;
             //update date if no updating since 1 day
-            FigmmForVisitsCreator figmmForVisitsCreator = new FigmmForVisitsCreator(WoosmapDb.getInstance(context, true));
+            FigmmForVisitsCreator figmmForVisitsCreator = new FigmmForVisitsCreator(WoosmapDb.getInstance(context));
             if (timeDiffFromNow > 86400000) {
                 figmmForVisitsCreator.deleteVisitOnZoi(dateNow - WoosmapSettings.dataDurationDelay);
                 getVisitsDao().deleteVisitOlderThan(dateNow - WoosmapSettings.dataDurationDelay);

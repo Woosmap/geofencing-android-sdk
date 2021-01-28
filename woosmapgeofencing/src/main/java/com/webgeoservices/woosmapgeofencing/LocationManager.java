@@ -40,9 +40,9 @@ class LocationManager {
     private LocationCallback mLocationCallback;
     private PendingIntent mLocationIntent;
 
-    private GeofencingClient mGeofencingClient;
+    private final GeofencingClient mGeofencingClient;
     private PendingIntent mGeofencePendingIntent;
-    private GeofenceHelper geofenceHelper;
+    private final GeofenceHelper geofenceHelper;
 
     private final Woosmap woos;
     private final Context context;
@@ -53,7 +53,7 @@ class LocationManager {
         this.woos = woos;
         this.context = context;
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(context);
-        db = WoosmapDb.getInstance(context, true);
+        db = WoosmapDb.getInstance(context);
         positionsManager = new PositionsManager(context, db);
 
         mGeofencingClient = LocationServices.getGeofencingClient(context);
@@ -73,10 +73,10 @@ class LocationManager {
     }
 
 
-    public void addGeofence(final String id, final LatLng latLng, final float radius) {
+    public void addGeofence(final String id, final LatLng latLng, final float radius, final String idStore) {
         Geofence geofence = geofenceHelper.getGeofence(id, latLng, radius, Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_DWELL | Geofence.GEOFENCE_TRANSITION_EXIT);
         GeofencingRequest geofencingRequest = geofenceHelper.getGeofencingRequest(geofence);
-        positionsManager.addGeofence(geofenceHelper, geofencingRequest, getGeofencePendingIntent(),mGeofencingClient,id,radius,latLng.latitude,latLng.longitude,"");
+        positionsManager.addGeofence(geofenceHelper, geofencingRequest, getGeofencePendingIntent(),mGeofencingClient,id,radius,latLng.latitude,latLng.longitude,idStore);
     }
 
 
