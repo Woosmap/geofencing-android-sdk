@@ -63,13 +63,6 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
                 //Close the current visit
                 lastVisit.endTime = location.time
                 this.finishVisit(lastVisit)
-
-                val movingPosition = MovingPosition()
-                movingPosition.lat = location.latitude
-                movingPosition.lng = location.longitude
-                movingPosition.accuracy = location.accuracy
-                movingPosition.dateTime = location.time
-                this.createMovingPositionFromLocation(location)
                 Log.d(WoosmapVisitsTag, "Not static Anyway")
             }
         }
@@ -80,7 +73,6 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
             val distance = this.distanceBetweenLocationAndPosition(previousMovingPosition, location)
             Log.d(WoosmapVisitsTag, "distance : $distance")
             if (distance >= WoosmapSettings.distanceDetectionThresholdVisits) {
-                this.createMovingPositionFromLocation(location)
                 Log.d(WoosmapVisitsTag, "We're Moving")
             } else { //Create a new visit
                 val olderPosition = this.db.movingPositionsDao.previousLastMovingPosition
@@ -98,9 +90,6 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
                         visit.nbPoint = 1
                         this.createVisit(visit)
                         Log.d(WoosmapVisitsTag, "Create new Visit")
-                    } else {
-                        //its a static position
-                        this.createMovingPositionFromLocation(location)
                     }
                 }
             }
@@ -218,6 +207,8 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
                 this.createVisit(staticLocation)
             }
         }
+
+
     }
 
     private fun filterAccurary(location: Location): Boolean {
