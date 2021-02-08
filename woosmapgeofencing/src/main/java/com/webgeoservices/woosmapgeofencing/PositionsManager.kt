@@ -63,11 +63,6 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
                 //Close the current visit
                 lastVisit.endTime = location.time
                 this.finishVisit(lastVisit)
-                val movingPosition = MovingPosition()
-                movingPosition.lat = location.latitude
-                movingPosition.lng = location.longitude
-                movingPosition.accuracy = location.accuracy
-                movingPosition.dateTime = location.time
                 Log.d(WoosmapVisitsTag, "Not static Anyway")
             }
         }
