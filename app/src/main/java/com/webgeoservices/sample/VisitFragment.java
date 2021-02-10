@@ -1,5 +1,6 @@
 package com.webgeoservices.sample;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,11 +25,13 @@ public class VisitFragment extends Fragment {
     PlaceDataAdapter adapter;
     ListView lvVisit;
     PositionsManager mPositionsManager;
+    Context mContext;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mPositionsManager = new PositionsManager(getContext(), WoosmapDb.getInstance(getContext()));
+        mContext = getContext();
     }
 
     @Nullable
@@ -40,13 +43,55 @@ public class VisitFragment extends Fragment {
         return  view;
     }
 
+    public void loadDataFromRegionLog(ArrayList<PlaceData> arrayOfPlaceData) {
+        int index = lvVisit.getFirstVisiblePosition();
+        View v = lvVisit.getChildAt(0);
+        int top = (v == null) ? 0 : (v.getTop() - lvVisit.getPaddingTop());
+
+        if(adapter != null) {
+            for (int i = 0; i < adapter.getCount(); i++) {
+                PlaceData place = adapter.getItem( i );
+                if (place.getType() == PlaceData.dataType.visit) {
+                    arrayOfPlaceData.add( place );
+                }
+            }
+        }
+
+        adapter = new PlaceDataAdapter(mContext, arrayOfPlaceData);
+        Collections.sort( arrayOfPlaceData, new PlaceDataComparator());
+
+        lvVisit.setAdapter(adapter);
+        lvVisit.setSelectionFromTop(index, top);
+    }
+
+    public void loadDataFromVisit(ArrayList<PlaceData> arrayOfPlaceData) {
+        int index = lvVisit.getFirstVisiblePosition();
+        View v = lvVisit.getChildAt(0);
+        int top = (v == null) ? 0 : (v.getTop() - lvVisit.getPaddingTop());
+
+        if(adapter != null) {
+            for (int i = 0; i < adapter.getCount(); i++) {
+                PlaceData place = adapter.getItem( i );
+                if (place.getType() == PlaceData.dataType.regionLog) {
+                    arrayOfPlaceData.add( place );
+                }
+            }
+        }
+
+        adapter = new PlaceDataAdapter(mContext, arrayOfPlaceData);
+        Collections.sort( arrayOfPlaceData, new PlaceDataComparator());
+
+        lvVisit.setAdapter(adapter);
+        lvVisit.setSelectionFromTop(index, top);
+    }
+
 
     public void loadData(ArrayList<PlaceData> arrayOfPlaceData) {
         int index = lvVisit.getFirstVisiblePosition();
         View v = lvVisit.getChildAt(0);
         int top = (v == null) ? 0 : (v.getTop() - lvVisit.getPaddingTop());
 
-        adapter = new PlaceDataAdapter(getContext(), arrayOfPlaceData);
+        adapter = new PlaceDataAdapter(mContext, arrayOfPlaceData);
         Collections.sort( arrayOfPlaceData, new PlaceDataComparator());
 
         lvVisit.setAdapter(adapter);

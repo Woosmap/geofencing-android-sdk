@@ -1,5 +1,6 @@
 package com.webgeoservices.sample;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.util.Pair;
 import android.view.LayoutInflater;
@@ -28,11 +29,13 @@ public class LocationFragment extends Fragment {
     PlaceDataAdapter adapter;
     ListView lvLocation;
     PositionsManager mPositionsManager;
+    Context mContext;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mPositionsManager = new PositionsManager(getContext(), WoosmapDb.getInstance(getContext()));
+        mContext = getContext();
     }
 
     @Nullable
@@ -64,7 +67,7 @@ public class LocationFragment extends Fragment {
         View v = lvLocation.getChildAt(0);
         int top = (v == null) ? 0 : (v.getTop() - lvLocation.getPaddingTop());
 
-        adapter = new PlaceDataAdapter(getContext(), arrayOfPlaceData);
+        adapter = new PlaceDataAdapter(mContext, arrayOfPlaceData);
         Collections.sort( arrayOfPlaceData, new PlaceDataComparator());
 
         lvLocation.setAdapter(adapter);

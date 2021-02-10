@@ -21,6 +21,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
 
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 
@@ -33,6 +35,7 @@ import com.google.android.material.snackbar.Snackbar;
 import com.webgeoservices.sample.model.PlaceData;
 import com.webgeoservices.woosmapgeofencing.DistanceAPIDataModel.DistanceAPI;
 import com.webgeoservices.woosmapgeofencing.FigmmForVisitsCreator;
+import com.webgeoservices.woosmapgeofencing.PositionsManager;
 import com.webgeoservices.woosmapgeofencing.Woosmap;
 import com.webgeoservices.woosmapgeofencing.WoosmapSettings;
 import com.webgeoservices.woosmapgeofencing.database.MovingPosition;
@@ -52,6 +55,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -61,6 +65,8 @@ public class MainActivity extends AppCompatActivity {
     private LocationFragment locationFragment;
     private MapFragment mapFragment;
     private VisitFragment visitFragment;
+
+    private POI[] POIData = new POI[0];
 
     private boolean isMenuOpen = false;
 
@@ -75,8 +81,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void onLocationCallback(Location currentLocation) {
-        new refreshDataTask(getApplicationContext(), MainActivity.this).execute();
-        new LocationTask(getApplicationContext(), this, currentLocation).execute();
     }
 
 
@@ -87,8 +91,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void onPOICallback(POI poi) {
-        new refreshDataTask(getApplicationContext(), MainActivity.this).execute();
-        new POITask(getApplicationContext(), this,poi).execute();
     }
 
     public class WoosDistanceAPIReadyListener implements Woosmap.DistanceAPIReadyListener {
@@ -98,7 +100,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void onDistanceAPICallback(DistanceAPI distanceAPIData) {
-        new refreshDataTask(getApplicationContext(), MainActivity.this).execute();
     }
 
     public class WoosVisitReadyListener implements Woosmap.VisitReadyListener {
@@ -108,8 +109,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void onVisitCallback(Visit visit) {
-        new refreshRegionAndVisitTask(getApplicationContext(), this).execute();
-        new VisitTask(getApplicationContext(), this).execute();
     }
 
     public class WoosRegionReadyListener implements Woosmap.RegionReadyListener {
@@ -119,7 +118,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void onRegionCallback(Region region) {
-        new refreshRegionAndVisitTask(getApplicationContext(), this).execute();
     }
 
     @Override
@@ -162,8 +160,17 @@ public class MainActivity extends AppCompatActivity {
         mapFragment = new MapFragment();
         visitFragment = new VisitFragment();
 
+        POIData = new POI[0];
+
+        setFragment(visitFragment);
         setFragment(locationFragment);
-        new refreshDataTask(getApplicationContext(), MainActivity.this).execute();
+
+        loadData();
+        loadPOI();
+        loadVisit();
+        loadZOI();
+        loadRegion();
+        loadRegionLogs();
 
         bottomNav = findViewById(R.id.bottom_navigation);
         bottomNav.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -171,19 +178,12 @@ public class MainActivity extends AppCompatActivity {
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switch (item.getItemId()) {
                     case R.id.navigation_map:
-                        new AllLocationTask(getApplicationContext(), MainActivity.this).execute();
-                        new AllPOITask(getApplicationContext(), MainActivity.this).execute();
-                        new AllZOITask(getApplicationContext(), MainActivity.this).execute();
-                        new refreshRegionAndVisitTask(getApplicationContext(), MainActivity.this).execute();
                         setFragment(mapFragment);
                         return true;
                     case R.id.navigation_location:
-                        new refreshDataTask(getApplicationContext(), MainActivity.this).execute();
                         setFragment(locationFragment);
                         return true;
                     case R.id.navigation_visit:
-                        new refreshRegionAndVisitTask(getApplicationContext(), MainActivity.this).execute();
-                        new VisitTask(getApplicationContext(), MainActivity.this).execute();
                         setFragment(visitFragment);
                         return true;
                     default:
@@ -208,6 +208,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Snackbar.make(view, "Clear Database", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
+
                 new clearDBTask(getApplicationContext(), MainActivity.this).execute();
             }
         });
@@ -369,6 +370,201 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void loadPOI() {
+        final LiveData<POI[]> POIList = WoosmapDb.getInstance(getApplicationContext()).getPOIsDAO().getAllLivePOIs();
+        POIList.observe(this, new Observer<POI[]>() {
+            @Override
+            public void onChanged(POI[] pois) {
+                POIData = pois;
+            }
+        });
+    }
+
+    private void loadVisit() {
+        final LiveData<Visit[]> VisitList = WoosmapDb.getInstance(getApplicationContext()).getVisitsDao().getAllLiveStaticPositions();
+        VisitList.observe(this, new Observer<Visit[]>() {
+            @Override
+            public void onChanged(Visit[] visits) {
+                final ArrayList<PlaceData> arrayOfPlaceData = new ArrayList<>();
+                for (Visit visitToShow : visits) {
+                    PlaceData place = new PlaceData();
+                    place.setType( PlaceData.dataType.visit );
+                    place.setLatitude( visitToShow.lat );
+                    place.setLongitude( visitToShow.lng );
+                    place.setArrivalDate( visitToShow.startTime );
+                    place.setDepartureDate( visitToShow.endTime );
+                    place.setDuration( visitToShow.duration );
+                    arrayOfPlaceData.add( place );
+
+                    SimpleDateFormat displayDateFormat = new SimpleDateFormat("HH:mm:ss");
+                    if(visitToShow.duration >= WoosmapSettings.durationVisitFilter) {
+                        LatLng latLng = new LatLng( visitToShow.lat, visitToShow.lng );
+                        String startFormatedDate = displayDateFormat.format( visitToShow.startTime );
+                        String endFormatedDate = "";
+                        if (visitToShow.endTime == 0) {
+                            //Visit in progress
+                            endFormatedDate = "ongoing";
+                        } else {
+                            endFormatedDate = displayDateFormat.format( visitToShow.endTime );
+                        }
+                        String infoVisites = " --> start: " + startFormatedDate + " / end: " + endFormatedDate + " NbPt : " + visitToShow.nbPoint;
+                        MarkerOptions markerOptions = new MarkerOptions().position( latLng ).title( infoVisites );
+                        boolean markerToUpdate = false;
+                        for (MarkerOptions marker : MainActivity.this.mapFragment.markersVisit) {
+                            if (marker.getPosition().equals( markerOptions.getPosition() )) {
+                                //Update marker
+                                markerToUpdate = true;
+                                marker.title( markerOptions.getTitle() );
+                            }
+                        }
+                        if (!markerToUpdate) {
+                            MainActivity.this.mapFragment.markersVisit.add( markerOptions );
+                            if (MainActivity.this.mapFragment.mGoolgeMap != null) {
+                                MainActivity.this.mapFragment.visitMarkerList.add( MainActivity.this.mapFragment.mGoolgeMap.addMarker( markerOptions.icon( BitmapDescriptorFactory.defaultMarker( BitmapDescriptorFactory.HUE_ORANGE ) ) ) );
+                                if (!MainActivity.this.mapFragment.visitEnableCheckbox.isChecked()) {
+                                    for (Marker marker : MainActivity.this.mapFragment.visitMarkerList) {
+                                        marker.setVisible( false );
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                MainActivity.this.visitFragment.loadDataFromVisit( arrayOfPlaceData );
+            }
+        });
+    }
+
+    private void loadRegion() {
+        final LiveData<Region[]> regionList = WoosmapDb.getInstance( getApplicationContext() ).getRegionsDAO().getAllLiveRegions();
+        regionList.observe( this, new Observer<Region[]>() {
+            @Override
+            public void onChanged(Region[] regions) {
+                MainActivity.this.mapFragment.regions.clear();
+                for (Region region : regions) {
+                    MainActivity.this.mapFragment.regions.add(region);
+                }
+
+                if (MainActivity.this.mapFragment.mGoolgeMap != null) {
+                    MainActivity.this.mapFragment.clearCircleGeofence();
+                    MainActivity.this.mapFragment.drawCircleGeofence();
+                }
+            }
+        } );
+    }
+
+    private void loadZOI() {
+        final LiveData<ZOI[]> zoiList = WoosmapDb.getInstance( getApplicationContext() ).getZOIsDAO().getAllLiveZois();
+        zoiList.observe( this, new Observer<ZOI[]>() {
+            @Override
+            public void onChanged(ZOI[] zois) {
+                MainActivity.this.mapFragment.zois.clear();
+                MainActivity.this.mapFragment.clearPolygon();
+
+                MainActivity.this.mapFragment.zois.addAll(Arrays.asList(zois));
+
+                if (MainActivity.this.mapFragment.mGoolgeMap != null) {
+                    MainActivity.this.mapFragment.drawPolygon();
+                }
+            }
+        } );
+    }
+
+    private void loadRegionLogs() {
+        final LiveData<RegionLog[]> regionLogList = WoosmapDb.getInstance( getApplicationContext() ).getRegionLogsDAO().getAllLiveRegionLogs();
+        regionLogList.observe( this, new Observer<RegionLog[]>() {
+            @Override
+            public void onChanged(RegionLog[] regionLogs) {
+                final ArrayList<PlaceData> arrayOfPlaceData = new ArrayList<>();
+                for (RegionLog regionLogToShow : regionLogs) {
+                    PlaceData place = new PlaceData( regionLogToShow );
+                    arrayOfPlaceData.add( place );
+                }
+                if (MainActivity.this.visitFragment.isVisible()) {
+                    MainActivity.this.visitFragment.loadDataFromRegionLog( arrayOfPlaceData );
+                }
+            }
+        } );
+    }
+
+    public void loadData() {
+        final LiveData<MovingPosition[]> movingPositionList = WoosmapDb.getInstance(getApplicationContext()).getMovingPositionsDao().getLiveDataMovingPositions(-1);
+        movingPositionList.observe(this, new Observer<MovingPosition[]>() {
+            @Override
+            public void onChanged(MovingPosition[] movingPositions) {
+                final ArrayList<PlaceData> arrayOfPlaceData = new ArrayList<>();
+                for (MovingPosition locationToShow : movingPositionList.getValue()) {
+                    final PlaceData place = new PlaceData();
+                    place.setType( PlaceData.dataType.location );
+                    place.setLatitude( locationToShow.lat );
+                    place.setLongitude( locationToShow.lng );
+                    place.setDate(locationToShow.dateTime);
+                    place.setLocationId( locationToShow.id );
+                    for (POI poi : POIData) {
+                        if (poi.locationId == locationToShow.id) {
+                            place.setPOILatitude( poi.lat );
+                            place.setPOILongitude( poi.lng );
+                            place.setZipCode( poi.zipCode );
+                            place.setCity( poi.city );
+                            place.setDistance( poi.distance );
+                            place.setTravelingDistance( poi.travelingDistance );
+                            place.setType( PlaceData.dataType.POI );
+                            place.setMovingDuration( poi.duration );
+                        }
+                    }
+                    arrayOfPlaceData.add( place );
+
+                    if (MainActivity.this.mapFragment.mGoolgeMap != null && MainActivity.this.mapFragment.isVisible()) {
+                        if(place.getType() == PlaceData.dataType.location) {
+                            LatLng latLng = new LatLng( place.getLatitude(), place.getLongitude() );
+                            boolean markerToAdd = true;
+                            MarkerOptions markerOptions = new MarkerOptions().position( latLng ).icon( BitmapDescriptorFactory.defaultMarker( BitmapDescriptorFactory.HUE_MAGENTA ) );
+                            if (!MainActivity.this.mapFragment.markersLocations.isEmpty()) {
+                                for (MarkerOptions marker : MainActivity.this.mapFragment.markersLocations) {
+                                    if (marker.getPosition().equals( markerOptions.getPosition() )) {
+                                        markerToAdd = false;
+                                    }
+                                }
+                            }
+                            if (markerToAdd) {
+                                MainActivity.this.mapFragment.markersLocations.add( markerOptions );
+                                MainActivity.this.mapFragment.locationMarkerList.add( MainActivity.this.mapFragment.mGoolgeMap.addMarker( markerOptions ) );
+                                if (!MainActivity.this.mapFragment.locationEnableCheckbox.isChecked()) {
+                                    for (Marker marker : MainActivity.this.mapFragment.locationMarkerList) {
+                                        marker.setVisible( false );
+                                    }
+                                }
+                            }
+                        }
+
+                        if(place.getType() == PlaceData.dataType.POI) {
+                            LatLng latLng = new LatLng( place.getPOILatitude(), place.getPOILongitude() );
+                            boolean markerToAdd = true;
+                            MarkerOptions markerOptions = new MarkerOptions().position(latLng).title(place.getCity()).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
+                            if (!MainActivity.this.mapFragment.markersPOI.isEmpty()) {
+                                for (MarkerOptions marker : MainActivity.this.mapFragment.markersPOI) {
+                                    if (marker.getPosition().equals(markerOptions.getPosition())) {
+                                        markerToAdd =false;
+                                    }
+                                }
+                            }
+                            if(markerToAdd) {
+                                MainActivity.this.mapFragment.markersPOI.add(markerOptions);
+                                MainActivity.this.mapFragment.poiMarkerList.add(MainActivity.this.mapFragment.mGoolgeMap.addMarker(markerOptions));
+                                if(!MainActivity.this.mapFragment.POIEnableCheckbox.isChecked()){
+                                    for (Marker marker : MainActivity.this.mapFragment.poiMarkerList) {
+                                        marker.setVisible(false);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                MainActivity.this.locationFragment.loadData( arrayOfPlaceData );
+            }
+        });
+    }
+
     private void setFragment(Fragment fragment) {
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.replace(R.id.fragment_container, fragment);
@@ -466,388 +662,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private static class POITask extends AsyncTask<Void, Void, POI> {
-        private final Context mContext;
-        public MainActivity mActivity;
-        private final POI mPOI;
-
-        POITask(Context context, MainActivity activity, POI poi) {
-            mContext = context;
-            mActivity = activity;
-            mPOI = poi;
-        }
-
-        @Override
-        protected POI doInBackground(Void... voids) {
-            POI newPOI = mPOI;
-            return newPOI;
-        }
-
-        @Override
-        protected void onPostExecute(POI poiToShow) {
-            if (mPOI == null)
-                return;
-
-            if (mActivity.mapFragment.mGoolgeMap != null && mActivity.mapFragment.isVisible()) {
-
-                LatLng latLng = new LatLng(poiToShow.lat, poiToShow.lng);
-                MarkerOptions markerOptions = new MarkerOptions().position(latLng).title(poiToShow.city).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
-                if (!mActivity.mapFragment.markersPOI.isEmpty()) {
-                    for (MarkerOptions marker : mActivity.mapFragment.markersPOI) {
-                        if (marker.getPosition().equals(markerOptions.getPosition())) {
-                            return;
-                        }
-                    }
-                }
-                mActivity.mapFragment.markersPOI.add(markerOptions);
-                mActivity.mapFragment.poiMarkerList.add(mActivity.mapFragment.mGoolgeMap.addMarker(markerOptions));
-                if(!mActivity.mapFragment.POIEnableCheckbox.isChecked()){
-                    for (Marker marker : mActivity.mapFragment.poiMarkerList) {
-                        marker.setVisible(false);
-                    }
-                }
-            }
-        }
-    }
-
-    public static class AllZOITask extends AsyncTask<Void, Void, ZOI[]> {
-        private final Context mContext;
-        public MainActivity mActivity;
-
-        AllZOITask(Context context, MainActivity activity) {
-            mContext = context;
-            mActivity = activity;
-        }
-
-        @Override
-        protected ZOI[] doInBackground(Void... voids) {
-            ZOI[] ZOIList = WoosmapDb.getInstance(mContext).getZOIsDAO().getAllZois();
-            return ZOIList;
-        }
-
-        @Override
-        protected void onPostExecute(ZOI[] ZOIList) {
-            mActivity.mapFragment.zois.clear();
-            mActivity.mapFragment.clearPolygon();
-
-            if(ZOIList.length == 0)
-                return;
-
-            mActivity.mapFragment.zois.addAll(Arrays.asList(ZOIList));
-
-            if (mActivity.mapFragment.mGoolgeMap != null) {
-                mActivity.mapFragment.drawPolygon();
-            }
-        }
-    }
-
-    public static class LocationTask extends AsyncTask<Void, Void, MovingPosition> {
-        private final Context mContext;
-        private final Location mCurrentLocation;
-        public MainActivity mActivity;
-
-        LocationTask(Context context, MainActivity activity, Location currentLocation) {
-            mContext = context;
-            mActivity = activity;
-            mCurrentLocation = currentLocation;
-        }
-
-        @Override
-        protected MovingPosition doInBackground(Void... voids) {
-            MovingPosition movingPosition = new MovingPosition();
-            movingPosition.lat = mCurrentLocation.getLatitude();
-            movingPosition.lng = mCurrentLocation.getLongitude();
-            movingPosition.accuracy = mCurrentLocation.getAccuracy();
-            movingPosition.dateTime = mCurrentLocation.getTime();
-
-            return movingPosition;
-        }
-
-        @Override
-        protected void onPostExecute(MovingPosition movingPosition) {
-
-            if (movingPosition == null)
-                return;
-
-            if (mActivity.mapFragment.mGoolgeMap != null && mActivity.mapFragment.isVisible()) {
-                LatLng latLng = new LatLng(movingPosition.lat, movingPosition.lng);
-                MarkerOptions markerOptions = new MarkerOptions().position(latLng).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
-                if (!mActivity.mapFragment.markersLocations.isEmpty()) {
-                    for (MarkerOptions marker : mActivity.mapFragment.markersLocations) {
-                        if (marker.getPosition().equals(markerOptions.getPosition())) {
-                            return;
-                        }
-                    }
-                }
-                mActivity.mapFragment.markersLocations.add(markerOptions);
-                mActivity.mapFragment.locationMarkerList.add(mActivity.mapFragment.mGoolgeMap.addMarker(markerOptions));
-                if (!mActivity.mapFragment.locationEnableCheckbox.isChecked()){
-                    for (Marker marker : mActivity.mapFragment.locationMarkerList) {
-                        marker.setVisible(false);
-                    }
-                }
-            }
-        }
-    }
-
-    public static class refreshDataTask extends AsyncTask<Void, Void, ArrayList<PlaceData>> {
-        private final Context mContext;
-        public MainActivity mActivity;
-
-        refreshDataTask(Context context, MainActivity activity) {
-            mContext = context;
-            mActivity = activity;
-        }
-
-        @Override
-        protected ArrayList<PlaceData> doInBackground(Void... voids) {
-            MovingPosition[] movingPositionList = WoosmapDb.getInstance(mContext).getMovingPositionsDao().getMovingPositions(-1);
-            ArrayList<PlaceData> arrayOfPlaceData = new ArrayList<>();
-            for (MovingPosition locationToShow : movingPositionList) {
-                PlaceData place = new PlaceData();
-                place.setType( PlaceData.dataType.location );
-                place.setLatitude( locationToShow.lat );
-                place.setLongitude( locationToShow.lng );
-                place.setDate(locationToShow.dateTime);
-                place.setLocationId( locationToShow.id );
-                POI poibyLocationID =  WoosmapDb.getInstance(mContext).getPOIsDAO().getPOIbyLocationID( locationToShow.id );
-                if(poibyLocationID != null) {
-                    place.setPOILatitude( poibyLocationID.lat );
-                    place.setPOILongitude( poibyLocationID.lng );
-                    place.setZipCode( poibyLocationID.zipCode );
-                    place.setCity( poibyLocationID.city );
-                    place.setDistance( poibyLocationID.distance );
-                    place.setTravelingDistance( poibyLocationID.travelingDistance );
-                    place.setType( PlaceData.dataType.POI );
-                    place.setMovingDuration( poibyLocationID.duration );
-                }
-
-                arrayOfPlaceData.add( place );
-            }
-            return arrayOfPlaceData;
-        }
-
-        @Override
-        protected void onPostExecute(ArrayList<PlaceData> placeDataArrayList) {
-            if(mActivity.bottomNav.getMenu().getItem( 0 ).isChecked())
-                mActivity.locationFragment.loadData( placeDataArrayList );
-        }
-
-    }
-
-    public static class AllLocationTask extends AsyncTask<Void, Void, MovingPosition[]> {
-        private final Context mContext;
-        public MainActivity mActivity;
-
-        AllLocationTask(Context context, MainActivity activity) {
-            mContext = context;
-            mActivity = activity;
-        }
-
-        @Override
-        protected MovingPosition[] doInBackground(Void... voids) {
-            MovingPosition[] MovingPositionList = WoosmapDb.getInstance(mContext).getMovingPositionsDao().getMovingPositions(-1);
-            return MovingPositionList;
-        }
-
-        @Override
-        protected void onPostExecute(MovingPosition[] movingPositionList) {
-            if(movingPositionList.length == 0)
-                return;
-
-            for (MovingPosition locationToShow : movingPositionList) {
-                LatLng latLng = new LatLng( locationToShow.lat, locationToShow.lng );
-                boolean markerToAdd = true;
-                MarkerOptions markerOptions = new MarkerOptions().position( latLng );
-                for (MarkerOptions marker : mActivity.mapFragment.markersLocations) {
-                    if (marker.getPosition().equals( markerOptions.getPosition() )) {
-                        markerToAdd = false;
-                    }
-                }
-                if (markerToAdd) {
-                    mActivity.mapFragment.markersLocations.add( markerOptions );
-                }
-            }
-        }
-    }
-
-    public static class AllPOITask extends AsyncTask<Void, Void, POI[]> {
-        private final Context mContext;
-        public MainActivity mActivity;
-
-        AllPOITask(Context context, MainActivity activity) {
-            mContext = context;
-            mActivity = activity;
-        }
-
-        @Override
-        protected POI[] doInBackground(Void... voids) {
-            POI[] poiList = WoosmapDb.getInstance(mContext).getPOIsDAO().getAllPOIs();
-            return poiList;
-        }
-
-        @Override
-        protected void onPostExecute(POI[] poiList) {
-            if(poiList.length == 0)
-                return;
-
-            SimpleDateFormat displayDateFormat = new SimpleDateFormat("HH:mm:ss");
-
-            for (POI poiToShow : poiList) {
-                LatLng latLng = new LatLng(poiToShow.lat, poiToShow.lng);
-                boolean markerToAdd = true;
-                MarkerOptions markerOptions = new MarkerOptions().position(latLng).title(poiToShow.city);
-                for (MarkerOptions marker : mActivity.mapFragment.markersPOI) {
-                    if (marker.getPosition().equals(markerOptions.getPosition())) {
-                        markerToAdd = false;
-                    }
-                }
-                if (markerToAdd) {
-                    mActivity.mapFragment.markersPOI.add(markerOptions);
-                }
-            }
-        }
-    }
-
-    public static class VisitTask extends AsyncTask<Void, Void, Visit[]> {
-        private final Context mContext;
-        public MainActivity mActivity;
-
-        VisitTask(Context context, MainActivity activity) {
-            mContext = context;
-            mActivity = activity;
-        }
-
-        @Override
-        protected Visit[] doInBackground(Void... voids) {
-
-            Visit[] staticList = WoosmapDb.getInstance(mContext).getVisitsDao().getAllStaticPositions();
-            return staticList;
-        }
-
-        @Override
-        protected void onPostExecute(Visit[] staticList) {
-            SimpleDateFormat displayDateFormat = new SimpleDateFormat("HH:mm:ss");
-            for (Visit visitToShow : staticList) {
-                if(visitToShow.duration >= WoosmapSettings.durationVisitFilter) {
-                    LatLng latLng = new LatLng(visitToShow.lat, visitToShow.lng);
-                    String startFormatedDate = displayDateFormat.format(visitToShow.startTime);
-                    String endFormatedDate = "";
-                    if (visitToShow.endTime == 0) {
-                        //Visit in progress
-                        endFormatedDate = "ongoing";
-                    } else {
-                        endFormatedDate = displayDateFormat.format(visitToShow.endTime);
-                    }
-                    String infoVisites = " --> start: " + startFormatedDate + " / end: " + endFormatedDate + " NbPt : " + visitToShow.nbPoint;
-                    MarkerOptions markerOptions = new MarkerOptions().position(latLng).title(infoVisites);
-                    boolean markerToUpdate = false;
-                    for (MarkerOptions marker : mActivity.mapFragment.markersVisit) {
-                        if (marker.getPosition().equals(markerOptions.getPosition())) {
-                            //Update marker
-                            markerToUpdate = true;
-                            marker.title(markerOptions.getTitle());
-                        }
-                    }
-                    if (!markerToUpdate) {
-                        mActivity.mapFragment.markersVisit.add(markerOptions);
-                        if (mActivity.mapFragment.mGoolgeMap != null) {
-                            mActivity.mapFragment.visitMarkerList.add(mActivity.mapFragment.mGoolgeMap.addMarker(markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE))));
-                            if(!mActivity.mapFragment.visitEnableCheckbox.isChecked()){
-                                for (Marker marker : mActivity.mapFragment.visitMarkerList) {
-                                    marker.setVisible(false);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            //Refresh zoi on map on visit
-            new AllZOITask(mContext, mActivity).execute();
-        }
-    }
-
-    public static class refreshRegionAndVisitTask extends AsyncTask<Void, Void, ArrayList<PlaceData>> {
-        private final Context mContext;
-        public MainActivity mActivity;
-
-        refreshRegionAndVisitTask(Context context, MainActivity activity) {
-            mContext = context;
-            mActivity = activity;
-        }
-
-        @Override
-        protected ArrayList<PlaceData> doInBackground(Void... voids) {
-
-            Visit[] visitList = WoosmapDb.getInstance(mContext).getVisitsDao().getAllStaticPositions();
-            ArrayList<PlaceData> arrayOfPlaceData = new ArrayList<>();
-
-            for (Visit visitToShow : visitList) {
-                PlaceData place = new PlaceData();
-                place.setType( PlaceData.dataType.visit );
-                place.setLatitude( visitToShow.lat );
-                place.setLongitude( visitToShow.lng );
-                place.setArrivalDate( visitToShow.startTime );
-                place.setDepartureDate( visitToShow.endTime );
-                place.setDuration( visitToShow.duration );
-                arrayOfPlaceData.add( place );
-            }
-
-            Region[] regionList = WoosmapDb.getInstance(mContext).getRegionsDAO().getAllRegions();
-
-            for (Region regionToShow : regionList) {
-                PlaceData place = new PlaceData(regionToShow);
-                arrayOfPlaceData.add( place );
-
-            }
-
-            RegionLog[] regionLogList = WoosmapDb.getInstance(mContext).getRegionLogsDAO().getAllRegionLogs();
-            for (RegionLog regionLogToShow : regionLogList) {
-                PlaceData place = new PlaceData(regionLogToShow);
-                arrayOfPlaceData.add( place );
-            }
-            return arrayOfPlaceData;
-        }
-
-        @Override
-        protected void onPostExecute(ArrayList<PlaceData> placeDataArrayList) {
-            mActivity.mapFragment.clearCircleGeofence();
-            mActivity.mapFragment.regions.clear();
-
-            if(placeDataArrayList.size() == 0)
-                return;
-
-
-            for (PlaceData place : placeDataArrayList) {
-                if(place.getType() == PlaceData.dataType.region) {
-                    Region regionToAdd = new Region();
-                    regionToAdd.lng = place.getLatitude();
-                    regionToAdd.lat = place.getLongitude();
-                    regionToAdd.radius = place.getRadius();
-                    regionToAdd.identifier = place.getRegionIdentifier();
-                    regionToAdd.didEnter = place.isDidEnter();
-                    mActivity.mapFragment.regions.add(regionToAdd);
-                }
-            }
-
-
-            if (mActivity.mapFragment.mGoolgeMap != null) {
-                mActivity.mapFragment.drawCircleGeofence();
-            }
-
-            if (mActivity.visitFragment.isVisible()) {
-                ArrayList<PlaceData> arrayOfVisitandRegionLogData = new ArrayList<>();
-                for (PlaceData place : placeDataArrayList) {
-                    if(place.getType() == PlaceData.dataType.visit || place.getType() == PlaceData.dataType.regionLog) {
-                       arrayOfVisitandRegionLogData.add( place );
-                    }
-                }
-                mActivity.visitFragment.loadData( arrayOfVisitandRegionLogData );
-            }
-        }
-    }
-
-
     public static class clearDBTask extends AsyncTask<Void, Void, Void> {
         private final Context mContext;
         public MainActivity mActivity;
@@ -867,7 +681,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Void result) {
             if (mActivity.locationFragment.adapter != null)
-               mActivity.locationFragment.clearData();
+                mActivity.locationFragment.clearData();
             if (mActivity.visitFragment.adapter != null)
                 mActivity.visitFragment.clearData();
             mActivity.mapFragment.clearMarkers();
@@ -931,9 +745,6 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(Void result) {
-
-            //Refresh zoi on map on visit
-            new VisitTask(mContext, mActivity).execute();
         }
     }
 

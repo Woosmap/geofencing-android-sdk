@@ -1,5 +1,6 @@
 package com.webgeoservices.woosmapgeofencing.database;
 
+import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
@@ -37,6 +38,9 @@ public interface RegionsPAO {
 
     @Query("SELECT * FROM regions ORDER BY dateTime")
     Region [] getAllRegions();
+
+    @Query("SELECT * FROM regions ORDER BY dateTime")
+    public abstract LiveData<Region []> getAllLiveRegions();
 
     @Query("DELETE FROM regions WHERE dateTime <= :dataDurationDelay")
     void deleteRegionsOlderThan(long dataDurationDelay);

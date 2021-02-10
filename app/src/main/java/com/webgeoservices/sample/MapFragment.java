@@ -360,7 +360,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
 
     public void drawCircleGeofence() {
         for (Region region : regions) {
-           addCircle(region.identifier,new LatLng(region.lng,region.lat), (float) region.radius, region.didEnter) ;
+            addCircle(region.identifier,new LatLng(region.lat,region.lng), (float) region.radius, region.didEnter) ;
         }
     }
 
