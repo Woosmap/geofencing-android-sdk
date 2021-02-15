@@ -480,9 +480,7 @@ public class MainActivity extends AppCompatActivity {
                     PlaceData place = new PlaceData( regionLogToShow );
                     arrayOfPlaceData.add( place );
                 }
-                if (MainActivity.this.visitFragment.isVisible()) {
-                    MainActivity.this.visitFragment.loadDataFromRegionLog( arrayOfPlaceData );
-                }
+                MainActivity.this.visitFragment.loadDataFromRegionLog( arrayOfPlaceData );
             }
         } );
     }
