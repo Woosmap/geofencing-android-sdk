@@ -1,5 +1,6 @@
 package com.webgeoservices.woosmapgeofencing.database;
 
+import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.Query;
@@ -18,6 +19,9 @@ public interface ZOIsDAO {
 
     @Query("SELECT * FROM ZOI")
     ZOI[] getAllZois();
+
+    @Query("SELECT * FROM ZOI")
+    public abstract LiveData<ZOI[]> getAllLiveZois();
 
     @Query("DELETE FROM ZOI")
     void deleteAllZOI();

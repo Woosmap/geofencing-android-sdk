@@ -1,5 +1,6 @@
 package com.webgeoservices.woosmapgeofencing.database;
 
+import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
@@ -44,6 +45,9 @@ public interface VisitsDao {
 
     @Query("SELECT * FROM visits ORDER BY startTime DESC")
     Visit[] getAllStaticPositions();
+
+    @Query("SELECT * FROM visits ORDER BY startTime DESC")
+    public abstract LiveData<Visit[]> getAllLiveStaticPositions();
 
     @Query("SELECT * FROM visits WHERE isUpload=0 AND endTime=0 ORDER BY startTime DESC LIMIT 1")
     Visit getNotUploadedInProgressStaticPositions();

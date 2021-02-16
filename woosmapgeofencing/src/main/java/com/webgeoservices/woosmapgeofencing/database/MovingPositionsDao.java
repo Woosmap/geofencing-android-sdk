@@ -1,5 +1,6 @@
 package com.webgeoservices.woosmapgeofencing.database;
 
+import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
@@ -29,6 +30,9 @@ public interface MovingPositionsDao {
 
     @Query("DELETE FROM movingpositions")
     void deleteAllMovingPositions();
+
+    @Query("SELECT * FROM movingpositions ORDER BY dateTime LIMIT :limitOfPositions")
+    public abstract LiveData<MovingPosition []> getLiveDataMovingPositions(int limitOfPositions);
 
     @Query("SELECT * FROM movingpositions ORDER BY dateTime LIMIT :limitOfPositions")
     MovingPosition [] getMovingPositions(int limitOfPositions);

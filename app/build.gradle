@@ -70,6 +70,10 @@ dependencies {
     implementation 'com.google.android.gms:play-services-maps:17.0.0'
     implementation 'com.google.maps.android:android-maps-utils:0.5+'
 
+    implementation 'androidx.lifecycle:lifecycle-extensions:2.1.0'
+
+    implementation 'androidx.lifecycle:lifecycle-viewmodel:2.1.0'
+
     // Core library
     androidTestImplementation 'androidx.test:core:1.2.0'
 

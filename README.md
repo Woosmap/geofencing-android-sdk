@@ -512,7 +512,7 @@ Then, just declare your receiver in the Manifest.xml in the application bloc
 * [ZOI Algorithm](https://github.com/woosmap/woosmap-geofencing-android-sdk/blob/master/doc/ZOIAlgorithm.md): Find out how ZOI are built from visits.
 * [ZOI Classification](https://github.com/woosmap/woosmap-geofencing-android-sdk/blob/master/doc/Classification.md): Find out how Classification are built from duration of ZOI.
 * [Geographic Data Lifecycle and import data from a CSV](https://github.com/woosmap/woosmap-geofencing-android-sdk/blob/master/doc/GeographicDataLifecycle.md): Find out how to manage the data lifecycle to be in compliance with GDPR and how to import data from a CSV.
-
+* [Using Room Database with LiveData to retrieve data](https://github.com/woosmap/woosmap-geofencing-android-sdk/blob/master/doc/Livedata.md): Find out how to retrieve data from the room database in the SDK with LiveData.
 ## Contributing
 
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
