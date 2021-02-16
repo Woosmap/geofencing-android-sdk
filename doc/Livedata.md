@@ -4,7 +4,7 @@
 ## Using Room Database with LiveData to retrieve data
   
 
-`[LiveData](https://developer.android.com/reference/android/arch/lifecycle/LiveData.html)` is an observable data holder class. Unlike a regular observable, LiveData is lifecycle-aware, meaning it respects the lifecycle of other app components, such as activities, fragments, or services. This awareness ensures LiveData only updates app component observers that are in an active lifecycle state.
+[LiveData](https://developer.android.com/reference/android/arch/lifecycle/LiveData.html) is an observable data holder class. Unlike a regular observable, LiveData is lifecycle-aware, meaning it respects the lifecycle of other app components, such as activities, fragments, or services. This awareness ensures LiveData only updates app component observers that are in an active lifecycle state.
 
 
 ### Get Live Data MovingPositions
