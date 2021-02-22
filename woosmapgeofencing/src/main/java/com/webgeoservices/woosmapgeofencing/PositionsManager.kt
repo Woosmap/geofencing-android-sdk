@@ -69,8 +69,10 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
         //not visit in progress
         else {
             val previousMovingPosition = this.db.movingPositionsDao.lastMovingPosition
-                    ?: this.createMovingPositionFromLocation(location)
-            val distance = this.distanceBetweenLocationAndPosition(previousMovingPosition, location)
+            var distance = 0.0F;
+            if (previousMovingPosition != null) {
+                distance = this.distanceBetweenLocationAndPosition(previousMovingPosition, location)
+            }
             Log.d(WoosmapVisitsTag, "distance : $distance")
             if (distance >= WoosmapSettings.distanceDetectionThresholdVisits) {
                 Log.d(WoosmapVisitsTag, "We're Moving")

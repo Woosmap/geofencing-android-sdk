@@ -58,6 +58,7 @@ public class LocationFragment extends Fragment {
                 }
             }
         });
+        lvLocation.setAdapter(adapter);
         return  view;
     }
 

@@ -39,7 +39,7 @@ public class VisitFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate( R.layout.visit, container, false );
         lvVisit = (ListView) view.findViewById(R.id.lvVisit);
-
+        lvVisit.setAdapter(adapter);
         return  view;
     }
 

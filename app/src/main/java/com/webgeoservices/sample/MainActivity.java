@@ -162,6 +162,7 @@ public class MainActivity extends AppCompatActivity {
 
         POIData = new POI[0];
 
+        setFragment(mapFragment);
         setFragment(visitFragment);
         setFragment(locationFragment);
 
@@ -219,7 +220,8 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Snackbar.make(view, "Create ZOI", 8000)
                         .setAction("Action", null).show();
-                new testZOITask(getApplicationContext(), MainActivity.this).execute();
+                //new testZOITask(getApplicationContext(), MainActivity.this).execute();
+                new testDataImportTask(getApplicationContext(), MainActivity.this).execute();
             }
         });
 
@@ -511,21 +513,20 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                     arrayOfPlaceData.add( place );
-
-                    if (MainActivity.this.mapFragment.mGoolgeMap != null && MainActivity.this.mapFragment.isVisible()) {
-                        if(place.getType() == PlaceData.dataType.location) {
-                            LatLng latLng = new LatLng( place.getLatitude(), place.getLongitude() );
-                            boolean markerToAdd = true;
-                            MarkerOptions markerOptions = new MarkerOptions().position( latLng ).icon( BitmapDescriptorFactory.defaultMarker( BitmapDescriptorFactory.HUE_MAGENTA ) );
-                            if (!MainActivity.this.mapFragment.markersLocations.isEmpty()) {
-                                for (MarkerOptions marker : MainActivity.this.mapFragment.markersLocations) {
-                                    if (marker.getPosition().equals( markerOptions.getPosition() )) {
-                                        markerToAdd = false;
-                                    }
+                    if(place.getType() == PlaceData.dataType.location) {
+                        LatLng latLng = new LatLng( place.getLatitude(), place.getLongitude() );
+                        boolean markerToAdd = true;
+                        MarkerOptions markerOptions = new MarkerOptions().position( latLng ).icon( BitmapDescriptorFactory.defaultMarker( BitmapDescriptorFactory.HUE_MAGENTA ) );
+                        if (!MainActivity.this.mapFragment.markersLocations.isEmpty()) {
+                            for (MarkerOptions marker : MainActivity.this.mapFragment.markersLocations) {
+                                if (marker.getPosition().equals( markerOptions.getPosition() )) {
+                                    markerToAdd = false;
                                 }
                             }
-                            if (markerToAdd) {
-                                MainActivity.this.mapFragment.markersLocations.add( markerOptions );
+                        }
+                        if (markerToAdd) {
+                            MainActivity.this.mapFragment.markersLocations.add( markerOptions );
+                            if (MainActivity.this.mapFragment.mGoolgeMap != null && MainActivity.this.mapFragment.isVisible()) {
                                 MainActivity.this.mapFragment.locationMarkerList.add( MainActivity.this.mapFragment.mGoolgeMap.addMarker( markerOptions ) );
                                 if (!MainActivity.this.mapFragment.locationEnableCheckbox.isChecked()) {
                                     for (Marker marker : MainActivity.this.mapFragment.locationMarkerList) {
@@ -534,6 +535,9 @@ public class MainActivity extends AppCompatActivity {
                                 }
                             }
                         }
+                    }
+
+                    if (MainActivity.this.mapFragment.mGoolgeMap != null && MainActivity.this.mapFragment.isVisible()) {
 
                         if(place.getType() == PlaceData.dataType.POI) {
                             LatLng latLng = new LatLng( place.getPOILatitude(), place.getPOILongitude() );
@@ -736,6 +740,55 @@ public class MainActivity extends AppCompatActivity {
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+        }
+    }
+
+    public class testDataImportTask extends AsyncTask<Void, Void, Void> {
+        private final Context mContext;
+        public MainActivity mActivity;
+
+        testDataImportTask(Context context, MainActivity activity) {
+            mContext = context;
+            mActivity = activity;
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            InputStream in = getResources().openRawResource(R.raw.dataimport);
+            // if you want less visits and ZOI you can load the file location.csv like that :
+            //InputStream in = getResources().openRawResource(R.raw.location);
+            DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss+SS");
+            BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+            String line = null;
+            PositionsManager mPositionsManager = new PositionsManager(mContext,WoosmapDb.getInstance( mContext ));
+            try {
+                int i = 0;
+                while ((line = reader.readLine()) != null) {
+                    String[] separated = line.split(",");
+                    String id = separated[0];
+                    double accuracy = Double.valueOf(separated[3]);
+
+                    Location loc = new Location("test");
+                    loc.setTime( Long.parseLong( separated[5] ) );
+                    loc.setAccuracy( (float) accuracy );
+                    loc.setLatitude( Double.valueOf(separated[1]));
+                    loc.setLongitude(  Double.valueOf(separated[2]));
+
+                    List<Location> listLocations = new ArrayList<Location>();
+                    listLocations.add(loc);
+                    Thread.sleep(200);
+                    mPositionsManager.asyncManageLocation(listLocations);
+
+                    i++;
+                }
+            } catch (IOException | InterruptedException e) {
                 e.printStackTrace();
             }
             return null;
