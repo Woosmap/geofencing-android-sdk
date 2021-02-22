@@ -72,8 +72,6 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
             var distance = 0.0F;
             if (previousMovingPosition != null) {
                 distance = this.distanceBetweenLocationAndPosition(previousMovingPosition, location)
-            } else {
-                distance = 0.0F;
             }
             Log.d(WoosmapVisitsTag, "distance : $distance")
             if (distance >= WoosmapSettings.distanceDetectionThresholdVisits) {
