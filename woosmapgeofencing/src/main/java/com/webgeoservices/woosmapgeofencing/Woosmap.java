@@ -251,6 +251,9 @@ public class Woosmap {
         if(!WoosmapSettings.trackingEnable) {
             return;
         }
+
+        WoosmapSettings.saveSettings(context);
+
         try {
             if (this.shouldTrackUser()) {
                 this.isForegroundEnabled = false;
@@ -262,6 +265,7 @@ public class Woosmap {
             Log.d("WoosmapGeofencing", "Foreground inactive");
         }
     }
+
 
     void onReboot() {
         this.isForegroundEnabled = false;
@@ -307,19 +311,6 @@ public class Woosmap {
             onResume();
         }
 
-    }
-
-    /**
-     * Return true if the feature to detect visit is enable
-     *
-     * @return boolean
-     */
-    public Boolean isVisitEnable() {
-        return this.vistingEnable;
-    }
-
-    public void setVisitEnable(Boolean visitEnable) {
-        this.vistingEnable = visitEnable;
     }
 
     /**
