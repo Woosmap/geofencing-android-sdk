@@ -18,7 +18,7 @@ public class WoosmapSettings {
         prefsEditor.putBoolean( "trackingEnable",trackingEnable );
         prefsEditor.putInt( "currentLocationTimeFilter",currentLocationTimeFilter );
         prefsEditor.putInt( "currentLocationDistanceFilter",currentLocationDistanceFilter );
-        prefsEditor.putBoolean( "searchAPIEnable",trackingEnable );
+        prefsEditor.putBoolean( "searchAPIEnable",searchAPIEnable );
         prefsEditor.putBoolean( "visitEnable",visitEnable );
         prefsEditor.putBoolean( "searchAPICreationRegionEnable",searchAPICreationRegionEnable );
         prefsEditor.putInt( "firstSearchAPIRegionRadius",firstSearchAPIRegionRadius );
@@ -33,7 +33,7 @@ public class WoosmapSettings {
         prefsEditor.putInt( "outOfTimeDelay",outOfTimeDelay );
         prefsEditor.putFloat( "distanceDetectionThresholdVisits", (float) distanceDetectionThresholdVisits );
         prefsEditor.putLong("minDurationVisitDisplay",minDurationVisitDisplay);
-        prefsEditor.putLong("numberOfDayDataDuration",minDurationVisitDisplay);
+        prefsEditor.putLong("numberOfDayDataDuration",numberOfDayDataDuration);
         prefsEditor.putBoolean("classificationEnable",classificationEnable );
         prefsEditor.putString( "privateKeyGMPStatic",privateKeyGMPStatic );
         prefsEditor.putString( "privateKeyWoosmapAPI",privateKeyWoosmapAPI );
