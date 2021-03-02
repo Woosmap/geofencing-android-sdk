@@ -2,13 +2,83 @@ package com.webgeoservices.woosmapgeofencing;
 
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
 
+import static android.content.Context.MODE_PRIVATE;
 
 public class WoosmapSettings {
+
+    public static void saveSettings(Context context){
+        SharedPreferences mPrefs = context.getSharedPreferences("WGSGeofencingPref",MODE_PRIVATE);
+        SharedPreferences.Editor prefsEditor = mPrefs.edit();
+        prefsEditor.putBoolean( "trackingEnable",trackingEnable );
+        prefsEditor.putInt( "currentLocationTimeFilter",currentLocationTimeFilter );
+        prefsEditor.putInt( "currentLocationDistanceFilter",currentLocationDistanceFilter );
+        prefsEditor.putBoolean( "searchAPIEnable",searchAPIEnable );
+        prefsEditor.putBoolean( "visitEnable",visitEnable );
+        prefsEditor.putBoolean( "searchAPICreationRegionEnable",searchAPICreationRegionEnable );
+        prefsEditor.putInt( "firstSearchAPIRegionRadius",firstSearchAPIRegionRadius );
+        prefsEditor.putInt( "secondSearchAPIRegionRadius",secondSearchAPIRegionRadius );
+        prefsEditor.putInt( "thirdSearchAPIRegionRadius",thirdSearchAPIRegionRadius );
+        prefsEditor.putInt( "searchAPITimeFilter",searchAPITimeFilter );
+        prefsEditor.putInt( "searchAPIDistanceFilter",searchAPIDistanceFilter );
+        prefsEditor.putBoolean( "distanceAPIEnable",distanceAPIEnable );
+        prefsEditor.putString( "drivingMode",drivingMode );
+        prefsEditor.putString( "modeDistance",modeDistance );
+        prefsEditor.putInt( "accuracyFilter",accuracyFilter );
+        prefsEditor.putInt( "outOfTimeDelay",outOfTimeDelay );
+        prefsEditor.putFloat( "distanceDetectionThresholdVisits", (float) distanceDetectionThresholdVisits );
+        prefsEditor.putLong("minDurationVisitDisplay",minDurationVisitDisplay);
+        prefsEditor.putLong("numberOfDayDataDuration",numberOfDayDataDuration);
+        prefsEditor.putBoolean("classificationEnable",classificationEnable );
+        prefsEditor.putString( "privateKeyGMPStatic",privateKeyGMPStatic );
+        prefsEditor.putString( "privateKeyWoosmapAPI",privateKeyWoosmapAPI );
+        prefsEditor.putString( "WoosmapURL",Urls.WoosmapURL);
+        prefsEditor.putString( "SearchAPIUrl",Urls.SearchAPIUrl);
+        prefsEditor.putString( "DistanceAPIUrl",Urls.DistanceAPIUrl);
+        prefsEditor.putString( "GoogleMapStaticUrl",Urls.GoogleMapStaticUrl);
+        prefsEditor.putString( "GoogleMapStaticUrl1POI",Urls.GoogleMapStaticUrl1POI);
+        prefsEditor.commit();
+
+    }
+
+    public static void loadSettings(Context context) {
+        SharedPreferences mPrefs = context.getSharedPreferences("WGSGeofencingPref", Context.MODE_PRIVATE);
+
+        WoosmapSettings.trackingEnable = mPrefs.getBoolean( "trackingEnable", WoosmapSettings.trackingEnable );
+        WoosmapSettings.currentLocationTimeFilter  = mPrefs.getInt( "currentLocationTimeFilter",WoosmapSettings.currentLocationTimeFilter );
+        WoosmapSettings.currentLocationDistanceFilter  = mPrefs.getInt( "currentLocationDistanceFilter",WoosmapSettings.currentLocationDistanceFilter );
+        WoosmapSettings.searchAPIEnable  = mPrefs.getBoolean( "searchAPIEnable",WoosmapSettings.trackingEnable );
+        WoosmapSettings.visitEnable  = mPrefs.getBoolean( "visitEnable",WoosmapSettings.visitEnable );
+        WoosmapSettings.searchAPICreationRegionEnable  = mPrefs.getBoolean( "searchAPICreationRegionEnable",WoosmapSettings.searchAPICreationRegionEnable );
+        WoosmapSettings.firstSearchAPIRegionRadius  = mPrefs.getInt( "firstSearchAPIRegionRadius",WoosmapSettings.firstSearchAPIRegionRadius );
+        WoosmapSettings.secondSearchAPIRegionRadius  = mPrefs.getInt( "secondSearchAPIRegionRadius",WoosmapSettings.secondSearchAPIRegionRadius );
+        WoosmapSettings.thirdSearchAPIRegionRadius  = mPrefs.getInt( "thirdSearchAPIRegionRadius",WoosmapSettings.thirdSearchAPIRegionRadius );
+        WoosmapSettings.searchAPITimeFilter  = mPrefs.getInt( "searchAPITimeFilter",WoosmapSettings.searchAPITimeFilter );
+        WoosmapSettings.searchAPIDistanceFilter  = mPrefs.getInt( "searchAPIDistanceFilter",WoosmapSettings.searchAPIDistanceFilter );
+        WoosmapSettings.distanceAPIEnable  = mPrefs.getBoolean( "distanceAPIEnable",WoosmapSettings.distanceAPIEnable );
+        WoosmapSettings.drivingMode  = mPrefs.getString( "drivingMode",WoosmapSettings.drivingMode );
+        WoosmapSettings.modeDistance  = mPrefs.getString( "modeDistance",WoosmapSettings.modeDistance );
+        WoosmapSettings.accuracyFilter  = mPrefs.getInt( "accuracyFilter",WoosmapSettings.accuracyFilter );
+        WoosmapSettings.outOfTimeDelay  = mPrefs.getInt( "outOfTimeDelay",WoosmapSettings.outOfTimeDelay );
+        WoosmapSettings.distanceDetectionThresholdVisits  = mPrefs.getFloat( "distanceDetectionThresholdVisits", (float) WoosmapSettings.distanceDetectionThresholdVisits );
+        WoosmapSettings.minDurationVisitDisplay  = mPrefs.getLong("minDurationVisitDisplay",WoosmapSettings.minDurationVisitDisplay);
+        WoosmapSettings.numberOfDayDataDuration  = mPrefs.getLong("numberOfDayDataDuration",WoosmapSettings.minDurationVisitDisplay);
+        WoosmapSettings.classificationEnable  = mPrefs.getBoolean("classificationEnable",WoosmapSettings.classificationEnable );
+        WoosmapSettings.privateKeyGMPStatic  = mPrefs.getString( "privateKeyGMPStatic",WoosmapSettings.privateKeyGMPStatic );
+        WoosmapSettings.privateKeyWoosmapAPI  = mPrefs.getString( "privateKeyWoosmapAPI",WoosmapSettings.privateKeyWoosmapAPI );
+        WoosmapSettings.Urls.WoosmapURL  = mPrefs.getString( "WoosmapURL",WoosmapSettings.Urls.WoosmapURL);
+        WoosmapSettings.Urls.SearchAPIUrl = mPrefs.getString( "SearchAPIUrl",WoosmapSettings.Urls.SearchAPIUrl);
+        WoosmapSettings.Urls.DistanceAPIUrl  = mPrefs.getString( "DistanceAPIUrl",WoosmapSettings.Urls.DistanceAPIUrl);
+        WoosmapSettings.Urls.GoogleMapStaticUrl  = mPrefs.getString( "GoogleMapStaticUrl",WoosmapSettings.Urls.GoogleMapStaticUrl);
+        WoosmapSettings.Urls.GoogleMapStaticUrl1POI  = mPrefs.getString( "GoogleMapStaticUrl1POI",WoosmapSettings.Urls.GoogleMapStaticUrl1POI);
+
+
+    }
 
     static String AndroidDeviceModel = "android";
     static String PositionDateFormat = "yyyy-MM-dd'T'HH:mm:ss Z";
@@ -23,6 +93,9 @@ public class WoosmapSettings {
 
     //filter distance to refresh user location
     static public int currentLocationDistanceFilter = 0;
+
+    //Enable/disable VisitEnable
+    static public boolean visitEnable = true;
 
     //Enable/disable SearchAPI
     static public boolean searchAPIEnable = true;
@@ -45,7 +118,7 @@ public class WoosmapSettings {
     static public boolean distanceAPIEnable = true;
 
     //Mode transportation DistanceAPI
-    private static final String drivingMode  = "driving";
+    private static String drivingMode  = "driving";
     private static final String walkingMode  = "walking";
     private static final String cyclingMode  = "cycling";
     static public String modeDistance = drivingMode;

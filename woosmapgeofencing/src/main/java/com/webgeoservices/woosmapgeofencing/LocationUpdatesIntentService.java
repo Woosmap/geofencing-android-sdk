@@ -44,9 +44,9 @@ public class LocationUpdatesIntentService extends IntentService {
                 LocationResult result = LocationResult.extractResult(intent);
                 if (result != null) {
                     List<Location> locations = result.getLocations();
-
+                    WoosmapSettings.loadSettings(context);
                     Woosmap woos = Woosmap.getInstance().initializeWoosmapInBackground(context);
-                    if (woos.isVisitEnable()) {
+                    if (WoosmapSettings.visitEnable) {
                         WoosmapDb db = WoosmapDb.getInstance(context);
                         PositionsManager positionsManager = new PositionsManager(context, db);
                         positionsManager.asyncManageLocation(locations);

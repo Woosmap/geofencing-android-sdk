@@ -27,6 +27,7 @@ public class GeofenceBroadcastReceiver extends BroadcastReceiver {
             Log.d(WoosmapGeofenceTag, triggeringGeofences.toString());
 
             WoosmapDb db = WoosmapDb.getInstance(context);
+            WoosmapSettings.loadSettings(context);
             PositionsManager positionsManager = new PositionsManager(context, db);
             for (int i = 0; i < triggeringGeofences.size(); i++) {
                 positionsManager.didEventRegion(triggeringGeofences.get(i).getRequestId(), geofenceTransition );

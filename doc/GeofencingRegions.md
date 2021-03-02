@@ -37,7 +37,7 @@ protected void onCreate(Bundle savedInstanceState) {
     this.woosmap.setRegionReadyListener( new WoosRegionReadyListener() );
 
     // Visit Detection Enable
-    this.woosmap.setVisitEnable (true);
+    WoosmapSettings.visitEnable = true;
 
     // For android version >= 8 you have to create a channel or use the woosmap's channel
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

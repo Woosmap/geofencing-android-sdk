@@ -36,6 +36,7 @@ public class GeofenceTransitionsIntentService extends IntentService {
             Log.d(WoosmapGeofenceTag, String.valueOf(geofenceTransition));
             Log.d(WoosmapGeofenceTag, triggeringGeofences.toString());
 
+            WoosmapSettings.loadSettings(context);
             WoosmapDb db = WoosmapDb.getInstance(context);
             PositionsManager positionsManager = new PositionsManager(context, db);
 

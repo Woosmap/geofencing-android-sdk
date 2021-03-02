@@ -3,13 +3,17 @@ package com.webgeoservices.woosmapgeofencing;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.location.Location;
+import android.util.Log;
 //import android.os.AsyncTask;
 
 import com.google.android.gms.location.LocationResult;
 import com.webgeoservices.woosmapgeofencing.database.WoosmapDb;
 
 import java.util.List;
+
+import static android.content.Context.MODE_PRIVATE;
 
 public class LocationUpdatesBroadcastReceiver extends BroadcastReceiver {
 
@@ -27,6 +31,8 @@ public class LocationUpdatesBroadcastReceiver extends BroadcastReceiver {
                     List<Location> locations = result.getLocations();
                     Woosmap woos = Woosmap.getInstance().initializeWoosmapInBackground(context);
                     WoosmapDb db = WoosmapDb.getInstance(context);
+                    WoosmapSettings.loadSettings(context);
+
                     PositionsManager positionsManager = new PositionsManager(context, db);
                     positionsManager.asyncManageLocation(locations);
                 }

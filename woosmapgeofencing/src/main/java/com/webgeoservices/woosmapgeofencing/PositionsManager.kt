@@ -192,7 +192,7 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
 
         addPositionFromLocation(location)
 
-        if (Woosmap.getInstance().isVisitEnable) {
+        if (WoosmapSettings.visitEnable) {
             val lastVisit = this.db.visitsDao.lastStaticPosition
             if (lastVisit != null) {
                 this.visitsDetectionAlgo(lastVisit, location)
@@ -209,8 +209,6 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
                 this.createVisit(staticLocation)
             }
         }
-
-
     }
 
     private fun filterAccurary(location: Location): Boolean {
