@@ -69,7 +69,7 @@ public void onPause(){
 
 ### Retrieve Region events
 
-In your `mainActivity`, create a listener connected to the interface `Woosmap.SearchAPIReadyListener` and set a callback to retrieve POIs from the Search API request.
+In your `mainActivity`, create a listener connected to the interface `Woosmap.RegionReadyListener` and set a callback to retrieve Regions event.
 ```java
 public class WoosRegionReadyListener implements Woosmap.RegionReadyListener {  
     public void RegionReadyCallback(Region region) {  
