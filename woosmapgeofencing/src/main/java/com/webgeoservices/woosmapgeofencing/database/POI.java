@@ -20,6 +20,7 @@ public class POI {
     public String duration;
     public long dateTime;
     public int isUpload = 0;
+    public String data;
 
 }
 

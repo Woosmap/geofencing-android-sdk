@@ -63,14 +63,14 @@
         <meta-data
             android:name="woosmap.messaging.default_notification_icon"
             android:resource="@drawable/ic_android_black_24dp" />
-
         <meta-data android:name="woosmap_notification_defautl_uri"
             android:value="sample://notif" />
-
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value=""/>
 
+        <!--       <meta-data android:name="com.urbanairship.autopilot"
+                   android:value="com.webgeoservices.sample.SampleAutopilot"/>-->
     </application>
 
-</manifest>
+       </manifest>
