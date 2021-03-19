@@ -33,7 +33,7 @@
                 android:host="notif" />
             </intent-filter>
         </activity>
-
+        <!-- comment to enable airship -->
         <service android:name="com.webgeoservices.woosmapgeofencing.WoosmapInstanceIDService">
             <intent-filter>
                 <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
@@ -44,6 +44,9 @@
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
+        <!-- Uncomment to enable airship -->
+        <!--       <meta-data android:name="com.urbanairship.autopilot"
+                   android:value="com.webgeoservices.sample.SampleAutopilot"/>-->
         <receiver android:name="com.webgeoservices.sample.RunOnStartup">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
@@ -69,8 +72,6 @@
             android:name="com.google.android.geo.API_KEY"
             android:value=""/>
 
-        <!--       <meta-data android:name="com.urbanairship.autopilot"
-                   android:value="com.webgeoservices.sample.SampleAutopilot"/>-->
     </application>
 
        </manifest>

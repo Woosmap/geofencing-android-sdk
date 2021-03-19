@@ -103,10 +103,10 @@ public class MainActivity extends AppCompatActivity {
 
             // Set custom event properties on the builder
             eventBuilder.addProperty("date", displayDateFormatAirship.format(poi.dateTime));
-            eventBuilder.addProperty("name", "string_property_value");
-            eventBuilder.addProperty("idStore", 11);
-            eventBuilder.addProperty("city", 11.0d);
-            eventBuilder.addProperty("distance", 11L);
+            eventBuilder.addProperty("name", poi.name);
+            eventBuilder.addProperty("idStore", poi.idStore);
+            eventBuilder.addProperty("city", poi.city);
+            eventBuilder.addProperty("distance", poi.distance);
 
             Gson gson = new Gson();
             SearchAPI data = gson.fromJson( poi.data,SearchAPI.class );
