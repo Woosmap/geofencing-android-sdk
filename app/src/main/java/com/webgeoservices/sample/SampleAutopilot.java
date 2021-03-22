@@ -52,6 +52,8 @@ public class SampleAutopilot extends Autopilot {
             return true;
         });
 /*
+        Add Listener to catch airship push notification
+        
         AirshipListener airshipListener = new AirshipListener();
         airship.getPushManager().addPushListener(airshipListener);
         airship.getPushManager().addPushTokenListener(airshipListener);

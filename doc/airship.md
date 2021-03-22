@@ -201,7 +201,7 @@ private void onRegionLogCallback(RegionLog regionLog) {
 
 **geofence_entered_event**
 
-Date: String  
+date: String  
 id: String  
 lattitude: Double  
 longitude: Double
@@ -209,7 +209,7 @@ radius: Double
 
 **geofence_exited_event**
 
-Date: String  
+date: String  
 id: String  
 lattitude: Double  
 longitude: Double
@@ -219,20 +219,20 @@ radius: Double
 
 **POI_event**
 
-Date: String  
-Name: String  
-IdStore: String  
-City: String  
-Distance: String  
-Tag: String  
+date: String  
+name: String  
+idStore: String  
+city: String  
+distance: String  
+tag: String  
 type: String  
 
 ### Visit
 
 **Visit_event**
-Date: String  
+date: String  
 arrivalDate: String  
 departureDate: String  
-Id: String  
+id: String  
 lattitude: Double  
 longitude: Double
