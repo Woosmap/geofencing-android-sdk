@@ -268,6 +268,7 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
                         POIaround.name = name
                         POIaround.lat = latitudePOI
                         POIaround.lng = longitudePOI
+                        POIaround.data = response
 
                         createPOIRegion("POI_" + featureSearch.properties.name, latitudePOI, longitudePOI, idStore )
 
@@ -362,6 +363,7 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
                         POIaround.lat = latitudePOI
                         POIaround.lng = longitudePOI
                         POIaround.locationId = positionId
+                        POIaround.data = response
 
                         this.db.poIsDAO.createPOI(POIaround)
                         if (Woosmap.getInstance().searchAPIReadyListener != null) {
@@ -535,7 +537,7 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
             this.db.regionLogsDAO.createRegionLog(regionLog)
 
             if (Woosmap.getInstance().regionReadyListener != null) {
-                Woosmap.getInstance().regionReadyListener.RegionReadyCallback(regionDetected)
+                Woosmap.getInstance().regionLogReadyListener.RegionLogReadyCallback(regionLog)
             }
         }.start()
     }

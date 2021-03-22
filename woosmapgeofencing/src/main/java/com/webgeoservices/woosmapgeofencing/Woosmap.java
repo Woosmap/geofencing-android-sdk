@@ -18,6 +18,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.webgeoservices.woosmapgeofencing.DistanceAPIDataModel.DistanceAPI;
 import com.webgeoservices.woosmapgeofencing.database.POI;
 import com.webgeoservices.woosmapgeofencing.database.Region;
+import com.webgeoservices.woosmapgeofencing.database.RegionLog;
 import com.webgeoservices.woosmapgeofencing.database.Visit;
 import com.webgeoservices.woosmapgeofencing.database.WoosmapDb;
 
@@ -44,6 +45,7 @@ public class Woosmap {
     VisitReadyListener visitReadyListener = null;
     DistanceAPIReadyListener distanceAPIReadyListener = null;
     RegionReadyListener regionReadyListener = null;
+    RegionLogReadyListener regionLogReadyListener = null;
 
 
     /**
@@ -99,11 +101,23 @@ public class Woosmap {
      */
     public interface RegionReadyListener {
         /**
-         * When Woosmap get a region when event (enter,exit) it calls this method
+         * When Woosmap get a region when is create it calls this method
          *
          * @param region an user's location
          */
         void RegionReadyCallback(Region region);
+    }
+
+    /**
+     * An interface to add callback on RegionLog retrieving
+     */
+    public interface RegionLogReadyListener {
+        /**
+         * When Woosmap get a region when event (enter,exit) it calls this method
+         *
+         * @param regionLog an user's location
+         */
+        void RegionLogReadyCallback(RegionLog regionLog);
     }
 
     private Woosmap() {
@@ -195,13 +209,23 @@ public class Woosmap {
     }
 
     /**
-     * Add a listener to get callback on event region
+     * Add a listener to get callback on create region
      *
      * @param regionReadyListener
      * @see RegionReadyListener
      */
     public void setRegionReadyListener(RegionReadyListener regionReadyListener) {
         this.regionReadyListener = regionReadyListener;
+    }
+
+    /**
+     * Add a listener to get callback on event region
+     *
+     * @param regionLogReadyListener
+     * @see RegionLogReadyListener
+     */
+    public void setRegionLogReadyListener(RegionLogReadyListener regionLogReadyListener) {
+        this.regionLogReadyListener = regionLogReadyListener;
     }
 
     private void setupWoosmap(Context context) {

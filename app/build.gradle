@@ -20,8 +20,8 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_7
-        targetCompatibility JavaVersion.VERSION_1_7
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 
     kotlinOptions {
@@ -88,6 +88,21 @@ dependencies {
 
     // Espresso dependencies
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+
+    implementation 'com.google.code.gson:gson:2.8.6'
+
+    //Airship
+    def airshipVersion = "14.1.1"
+
+    // ADM & FCM push providers
+    implementation "com.urbanairship.android:urbanairship-fcm:$airshipVersion"
+    implementation "com.urbanairship.android:urbanairship-adm:$airshipVersion"
+
+    // In-App Messaging
+    implementation "com.urbanairship.android:urbanairship-automation:$airshipVersion"
+
+    // Message Center
+    implementation "com.urbanairship.android:urbanairship-message-center:$airshipVersion"
 }
 
 apply plugin: 'com.google.gms.google-services'
