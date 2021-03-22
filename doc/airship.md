@@ -55,8 +55,8 @@ public void onMessageReceived(RemoteMessage remoteMessage) {
     if (messageDatas.isLocationRequest() && messageDatas.timestamp != null) {
         messageBuilderMaps.sendWoosmapNotification(messageDatas);
     } else {
-		AirshipFirebaseIntegration.processMessageSync(getApplicationContext(), message);
-	}
+	AirshipFirebaseIntegration.processMessageSync(getApplicationContext(), message);
+    }
 }
   ``` 
   
@@ -101,39 +101,39 @@ public class WoosSearchAPIReadyListener implements Woosmap.SearchAPIReadyListene
     public void SearchAPIReadyCallback(POI poi)
     {
         onPOICallback(poi);
-  }
+    }
 }
 
 private void onPOICallback(POI poi) {
     // get POI
     if(AIRSHIP) {
-	    // Create and name an event
-	    CustomEvent.Builder eventBuilder = new CustomEvent.Builder("poi_event");
+	// Create and name an event
+	CustomEvent.Builder eventBuilder = new CustomEvent.Builder("poi_event");
 
-	    // Set custom event properties on the builder
-	    eventBuilder.addProperty("date", displayDateFormatAirship.format(poi.dateTime));
-	    eventBuilder.addProperty("name", poi.name);
-	    eventBuilder.addProperty("idStore", poi.idStore);
-	    eventBuilder.addProperty("city", poi.city);
-	    eventBuilder.addProperty("distance", poi.distance);
+	// Set custom event properties on the builder
+	eventBuilder.addProperty("date", displayDateFormatAirship.format(poi.dateTime));
+	eventBuilder.addProperty("name", poi.name);
+	eventBuilder.addProperty("idStore", poi.idStore);
+	eventBuilder.addProperty("city", poi.city);
+	eventBuilder.addProperty("distance", poi.distance);
 
-	    Gson gson = new Gson();
-	    SearchAPI data = gson.fromJson( poi.data,SearchAPI.class );
+	Gson gson = new Gson();
+	SearchAPI data = gson.fromJson( poi.data,SearchAPI.class );
 
-	    Object[] tagsArr = data.getFeatures()[0].getProperties().getTags();
-	    if( tagsArr.length != 0) {
-	        eventBuilder.addProperty("tag", Arrays.toString(tagsArr));
-	    }
-
-	    Object[] typesArr = data.getFeatures()[0].getProperties().getTypes();
-	    if( typesArr.length != 0) {
-	        eventBuilder.addProperty("type", Arrays.toString(typesArr));
-	    }
-
-	    // Then record it
-	    CustomEvent event = eventBuilder.build();
-	    event.track();
+	Object[] tagsArr = data.getFeatures()[0].getProperties().getTags();
+	if( tagsArr.length != 0) {
+	    eventBuilder.addProperty("tag", Arrays.toString(tagsArr));
 	}
+
+	Object[] typesArr = data.getFeatures()[0].getProperties().getTypes();
+	if( typesArr.length != 0) {
+	    eventBuilder.addProperty("type", Arrays.toString(typesArr));
+	}
+
+	// Then record it
+	CustomEvent event = eventBuilder.build();
+	    event.track();
+    }
 }
 ```
 
