@@ -177,8 +177,17 @@ public class MainActivity extends AppCompatActivity {
 
     private void onRegionLogCallback(RegionLog regionLog) {
         if(AIRSHIP) {
+
+            String eventName = "";
+
+            if (regionLog.identifier.contains("HOME") || regionLog.identifier.contains("WORK")) {
+                eventName = "zoi_classified_";
+            } else {
+                eventName = "geofence_";
+            }
+
             // Create and name an event
-            CustomEvent.Builder eventBuilder = new CustomEvent.Builder(regionLog.didEnter ? "geofence_entered_event" : "geofence_exited_event");
+            CustomEvent.Builder eventBuilder = new CustomEvent.Builder(regionLog.didEnter ? eventName + "entered_event" : eventName + "exited_event");
 
             // Set custom event properties on the builder
             eventBuilder.addProperty("date", displayDateFormatAirship.format(regionLog.dateTime));
@@ -298,8 +307,8 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Snackbar.make(view, "Create ZOI", 8000)
                         .setAction("Action", null).show();
-                //new testZOITask(getApplicationContext(), MainActivity.this).execute();
-                new testDataImportTask(getApplicationContext(), MainActivity.this).execute();
+                new testZOITask(getApplicationContext(), MainActivity.this).execute();
+                //new testDataImportTask(getApplicationContext(), MainActivity.this).execute();
             }
         });
 
@@ -421,7 +430,7 @@ public class MainActivity extends AppCompatActivity {
         //WoosmapSettings.accuracyFilter = 10;
 
         // Set classification of zoi enable
-        WoosmapSettings.classificationEnable = false;
+        WoosmapSettings.classificationEnable = true;
 
         // Instanciate woosmap object
         this.woosmap = Woosmap.getInstance().initializeWoosmap(this);

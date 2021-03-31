@@ -35,6 +35,7 @@ public class WoosmapSettings {
         prefsEditor.putLong("minDurationVisitDisplay",minDurationVisitDisplay);
         prefsEditor.putLong("numberOfDayDataDuration",numberOfDayDataDuration);
         prefsEditor.putBoolean("classificationEnable",classificationEnable );
+        prefsEditor.putInt("radiusDetectionClassifiedZOI",radiusDetectionClassifiedZOI );
         prefsEditor.putString( "privateKeyGMPStatic",privateKeyGMPStatic );
         prefsEditor.putString( "privateKeyWoosmapAPI",privateKeyWoosmapAPI );
         prefsEditor.putString( "WoosmapURL",Urls.WoosmapURL);
@@ -69,6 +70,7 @@ public class WoosmapSettings {
         WoosmapSettings.minDurationVisitDisplay  = mPrefs.getLong("minDurationVisitDisplay",WoosmapSettings.minDurationVisitDisplay);
         WoosmapSettings.numberOfDayDataDuration  = mPrefs.getLong("numberOfDayDataDuration",WoosmapSettings.minDurationVisitDisplay);
         WoosmapSettings.classificationEnable  = mPrefs.getBoolean("classificationEnable",WoosmapSettings.classificationEnable );
+        WoosmapSettings.radiusDetectionClassifiedZOI  = mPrefs.getInt( "radiusDetectionClassifiedZOI",WoosmapSettings.radiusDetectionClassifiedZOI );
         WoosmapSettings.privateKeyGMPStatic  = mPrefs.getString( "privateKeyGMPStatic",WoosmapSettings.privateKeyGMPStatic );
         WoosmapSettings.privateKeyWoosmapAPI  = mPrefs.getString( "privateKeyWoosmapAPI",WoosmapSettings.privateKeyWoosmapAPI );
         WoosmapSettings.Urls.WoosmapURL  = mPrefs.getString( "WoosmapURL",WoosmapSettings.Urls.WoosmapURL);
@@ -142,6 +144,9 @@ public class WoosmapSettings {
 
     //Active Classification
     static public boolean classificationEnable = true;
+
+    // Distance detection threshold for a ZOI classified
+    static public int radiusDetectionClassifiedZOI = 50;
 
     // Key for APIs
     static public String privateKeyGMPStatic = "";

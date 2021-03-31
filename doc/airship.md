@@ -195,6 +195,43 @@ private void onRegionLogCallback(RegionLog regionLog) {
     }
 }
 ```
+
+#### Send ZOI classified event
+In your `mainActivity`, create a listener connected to the interface `Woosmap.RegionLogReadyListener` and set a callback to retrieve Region Log (enter, exit) of ZOI classified (HOME or WORK). Then send your region log event like this :
+
+```java
+public class WoosRegionLogReadyListener implements Woosmap.RegionLogReadyListener {
+    public void RegionLogReadyCallback(RegionLog regionLog) {
+        onRegionLogCallback(regionLog);
+    }
+}
+
+private void onRegionLogCallback(RegionLog regionLog) {
+    if(AIRSHIP) {
+        String eventName = "";
+
+        if (regionLog.identifier.contains("HOME") || regionLog.identifier.contains("WORK")) {
+            eventName = "zoi_classified_";
+        } else {
+            eventName = "geofence_";
+        }
+
+        // Create and name an event
+        CustomEvent.Builder eventBuilder = new CustomEvent.Builder(regionLog.didEnter ? eventName + "entered_event" : eventName + "exited_event");
+
+        // Set custom event properties on the builder
+        eventBuilder.addProperty("date", displayDateFormatAirship.format(regionLog.dateTime));
+        eventBuilder.addProperty("id",regionLog.id);
+        eventBuilder.addProperty("radius", regionLog.radius);
+        eventBuilder.addProperty("latitude", regionLog.lat);
+        eventBuilder.addProperty("longitude", regionLog.lng);
+
+        // Then record it
+        CustomEvent event = eventBuilder.build();
+        event.track();
+    }
+}
+```
 ##  Events and Properties
 
 ### Geofences
@@ -212,6 +249,22 @@ radius: Double
 date: String  
 id: String  
 lattitude: Double  
+longitude: Double
+radius: Double
+
+**zoi_classified_entered_event**
+
+date: String
+id: String
+lattitude: Double
+longitude: Double
+radius: Double
+
+**zoi_classified_exited_event**
+
+date: String
+id: String
+lattitude: Double
 longitude: Double
 radius: Double
 
