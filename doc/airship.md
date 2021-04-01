@@ -241,7 +241,7 @@ private void onRegionLogCallback(RegionLog regionLog) {
 date: String  
 id: String  
 lattitude: Double  
-longitude: Double
+longitude: Double \
 radius: Double
 
 **geofence_exited_event**
@@ -254,19 +254,19 @@ radius: Double
 
 **zoi_classified_entered_event**
 
-date: String
-id: String
-lattitude: Double
-longitude: Double
-radius: Double
+date: String \
+id: String\
+lattitude: Double\
+longitude: Double\
+radius: Double 
 
 **zoi_classified_exited_event**
 
-date: String
-id: String
-lattitude: Double
-longitude: Double
-radius: Double
+date: String \
+id: String\
+lattitude: Double\
+longitude: Double\
+radius: Double 
 
 ### POI
 
