@@ -3,9 +3,9 @@
   
 ## Airship Integration
   
-Generate contextual events from Geofencing SDK data using their different event types: Geofences, POI, Visits and ZOI.
+Generate contextual events from Geofencing SDK data using different event types: Geofences, POI, Visits and ZOI.
 
-Whenever location events are generated, the SDK geofencing will send custom events and properties to Airship via a delegate protocol. This data can then be used with the Custom Event trigger in the Automation and Journey composers.
+Whenever location events are generated, the Geofencing SDK will send custom events and properties to your App via a delegate protocol. Your App can then pass them to the Airship SDK and use the Custom Event trigger in the Automation and Journey composers.
 
 
 ### Configure Airship Integration in your app
@@ -240,23 +240,23 @@ private void onRegionLogCallback(RegionLog regionLog) {
 
 date: String  
 id: String  
-lattitude: Double  
-longitude: Double \
+latitude: Double  
+longitude: Double  
 radius: Double
 
 **geofence_exited_event**
 
 date: String  
 id: String  
-lattitude: Double  
-longitude: Double
+latitude: Double  
+longitude: Double  
 radius: Double
 
 **zoi_classified_entered_event**
 
 date: String \
 id: String\
-lattitude: Double\
+latitude: Double\
 longitude: Double\
 radius: Double 
 
@@ -264,7 +264,7 @@ radius: Double
 
 date: String \
 id: String\
-lattitude: Double\
+latitude: Double\
 longitude: Double\
 radius: Double 
 
@@ -287,5 +287,5 @@ date: String
 arrivalDate: String  
 departureDate: String  
 id: String  
-lattitude: Double  
+latitude: Double  
 longitude: Double
