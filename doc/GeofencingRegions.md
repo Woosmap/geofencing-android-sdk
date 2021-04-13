@@ -137,3 +137,37 @@ To remove a specific region, you can use this method with the id of the region  
 ```java
 Woosmap.getInstance().removeGeofences(String id)
 ```
+
+### Retrieve Region Log events
+
+In your `mainActivity`, create a listener connected to the interface `Woosmap.RegionLogReadyCallback` and set a callback to retrieve Regions Log event.
+```java
+public class WoosRegionLogReadyListener implements Woosmap.RegionLogReadyListener {
+    public void RegionLogReadyCallback(RegionLog regionLog) {
+        onRegionLogCallback(regionLog);
+    }
+}
+
+private void onRegionLogCallback(RegionLog regionLog) {
+}
+```
+
+### Monitoring ZOI Classified
+
+When a ZOI is classified HOME or WORK, you can get events enter or exit status in the Region Log table of the database.
+To launch a Region Log event from a ZOI classified, you must define a distance detection threshold (meters) in the settings of the SDK like this :
+
+```java
+   WoosmapSettings.radiusDetectionClassifiedZOI = 50;
+```
+
+To find if the user cross the ZOI classified, you can request the RegionLog table with The identifier of the RegionLog element is HOME or WORK.
+For example in the callback of the `Woosmap.RegionLogReadyCallback` :
+```java
+private void onRegionLogCallback(RegionLog regionLog) {
+    if (regionLog.identifier.contains("HOME") || regionLog.identifier.contains("WORK")) {
+        //Region is inside ZOI classified
+    }
+}
+
+```

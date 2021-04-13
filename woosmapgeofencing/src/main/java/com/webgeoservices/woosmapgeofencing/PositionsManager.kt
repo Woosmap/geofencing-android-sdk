@@ -229,10 +229,57 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
                     manageLocation(location)
                 }
 
+                detectVisitInZOIClassified()
+
             } catch (e: Exception) {
                 Log.e(WoosmapVisitsTag, e.toString())
             }
         }
+    }
+
+    private fun detectVisitInZOIClassified() {
+        if( temporaryCurrentVisits.isEmpty() && temporaryFinishedVisits.isEmpty()) {
+            return
+        }
+
+        val ZOIsClassified = this.db.zoIsDAO.getWorkHomeZOI()
+
+        val lastVisitLocation = Location("lastVisit")
+        var didEnter = false
+
+        if( !temporaryCurrentVisits.isEmpty()) {
+            lastVisitLocation.latitude =  temporaryCurrentVisits.first().lat
+            lastVisitLocation.longitude =  temporaryCurrentVisits.first().lng
+            didEnter = true
+        }
+
+        if( !temporaryFinishedVisits.isEmpty()) {
+            lastVisitLocation.latitude =  temporaryFinishedVisits.first().lat
+            lastVisitLocation.longitude =  temporaryFinishedVisits.first().lng
+            didEnter = false
+        }
+
+        for (zoi in ZOIsClassified) {
+            val zoiCenterLocation = Location("zoiCenter")
+            zoiCenterLocation.latitude = SphericalMercator.y2lat(zoi.lngMean)
+            zoiCenterLocation.longitude = SphericalMercator.x2lon(zoi.latMean)
+            val distance = zoiCenterLocation.distanceTo(lastVisitLocation)
+            if(distance < radiusDetectionClassifiedZOI) {
+                var regionLog = RegionLog()
+                regionLog.identifier = zoi.period
+                regionLog.dateTime = System.currentTimeMillis()
+                regionLog.didEnter = didEnter
+                regionLog.lat = lastVisitLocation.latitude
+                regionLog.lng = lastVisitLocation.longitude
+                regionLog.radius = radiusDetectionClassifiedZOI.toDouble()
+                this.db.regionLogsDAO.createRegionLog(regionLog)
+
+                if (Woosmap.getInstance().regionLogReadyListener != null) {
+                    Woosmap.getInstance().regionLogReadyListener.RegionLogReadyCallback(regionLog)
+                }
+            }
+        }
+
     }
 
     fun requestSearchAPI(positon: MovingPosition) {
@@ -536,7 +583,7 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
             regionLog.radius =regionDetected.radius
             this.db.regionLogsDAO.createRegionLog(regionLog)
 
-            if (Woosmap.getInstance().regionReadyListener != null) {
+            if (Woosmap.getInstance().regionLogReadyListener != null) {
                 Woosmap.getInstance().regionLogReadyListener.RegionLogReadyCallback(regionLog)
             }
         }.start()

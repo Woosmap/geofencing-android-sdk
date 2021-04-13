@@ -25,4 +25,7 @@ public interface ZOIsDAO {
 
     @Query("DELETE FROM ZOI")
     void deleteAllZOI();
+
+    @Query("SELECT * FROM ZOI WHERE period='WORK_PERIOD' OR period='HOME_PERIOD'")
+    ZOI[] getWorkHomeZOI();
 }
