@@ -191,7 +191,7 @@ public class MainActivity extends AppCompatActivity {
 
             // Set custom event properties on the builder
             eventBuilder.addProperty("date", displayDateFormatAirship.format(regionLog.dateTime));
-            eventBuilder.addProperty("id",regionLog.id);
+            eventBuilder.addProperty("id",regionLog.identifier);
             eventBuilder.addProperty("radius", regionLog.radius);
             eventBuilder.addProperty("latitude", regionLog.lat);
             eventBuilder.addProperty("longitude", regionLog.lng);
@@ -436,7 +436,7 @@ public class MainActivity extends AppCompatActivity {
         WoosmapSettings.numberOfDayDataDuration = 30;
 
         // Set Keys
-        WoosmapSettings.privateKeyWoosmapAPI = "3d7e5e3f-ef5b-4436-a9ea-d0cd8ed1f54e";
+        WoosmapSettings.privateKeyWoosmapAPI = "";
         WoosmapSettings.privateKeyGMPStatic = "";
 
         WoosmapSettings.modeDistance = "driving";
