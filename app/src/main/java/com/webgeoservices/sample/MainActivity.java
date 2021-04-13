@@ -63,7 +63,7 @@ import java.util.List;
 
 
 public class MainActivity extends AppCompatActivity {
-    public static final boolean AIRSHIP = false;
+    public static final boolean AIRSHIP = true;
     SimpleDateFormat displayDateFormatAirship = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
 
     private static final int REQUEST_PERMISSIONS_REQUEST_CODE = 34;
@@ -429,9 +429,6 @@ public class MainActivity extends AppCompatActivity {
         // Set Filter on Accuracy of the location
         //WoosmapSettings.accuracyFilter = 10;
 
-        // Set classification of zoi enable
-        WoosmapSettings.classificationEnable = true;
-
         // Instanciate woosmap object
         this.woosmap = Woosmap.getInstance().initializeWoosmap(this);
 
@@ -439,7 +436,7 @@ public class MainActivity extends AppCompatActivity {
         WoosmapSettings.numberOfDayDataDuration = 30;
 
         // Set Keys
-        WoosmapSettings.privateKeyWoosmapAPI = "";
+        WoosmapSettings.privateKeyWoosmapAPI = "3d7e5e3f-ef5b-4436-a9ea-d0cd8ed1f54e";
         WoosmapSettings.privateKeyGMPStatic = "";
 
         WoosmapSettings.modeDistance = "driving";
