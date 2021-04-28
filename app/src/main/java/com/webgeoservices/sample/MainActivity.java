@@ -63,7 +63,7 @@ import java.util.List;
 
 
 public class MainActivity extends AppCompatActivity {
-    public static final boolean AIRSHIP = true;
+    public static final boolean AIRSHIP = false;
     SimpleDateFormat displayDateFormatAirship = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
 
     private static final int REQUEST_PERMISSIONS_REQUEST_CODE = 34;
@@ -167,6 +167,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void onRegionCallback(Region region) {
+        Log.d("WoosmapGeofencing", "Region : " + region.identifier);
+        Log.d("WoosmapGeofencing", "Position is inside : " + region.currentPositionInside);
     }
 
     public class WoosRegionLogReadyListener implements Woosmap.RegionLogReadyListener {

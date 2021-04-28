@@ -132,10 +132,38 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
         if (WoosmapSettings.searchAPIEnable == true){
             if (distance > 0.0)
                 requestSearchAPI(movingPosition)
+                insideRegion(movingPosition)
         }
 
 
         return movingPosition
+    }
+
+    private fun insideRegion(movingPosition: MovingPosition) {
+        var regions = this.db.regionsDAO.allRegions
+
+        regions.forEach {
+            val locationFromPosition = Location("woosmap")
+            locationFromPosition.latitude = it.lat
+            locationFromPosition.longitude = it.lng
+
+            val locationToPosition = Location("woosmap")
+            locationToPosition.latitude = movingPosition.lat
+            locationToPosition.longitude = movingPosition.lng
+
+            val isInside = locationToPosition.distanceTo(locationFromPosition) < it.radius
+
+            if(isInside != it.currentPositionInside) {
+                it.currentPositionInside = isInside
+                this.db.regionsDAO.updateRegion(it)
+            }
+
+            if (Woosmap.getInstance().regionReadyListener != null) {
+                Woosmap.getInstance().regionReadyListener.RegionReadyCallback(it)
+            }
+
+        }
+
     }
 
     private fun filterDistanceBetweenRequestSearAPI(newPOI: POI): Boolean {
@@ -297,6 +325,9 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
                     Thread {
                         val gson = Gson()
                         val data = gson.fromJson(response, SearchAPI::class.java)
+
+                        if(data.features.isEmpty())
+                            return@Thread
                         val featureSearch = data.features[0]
                         val name = featureSearch.properties.name
                         val city = featureSearch.properties.address.city
@@ -392,6 +423,8 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
                     Thread {
                         val gson = Gson()
                         val data = gson.fromJson(response, SearchAPI::class.java)
+                        if(data.features.isEmpty())
+                            return@Thread
                         val featureSearch = data.features[0]
                         val name = featureSearch.properties.name
                         val idStore = featureSearch.properties.storeID
