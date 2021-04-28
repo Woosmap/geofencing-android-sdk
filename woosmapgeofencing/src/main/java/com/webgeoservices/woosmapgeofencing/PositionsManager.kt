@@ -157,9 +157,22 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
 
             if(isInside != it.isCurrentPositionInside) {
                 it.isCurrentPositionInside = isInside
+                it.dateTime = System.currentTimeMillis()
                 this.db.regionsDAO.updateRegion(it)
-                if (Woosmap.getInstance().regionReadyListener != null) {
-                    Woosmap.getInstance().regionReadyListener.RegionReadyCallback(it)
+
+                var regionLog = RegionLog()
+                regionLog.identifier = it.identifier
+                regionLog.dateTime = it.dateTime
+                regionLog.didEnter = it.didEnter
+                regionLog.lat = it.lat
+                regionLog.lng = it.lng
+                regionLog.idStore = it.idStore
+                regionLog.radius = it.radius
+                regionLog.isCurrentPositionInside = isInside
+                this.db.regionLogsDAO.createRegionLog(regionLog)
+
+                if (Woosmap.getInstance().regionLogReadyListener != null) {
+                    Woosmap.getInstance().regionLogReadyListener.RegionLogReadyCallback(regionLog)
                 }
             }
         }
@@ -613,7 +626,8 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
             regionLog.lat = regionDetected.lat
             regionLog.lng = regionDetected.lng
             regionLog.idStore = regionDetected.idStore
-            regionLog.radius =regionDetected.radius
+            regionLog.radius = regionDetected.radius
+            regionLog.isCurrentPositionInside = regionDetected.isCurrentPositionInside
             this.db.regionLogsDAO.createRegionLog(regionLog)
 
             if (Woosmap.getInstance().regionLogReadyListener != null) {

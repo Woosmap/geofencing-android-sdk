@@ -173,9 +173,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void onRegionCallback(Region region) {
-        createNotification("Region update from checking position","Region : " + region.identifier + "\n" + "Position is inside : " + region.isCurrentPositionInside);
-        Log.d("WoosmapGeofencing", "Region : " + region.identifier);
-        Log.d("WoosmapGeofencing", "Position is inside : " + region.isCurrentPositionInside);
     }
 
     public class WoosRegionLogReadyListener implements Woosmap.RegionLogReadyListener {
@@ -185,7 +182,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void onRegionLogCallback(RegionLog regionLog) {
-        createNotification("Region update from geofence detection","Region : " + regionLog.identifier + "\n" + "didenter : " + regionLog.didEnter);
+        createNotification("Region update from geofence detection","Region : " + regionLog.identifier + "\n" + "didenter : " + regionLog.didEnter +
+                "\n" + "isCurrentPositionInside : " + regionLog.isCurrentPositionInside +
+                "\n" + "Date : " + displayDateFormatAirship.format(regionLog.dateTime));
         if(AIRSHIP) {
 
             String eventName = "";

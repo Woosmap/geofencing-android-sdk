@@ -1,6 +1,8 @@
 package com.webgeoservices.sample;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
@@ -10,6 +12,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -324,9 +328,41 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
 
     @Override
     public void onMapLongClick(LatLng latLng) {
-        String id = UUID.randomUUID().toString();
-        Woosmap.getInstance().addGeofence( id, latLng, 100, "");
-        addCircle( id, latLng, 100,false );
+        AlertDialog.Builder alertDialog=new AlertDialog.Builder(getContext());
+        alertDialog.setTitle("Region Creation");
+        alertDialog.setMessage("Enter the radius");
+        final EditText editText=new EditText(getContext());
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT);
+        editText.setLayoutParams(lp);
+        alertDialog.setView(editText);
+
+
+        alertDialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String name=editText.getText().toString();
+                if (name.trim().compareTo("")==0) {
+                    Toast.makeText(getContext(), "Enter the radius !", Toast.LENGTH_SHORT).show();
+                }
+
+                else{
+                    String id = UUID.randomUUID().toString();
+                    Woosmap.getInstance().addGeofence( id, latLng, Float.parseFloat( name ), "");
+                    addCircle( id, latLng, 100,false );
+                }
+            }
+        });
+        alertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+            }
+        });
+        alertDialog.show();
+
+
     }
 
     public void addCircle(String id, LatLng latLng, float radius, boolean didEnter){
