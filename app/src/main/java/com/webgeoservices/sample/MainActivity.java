@@ -1,9 +1,14 @@
 package com.webgeoservices.sample;
 
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Location;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -18,6 +23,7 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.LiveData;
@@ -167,8 +173,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void onRegionCallback(Region region) {
+        createNotification("Region update from checking position","Region : " + region.identifier + "\n" + "Position is inside : " + region.isCurrentPositionInside);
         Log.d("WoosmapGeofencing", "Region : " + region.identifier);
-        Log.d("WoosmapGeofencing", "Position is inside : " + region.currentPositionInside);
+        Log.d("WoosmapGeofencing", "Position is inside : " + region.isCurrentPositionInside);
     }
 
     public class WoosRegionLogReadyListener implements Woosmap.RegionLogReadyListener {
@@ -178,6 +185,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void onRegionLogCallback(RegionLog regionLog) {
+        createNotification("Region update from geofence detection","Region : " + regionLog.identifier + "\n" + "didenter : " + regionLog.didEnter);
         if(AIRSHIP) {
 
             String eventName = "";
@@ -234,6 +242,69 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    public void createNotification(String title, String body) {
+        final int NOTIFY_ID = 1002;
+
+        // There are hardcoding only for show it's just strings
+        String name = "my_package_channel";
+        String id = "my_package_channel_1"; // The user-visible name of the channel.
+        String description = "my_package_first_channel"; // The user-visible description of the channel.
+
+        Intent intent;
+        PendingIntent pendingIntent;
+        NotificationCompat.Builder builder;
+
+        NotificationManager notifManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            int importance = NotificationManager.IMPORTANCE_HIGH;
+            NotificationChannel mChannel = notifManager.getNotificationChannel(id);
+            if (mChannel == null) {
+                mChannel = new NotificationChannel(id, name, importance);
+                mChannel.setDescription(description);
+                mChannel.enableVibration(true);
+                mChannel.setLightColor( Color.GREEN);
+                mChannel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
+                notifManager.createNotificationChannel(mChannel);
+            }
+            builder = new NotificationCompat.Builder(this, id);
+
+            intent = new Intent(this, MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
+
+            builder.setContentTitle(title)  // required
+                    .setSmallIcon(android.R.drawable.ic_popup_reminder) // required
+                    .setStyle(new NotificationCompat.BigTextStyle().bigText(body))
+                    .setContentText(body)
+                    .setDefaults( Notification.DEFAULT_ALL)
+                    .setAutoCancel(true)
+                    .setContentIntent(pendingIntent)
+                    .setTicker(title)
+                    .setVibrate(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
+        } else {
+
+            builder = new NotificationCompat.Builder(this);
+
+            intent = new Intent(this, MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
+
+            builder.setContentTitle(title)                           // required
+                    .setSmallIcon(android.R.drawable.ic_popup_reminder) // required
+                    .setStyle(new NotificationCompat.BigTextStyle().bigText(body))
+                    .setContentText(body)  // required
+                    .setDefaults(Notification.DEFAULT_ALL)
+                    .setAutoCancel(true)
+                    .setContentIntent(pendingIntent)
+                    .setTicker(title)
+                    .setVibrate(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400})
+                    .setPriority(Notification.PRIORITY_HIGH);
+        }
+
+        Notification notification = builder.build();
+        notifManager.notify(NOTIFY_ID, notification);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

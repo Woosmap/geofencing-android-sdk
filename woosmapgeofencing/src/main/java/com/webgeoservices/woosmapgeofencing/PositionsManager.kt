@@ -132,36 +132,36 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
         if (WoosmapSettings.searchAPIEnable == true){
             if (distance > 0.0)
                 requestSearchAPI(movingPosition)
-                insideRegion(movingPosition)
+                if(WoosmapSettings.checkIfPositionIsInsideGeofencingRegionsEnable == true) {
+                    checkIfPositionIsInsideGeofencingRegions(movingPosition)
+                }
         }
 
 
         return movingPosition
     }
 
-    private fun insideRegion(movingPosition: MovingPosition) {
+    private fun checkIfPositionIsInsideGeofencingRegions(movingPosition: MovingPosition) {
         var regions = this.db.regionsDAO.allRegions
 
         regions.forEach {
-            val locationFromPosition = Location("woosmap")
-            locationFromPosition.latitude = it.lat
-            locationFromPosition.longitude = it.lng
+            val regionCenter = Location("woosmap")
+            regionCenter.latitude = it.lat
+            regionCenter.longitude = it.lng
 
-            val locationToPosition = Location("woosmap")
-            locationToPosition.latitude = movingPosition.lat
-            locationToPosition.longitude = movingPosition.lng
+            val locationPosition = Location("woosmap")
+            locationPosition.latitude = movingPosition.lat
+            locationPosition.longitude = movingPosition.lng
 
-            val isInside = locationToPosition.distanceTo(locationFromPosition) < it.radius
+            val isInside = locationPosition.distanceTo(regionCenter) < it.radius
 
-            if(isInside != it.currentPositionInside) {
-                it.currentPositionInside = isInside
+            if(isInside != it.isCurrentPositionInside) {
+                it.isCurrentPositionInside = isInside
                 this.db.regionsDAO.updateRegion(it)
+                if (Woosmap.getInstance().regionReadyListener != null) {
+                    Woosmap.getInstance().regionReadyListener.RegionReadyCallback(it)
+                }
             }
-
-            if (Woosmap.getInstance().regionReadyListener != null) {
-                Woosmap.getInstance().regionReadyListener.RegionReadyCallback(it)
-            }
-
         }
 
     }

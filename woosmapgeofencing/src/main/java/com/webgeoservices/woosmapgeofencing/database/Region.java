@@ -16,5 +16,5 @@ public class Region {
     public boolean didEnter = false;
     public String idStore = "";
     public long dateTime;
-    public boolean currentPositionInside = false;
+    public boolean isCurrentPositionInside = false;
 }

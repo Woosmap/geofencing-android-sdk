@@ -43,6 +43,7 @@ public class WoosmapSettings {
         prefsEditor.putString( "DistanceAPIUrl",Urls.DistanceAPIUrl);
         prefsEditor.putString( "GoogleMapStaticUrl",Urls.GoogleMapStaticUrl);
         prefsEditor.putString( "GoogleMapStaticUrl1POI",Urls.GoogleMapStaticUrl1POI);
+        prefsEditor.putBoolean( "checkIfPositionIsInsideGeofencingRegionsEnable",checkIfPositionIsInsideGeofencingRegionsEnable );
         prefsEditor.commit();
 
     }
@@ -78,6 +79,7 @@ public class WoosmapSettings {
         WoosmapSettings.Urls.DistanceAPIUrl  = mPrefs.getString( "DistanceAPIUrl",WoosmapSettings.Urls.DistanceAPIUrl);
         WoosmapSettings.Urls.GoogleMapStaticUrl  = mPrefs.getString( "GoogleMapStaticUrl",WoosmapSettings.Urls.GoogleMapStaticUrl);
         WoosmapSettings.Urls.GoogleMapStaticUrl1POI  = mPrefs.getString( "GoogleMapStaticUrl1POI",WoosmapSettings.Urls.GoogleMapStaticUrl1POI);
+        WoosmapSettings.checkIfPositionIsInsideGeofencingRegionsEnable = mPrefs.getBoolean( "checkIfPositionIsInsideGeofencingRegionsEnable", WoosmapSettings.checkIfPositionIsInsideGeofencingRegionsEnable );
 
 
     }
@@ -151,6 +153,9 @@ public class WoosmapSettings {
     // Key for APIs
     static public String privateKeyGMPStatic = "";
     static public String privateKeyWoosmapAPI = "";
+
+    //Checking Position is inside a region
+    static public boolean checkIfPositionIsInsideGeofencingRegionsEnable = true;
 
     public static class Tags {
         public static final String WoosmapSdkTag = "WoosmapSdk";
