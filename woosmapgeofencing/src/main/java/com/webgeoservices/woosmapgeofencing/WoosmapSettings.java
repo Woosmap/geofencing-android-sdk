@@ -15,6 +15,7 @@ public class WoosmapSettings {
     public static void saveSettings(Context context){
         SharedPreferences mPrefs = context.getSharedPreferences("WGSGeofencingPref",MODE_PRIVATE);
         SharedPreferences.Editor prefsEditor = mPrefs.edit();
+        prefsEditor.putBoolean( "locationUpdateHighEnable",locationUpdateHighEnable );
         prefsEditor.putBoolean( "trackingEnable",trackingEnable );
         prefsEditor.putInt( "currentLocationTimeFilter",currentLocationTimeFilter );
         prefsEditor.putInt( "currentLocationDistanceFilter",currentLocationDistanceFilter );
@@ -51,10 +52,11 @@ public class WoosmapSettings {
     public static void loadSettings(Context context) {
         SharedPreferences mPrefs = context.getSharedPreferences("WGSGeofencingPref", Context.MODE_PRIVATE);
 
+        WoosmapSettings.locationUpdateHighEnable = mPrefs.getBoolean( "locationUpdateHighEnable", WoosmapSettings.locationUpdateHighEnable );
         WoosmapSettings.trackingEnable = mPrefs.getBoolean( "trackingEnable", WoosmapSettings.trackingEnable );
         WoosmapSettings.currentLocationTimeFilter  = mPrefs.getInt( "currentLocationTimeFilter",WoosmapSettings.currentLocationTimeFilter );
         WoosmapSettings.currentLocationDistanceFilter  = mPrefs.getInt( "currentLocationDistanceFilter",WoosmapSettings.currentLocationDistanceFilter );
-        WoosmapSettings.searchAPIEnable  = mPrefs.getBoolean( "searchAPIEnable",WoosmapSettings.trackingEnable );
+        WoosmapSettings.searchAPIEnable  = mPrefs.getBoolean( "searchAPIEnable",WoosmapSettings.searchAPIEnable );
         WoosmapSettings.visitEnable  = mPrefs.getBoolean( "visitEnable",WoosmapSettings.visitEnable );
         WoosmapSettings.searchAPICreationRegionEnable  = mPrefs.getBoolean( "searchAPICreationRegionEnable",WoosmapSettings.searchAPICreationRegionEnable );
         WoosmapSettings.firstSearchAPIRegionRadius  = mPrefs.getInt( "firstSearchAPIRegionRadius",WoosmapSettings.firstSearchAPIRegionRadius );
@@ -88,6 +90,9 @@ public class WoosmapSettings {
     static String PositionDateFormat = "yyyy-MM-dd'T'HH:mm:ss Z";
     static final String WoosmapNotification = "woosmapNotification";
     static public final String WoosmapNotificationChannel = "woosmap_01";
+
+    //Enable/disable Location
+    static public boolean locationUpdateHighEnable = false;
 
     //Enable/disable Location
     static public boolean trackingEnable = true;

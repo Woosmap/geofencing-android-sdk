@@ -131,10 +131,14 @@ class LocationManager {
 
     void updateLocationForeground() {
         this.setmLocationRequest();
-        mLocationRequest.setInterval(10000);
-        mLocationRequest.setFastestInterval(5000);
-        //mLocationRequest.setSmallestDisplacement(10);
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        if(WoosmapSettings.locationUpdateHighEnable) {
+            mLocationRequest.setInterval( 1000 );
+            mLocationRequest.setFastestInterval( 1000 );
+        } else {
+            mLocationRequest.setInterval( 10000 );
+            mLocationRequest.setFastestInterval( 5000 );
+        }
+        mLocationRequest.setPriority( LocationRequest.PRIORITY_HIGH_ACCURACY );
         try {
             mFusedLocationClient.removeLocationUpdates(mLocationIntent);
             mFusedLocationClient.removeLocationUpdates(mLocationCallback);
@@ -146,11 +150,17 @@ class LocationManager {
     }
 
     void updateLocationBackground() {
-        mLocationRequest.setInterval(240000);
-        mLocationRequest.setFastestInterval(60000);
-        mLocationRequest.setMaxWaitTime(480000);
-        //mLocationRequest.setSmallestDisplacement(50);
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+        if(WoosmapSettings.locationUpdateHighEnable) {
+            mLocationRequest.setInterval( 1000 );
+            mLocationRequest.setFastestInterval( 1000 );
+            mLocationRequest.setMaxWaitTime( 5000 );
+            mLocationRequest.setPriority( LocationRequest.PRIORITY_HIGH_ACCURACY );
+        } else {
+            mLocationRequest.setInterval( 240000 );
+            mLocationRequest.setFastestInterval( 60000 );
+            mLocationRequest.setMaxWaitTime( 480000 );
+            mLocationRequest.setPriority( LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY );
+        }
         try {
             mFusedLocationClient.removeLocationUpdates(mLocationIntent);
             mFusedLocationClient.removeLocationUpdates(mLocationCallback);

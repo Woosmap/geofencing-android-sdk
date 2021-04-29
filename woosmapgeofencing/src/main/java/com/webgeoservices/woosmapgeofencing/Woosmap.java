@@ -250,6 +250,7 @@ public class Woosmap {
      * Should be call on your mainActivity onResume method
      */
     public void onResume() {
+        WoosmapSettings.loadSettings(context);
         if(!WoosmapSettings.trackingEnable) {
             return;
         }
@@ -319,6 +320,18 @@ public class Woosmap {
             this.locationManager.removeLocationUpdates();
             return false;
         }
+    }
+
+    public void enableLocationUpdateHigh(boolean LocationUpdateHighEnable) {
+        WoosmapSettings.locationUpdateHighEnable = LocationUpdateHighEnable;
+        if(WoosmapSettings.locationUpdateHighEnable) {
+            WoosmapSettings.searchAPIEnable = false;
+            WoosmapSettings.visitEnable = false;
+            WoosmapSettings.classificationEnable = false;
+        } else {
+
+        }
+        onResume();
     }
 
 

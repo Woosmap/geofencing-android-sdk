@@ -358,9 +358,36 @@ public class MainActivity extends AppCompatActivity {
         boolean trackingEnable = mPrefs.getBoolean("trackingEnable",true);
         boolean searchAPIEnable = mPrefs.getBoolean("searchAPIEnable",true);
         boolean distanceAPIEnable = mPrefs.getBoolean("distanceAPIEnable",true);
+        boolean locationUpdateHighEnable = mPrefs.getBoolean("locationUpdateHighEnable",false);
         WoosmapSettings.trackingEnable = trackingEnable;
         WoosmapSettings.searchAPIEnable = searchAPIEnable;
         WoosmapSettings.distanceAPIEnable = distanceAPIEnable;
+        WoosmapSettings.locationUpdateHighEnable = locationUpdateHighEnable;
+
+        final FloatingActionButton enableLocationUpdateBtn = findViewById(R.id.UpdateLocation);
+        enableLocationUpdateBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                WoosmapSettings.locationUpdateHighEnable = !WoosmapSettings.locationUpdateHighEnable;
+                String msg = "";
+                if(WoosmapSettings.locationUpdateHighEnable) {
+                    msg = "Location Update Enable";
+                    editor.putBoolean( "locationUpdateHighEnable",true);
+                    editor.apply();
+                    enableLocationUpdateBtn.setBackgroundTintList(getResources().getColorStateList(R.color.colorPrimary));
+                } else {
+                    msg = "Location Update disable";
+                    editor.putBoolean( "locationUpdateHighEnable",false);
+                    editor.apply();
+                    enableLocationUpdateBtn.setBackgroundTintList(getResources().getColorStateList(R.color.colorAccent));
+                }
+                woosmap.enableLocationUpdateHigh(WoosmapSettings.locationUpdateHighEnable);
+                Snackbar.make(view, msg, Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+
+
+            }
+        });
 
         final FloatingActionButton clearDBBtn = findViewById(R.id.clearDB);
         clearDBBtn.setOnClickListener(new View.OnClickListener() {
@@ -457,6 +484,12 @@ public class MainActivity extends AppCompatActivity {
             enableLocationBtn.setBackgroundTintList(getResources().getColorStateList(R.color.colorAccent));
         }
 
+        if(WoosmapSettings.locationUpdateHighEnable) {
+            enableLocationUpdateBtn.setBackgroundTintList(getResources().getColorStateList(R.color.colorPrimary));
+        } else {
+            enableLocationUpdateBtn.setBackgroundTintList(getResources().getColorStateList(R.color.colorAccent));
+        }
+
         if(WoosmapSettings.distanceAPIEnable) {
             enableDistanceAPIBtn.setBackgroundTintList(getResources().getColorStateList(R.color.colorPrimary));
         }else {
@@ -480,6 +513,7 @@ public class MainActivity extends AppCompatActivity {
                     enableDistanceAPIBtn.animate().translationY(-600);
                     enableSearchAPIBtn.animate().translationY(-800);
                     enableLocationBtn.animate().translationY(-1000);
+                    enableLocationUpdateBtn.animate().translationY(-1200);
                 } else {
                     isMenuOpen = false;
                     clearDBBtn.animate().translationY(0);
@@ -487,6 +521,7 @@ public class MainActivity extends AppCompatActivity {
                     enableDistanceAPIBtn.animate().translationY(0);
                     enableSearchAPIBtn.animate().translationY(0);
                     enableLocationBtn.animate().translationY(0);
+                    enableLocationUpdateBtn.animate().translationY(0);
                 }
             }
         });
