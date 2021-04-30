@@ -129,13 +129,16 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
         if (filterTimeBetweenRequestSearAPI(movingPosition))
             return movingPosition
 
-        if (WoosmapSettings.searchAPIEnable == true){
-            if (distance > 0.0)
+        if (distance > 0.0) {
+            if (WoosmapSettings.searchAPIEnable == true) {
                 requestSearchAPI(movingPosition)
-                if(WoosmapSettings.checkIfPositionIsInsideGeofencingRegionsEnable == true) {
-                    checkIfPositionIsInsideGeofencingRegions(movingPosition)
-                }
+            }
+
+            if (WoosmapSettings.checkIfPositionIsInsideGeofencingRegionsEnable == true) {
+                checkIfPositionIsInsideGeofencingRegions(movingPosition)
+            }
         }
+
 
 
         return movingPosition
@@ -645,24 +648,25 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
 
 
     @SuppressLint("MissingPermission")
-    fun addGeofence(geofenceHelper: GeofenceHelper, geofencingRequest: GeofencingRequest, geofencePendingIntent: PendingIntent, geofencingClient: GeofencingClient, id: String, radius: Float, latitude: Double, longitude: Double, idStore: String) {
+    fun addGeofence(geofenceHelper: GeofenceHelper, geofencingRequest: GeofencingRequest, geofencePendingIntent: PendingIntent, geofencingClient: GeofencingClient, id: String, radius: Float, latitude: Double, longitude: Double, idStore: String)  {
         Thread {
             val region = this.db.regionsDAO.getRegionFromId(id)
             if(region != null) {
                 Log.d(WoosmapSettings.Tags.WoosmapSdkTag, "Region already exist")
             } else {
-                geofencingClient.addGeofences(geofencingRequest, geofencePendingIntent)?.run {
-                    addOnSuccessListener {
-                        Log.d(WoosmapSettings.Tags.WoosmapSdkTag,"onSuccess: Geofence Added...")
-                        createRegion(id, radius.toDouble(),latitude,longitude,idStore)
-                    }
-                    addOnFailureListener {
-                        val errorMessage = geofenceHelper.getErrorString(exception)
-                        Log.d(WoosmapSettings.Tags.WoosmapSdkTag,"onFailure "+errorMessage)
-                    }
-                }
+                createRegion(id, radius.toDouble(),latitude,longitude,idStore)
             }
         }.start()
+
+        geofencingClient.addGeofences(geofencingRequest, geofencePendingIntent)?.run {
+            addOnSuccessListener {
+                Log.d(WoosmapSettings.Tags.WoosmapSdkTag,"onSuccess: Geofence Added...")
+            }
+            addOnFailureListener {
+                val errorMessage = geofenceHelper.getErrorString(exception)
+                Log.d(WoosmapSettings.Tags.WoosmapSdkTag,"onFailure "+errorMessage)
+            }
+        }
     }
 
 }
