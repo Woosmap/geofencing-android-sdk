@@ -160,3 +160,13 @@ public void onRequestPermissionsResult(int requestCode, @NonNull String[] permis
     }
 }
 ```
+
+## Refresh Location with high frequency
+
+Some use cases or situations are more demanding on position collection or geofence detection. To complete standard mode the SDK provides a high frequency location mode. This mode allows to retrieve a maximum of location when activated. It also assures a more accurate detection of geofence crossings. This mode can be set with:
+```java
+WoosmapSettings.modeHighfrequencyLocation = true
+```
+
+When activated, locations are updated every seconds but for battery and performance optimisation, no POI detection, Distance calculations or zone classification are done over the collected locations.
+This mode can be used in background or even when the app has been killed but it generates high battery consumption. Therefore, it should be used for proper use cases, when user is well aware of the tracking and be turned off as soon as high frequent positioning is not usefull anymore.
