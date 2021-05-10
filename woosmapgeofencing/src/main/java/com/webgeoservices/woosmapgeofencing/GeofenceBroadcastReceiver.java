@@ -16,7 +16,7 @@ import static com.webgeoservices.woosmapgeofencing.WoosmapSettings.Tags.WoosmapG
 public class GeofenceBroadcastReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (WoosmapSettings.modeHighfrequencyLocation) {
+        if (WoosmapSettings.modeHighFrequencyLocation) {
             return;
         }
         GeofencingEvent geofencingEvent = GeofencingEvent.fromIntent(intent);

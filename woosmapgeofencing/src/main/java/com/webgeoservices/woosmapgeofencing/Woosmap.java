@@ -355,15 +355,14 @@ public class Woosmap {
         }
     }
 
-    public void enableModeHighfrequencyLocation(boolean modeHighfrequencyLocationEnable) {
-        WoosmapSettings.modeHighfrequencyLocation = modeHighfrequencyLocationEnable;
-        if(WoosmapSettings.modeHighfrequencyLocation) {
+    public void enableModeHighFrequencyLocation(boolean modeHighFrequencyLocationEnable) {
+        WoosmapSettings.modeHighFrequencyLocation = modeHighFrequencyLocationEnable;
+        if(WoosmapSettings.modeHighFrequencyLocation) {
             WoosmapSettings.searchAPIEnable = false;
             WoosmapSettings.visitEnable = false;
             WoosmapSettings.classificationEnable = false;
-        } else {
-
         }
+
         onResume();
     }
 

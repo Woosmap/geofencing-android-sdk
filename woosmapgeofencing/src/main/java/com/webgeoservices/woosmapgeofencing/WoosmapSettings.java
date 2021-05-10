@@ -15,7 +15,7 @@ public class WoosmapSettings {
     public static void saveSettings(Context context){
         SharedPreferences mPrefs = context.getSharedPreferences("WGSGeofencingPref",MODE_PRIVATE);
         SharedPreferences.Editor prefsEditor = mPrefs.edit();
-        prefsEditor.putBoolean( "modeHighfrequencyLocationEnable", modeHighfrequencyLocation );
+        prefsEditor.putBoolean( "modeHighFrequencyLocationEnable", modeHighFrequencyLocation );
         prefsEditor.putBoolean( "trackingEnable",trackingEnable );
         prefsEditor.putInt( "currentLocationTimeFilter",currentLocationTimeFilter );
         prefsEditor.putInt( "currentLocationDistanceFilter",currentLocationDistanceFilter );
@@ -55,7 +55,7 @@ public class WoosmapSettings {
     public static void loadSettings(Context context) {
         SharedPreferences mPrefs = context.getSharedPreferences("WGSGeofencingPref", Context.MODE_PRIVATE);
 
-        WoosmapSettings.modeHighfrequencyLocation = mPrefs.getBoolean( "modeHighfrequencyLocationEnable", WoosmapSettings.modeHighfrequencyLocation );
+        WoosmapSettings.modeHighFrequencyLocation = mPrefs.getBoolean( "modeHighFrequencyLocationEnable", WoosmapSettings.modeHighFrequencyLocation );
         WoosmapSettings.trackingEnable = mPrefs.getBoolean( "trackingEnable", WoosmapSettings.trackingEnable );
         WoosmapSettings.currentLocationTimeFilter  = mPrefs.getInt( "currentLocationTimeFilter",WoosmapSettings.currentLocationTimeFilter );
         WoosmapSettings.currentLocationDistanceFilter  = mPrefs.getInt( "currentLocationDistanceFilter",WoosmapSettings.currentLocationDistanceFilter );
@@ -97,7 +97,7 @@ public class WoosmapSettings {
     static public final String WoosmapNotificationChannel = "woosmap_01";
 
     //Enable/disable Location
-    static public boolean modeHighfrequencyLocation = false;
+    static public boolean modeHighFrequencyLocation = false;
 
     //Enable/disable Location
     static public boolean trackingEnable = true;
