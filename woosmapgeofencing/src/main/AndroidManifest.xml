@@ -10,6 +10,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.location.GPS_ENABLED_CHANGE" />
     <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <application
         android:largeHeap="true">
@@ -35,6 +36,12 @@
         <service
             android:name=".GeofenceTransitionsIntentService"
             android:exported="false" />
+
+        <service
+            android:name=".LocationUpdatesService"
+            android:enabled="true"
+            android:exported="true"
+            android:stopWithTask="true" />
     </application>
 
 </manifest>

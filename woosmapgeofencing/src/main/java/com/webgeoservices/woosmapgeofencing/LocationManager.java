@@ -131,7 +131,7 @@ class LocationManager {
 
     void updateLocationForeground() {
         this.setmLocationRequest();
-        if(WoosmapSettings.locationUpdateHighEnable) {
+        if(WoosmapSettings.modeHighfrequencyLocation) {
             mLocationRequest.setInterval( 1000 );
             mLocationRequest.setFastestInterval( 1000 );
         } else {
@@ -150,7 +150,13 @@ class LocationManager {
     }
 
     void updateLocationBackground() {
-        if(WoosmapSettings.locationUpdateHighEnable) {
+        if(WoosmapSettings.foregroundLocationServiceEnable) {
+            mFusedLocationClient.removeLocationUpdates(mLocationIntent);
+            mFusedLocationClient.removeLocationUpdates(mLocationCallback);
+            return;
+        }
+
+        if(WoosmapSettings.modeHighfrequencyLocation) {
             mLocationRequest.setInterval( 1000 );
             mLocationRequest.setFastestInterval( 1000 );
             mLocationRequest.setMaxWaitTime( 5000 );

@@ -358,30 +358,30 @@ public class MainActivity extends AppCompatActivity {
         boolean trackingEnable = mPrefs.getBoolean("trackingEnable",true);
         boolean searchAPIEnable = mPrefs.getBoolean("searchAPIEnable",true);
         boolean distanceAPIEnable = mPrefs.getBoolean("distanceAPIEnable",true);
-        boolean locationUpdateHighEnable = mPrefs.getBoolean("locationUpdateHighEnable",false);
+        boolean modeHighfrequencyLocationEnable = mPrefs.getBoolean("modeHighfrequencyLocationEnable",false);
         WoosmapSettings.trackingEnable = trackingEnable;
         WoosmapSettings.searchAPIEnable = searchAPIEnable;
         WoosmapSettings.distanceAPIEnable = distanceAPIEnable;
-        WoosmapSettings.locationUpdateHighEnable = locationUpdateHighEnable;
+        WoosmapSettings.modeHighfrequencyLocation = modeHighfrequencyLocationEnable;
 
         final FloatingActionButton enableLocationUpdateBtn = findViewById(R.id.UpdateLocation);
         enableLocationUpdateBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                WoosmapSettings.locationUpdateHighEnable = !WoosmapSettings.locationUpdateHighEnable;
+                WoosmapSettings.modeHighfrequencyLocation = !WoosmapSettings.modeHighfrequencyLocation;
                 String msg = "";
-                if(WoosmapSettings.locationUpdateHighEnable) {
-                    msg = "Location Update Enable";
-                    editor.putBoolean( "locationUpdateHighEnable",true);
+                if(WoosmapSettings.modeHighfrequencyLocation) {
+                    msg = "Mode High Frequency Location Enable";
+                    editor.putBoolean( "modeHighfrequencyLocationEnable",true);
                     editor.apply();
                     enableLocationUpdateBtn.setBackgroundTintList(getResources().getColorStateList(R.color.colorPrimary));
                 } else {
-                    msg = "Location Update disable";
-                    editor.putBoolean( "locationUpdateHighEnable",false);
+                    msg = "Mode High Frequency Location disable";
+                    editor.putBoolean( "modeHighfrequencyLocationEnable",false);
                     editor.apply();
                     enableLocationUpdateBtn.setBackgroundTintList(getResources().getColorStateList(R.color.colorAccent));
                 }
-                woosmap.enableLocationUpdateHigh(WoosmapSettings.locationUpdateHighEnable);
+                woosmap.enableModeHighfrequencyLocation(WoosmapSettings.modeHighfrequencyLocation );
                 Snackbar.make(view, msg, Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
 
@@ -484,7 +484,7 @@ public class MainActivity extends AppCompatActivity {
             enableLocationBtn.setBackgroundTintList(getResources().getColorStateList(R.color.colorAccent));
         }
 
-        if(WoosmapSettings.locationUpdateHighEnable) {
+        if(WoosmapSettings.modeHighfrequencyLocation) {
             enableLocationUpdateBtn.setBackgroundTintList(getResources().getColorStateList(R.color.colorPrimary));
         } else {
             enableLocationUpdateBtn.setBackgroundTintList(getResources().getColorStateList(R.color.colorAccent));
@@ -547,6 +547,9 @@ public class MainActivity extends AppCompatActivity {
         WoosmapSettings.privateKeyGMPStatic = "";
 
         WoosmapSettings.modeDistance = "driving";
+
+        WoosmapSettings.foregroundLocationServiceEnable = false;
+
 
         this.woosmap.setLocationReadyListener(new WoosLocationReadyListener());
         this.woosmap.setSearchAPIReadyListener(new WoosSearchAPIReadyListener());

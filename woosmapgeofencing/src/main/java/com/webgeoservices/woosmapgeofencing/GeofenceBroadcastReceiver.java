@@ -16,6 +16,9 @@ import static com.webgeoservices.woosmapgeofencing.WoosmapSettings.Tags.WoosmapG
 public class GeofenceBroadcastReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
+        if (WoosmapSettings.modeHighfrequencyLocation) {
+            return;
+        }
         GeofencingEvent geofencingEvent = GeofencingEvent.fromIntent(intent);
         int geofenceTransition = geofencingEvent.getGeofenceTransition();
         if (geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER ||

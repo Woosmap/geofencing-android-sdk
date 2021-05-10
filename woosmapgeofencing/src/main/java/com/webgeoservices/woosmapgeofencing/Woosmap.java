@@ -3,14 +3,18 @@ package com.webgeoservices.woosmapgeofencing;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.content.ComponentName;
 import android.content.Context;
 
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.graphics.Color;
 import android.location.Location;
 
 import androidx.annotation.RequiresApi;
 
 import android.os.AsyncTask;
+import android.os.IBinder;
 import android.util.Log;
 
 
@@ -47,6 +51,11 @@ public class Woosmap {
     RegionReadyListener regionReadyListener = null;
     RegionLogReadyListener regionLogReadyListener = null;
 
+    // A reference to the service used to get location updates.
+    private LocationUpdatesService mLocationUpdateService = null;
+
+    // Tracks the bound state of the service.
+    private boolean mBound = false;
 
     /**
      * An interface to add callback on location retrieving
@@ -154,6 +163,13 @@ public class Woosmap {
             this.fcmToken = messageToken;
         }
         this.initWoosmap();
+
+        // Bind to the service. If the service is in foreground mode, this signals to the service
+        // that since this activity is in the foreground, the service can exit foreground mode.
+        context.bindService(new Intent(context, LocationUpdatesService.class), mServiceConnection,
+                Context.BIND_AUTO_CREATE);
+
+
         return woosmapInstance;
     }
 
@@ -250,7 +266,6 @@ public class Woosmap {
      * Should be call on your mainActivity onResume method
      */
     public void onResume() {
-        WoosmapSettings.loadSettings(context);
         if(!WoosmapSettings.trackingEnable) {
             return;
         }
@@ -266,6 +281,9 @@ public class Woosmap {
                 WoosmapDb.getInstance(context).cleanOldGeographicData(context);
             }
         });
+        if(mLocationUpdateService != null && WoosmapSettings.foregroundLocationServiceEnable) {
+            mLocationUpdateService.removeLocationUpdates();
+        }
 
     }
 
@@ -278,6 +296,19 @@ public class Woosmap {
         }
 
         WoosmapSettings.saveSettings(context);
+
+        if (mBound) {
+            // Unbind from the service. This signals to the service that this activity is no longer
+            // in the foreground, and the service can respond by promoting itself to a foreground
+            // service.
+            context.unbindService(mServiceConnection);
+            mBound = false;
+        }
+
+        if(mLocationUpdateService != null && WoosmapSettings.foregroundLocationServiceEnable) {
+            mLocationUpdateService.enableLocationBackground( true );
+        }
+
 
         try {
             if (this.shouldTrackUser()) {
@@ -307,6 +338,8 @@ public class Woosmap {
     }
 
 
+
+
     private Boolean shouldTrackUser() {
         return this.locationManager.checkPermissions();
     }
@@ -322,9 +355,9 @@ public class Woosmap {
         }
     }
 
-    public void enableLocationUpdateHigh(boolean LocationUpdateHighEnable) {
-        WoosmapSettings.locationUpdateHighEnable = LocationUpdateHighEnable;
-        if(WoosmapSettings.locationUpdateHighEnable) {
+    public void enableModeHighfrequencyLocation(boolean modeHighfrequencyLocationEnable) {
+        WoosmapSettings.modeHighfrequencyLocation = modeHighfrequencyLocationEnable;
+        if(WoosmapSettings.modeHighfrequencyLocation) {
             WoosmapSettings.searchAPIEnable = false;
             WoosmapSettings.visitEnable = false;
             WoosmapSettings.classificationEnable = false;
@@ -388,4 +421,22 @@ public class Woosmap {
         locationManager.removeGeofences(id);
     }
     public void removeGeofence() { locationManager.removeGeofences();}
+
+    // Monitors the state of the connection to the service.
+    private final ServiceConnection mServiceConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            LocationUpdatesService.LocalBinder binder = (LocationUpdatesService.LocalBinder) service;
+            mLocationUpdateService = binder.getService();
+            mBound = true;
+            mLocationUpdateService.requestLocationUpdates();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            mLocationUpdateService = null;
+            mBound = false;
+        }
+    };
 }
