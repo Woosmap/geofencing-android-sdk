@@ -168,5 +168,6 @@ Some use cases or situations are more demanding on position collection or geofen
 WoosmapSettings.modeHighFrequencyLocation = true
 ```
 
-When activated, locations are updated every seconds but for battery and performance optimisation, no POI detection, Distance calculations or zone classification are done over the collected locations.
-This mode can be used in background or even when the app has been killed but it generates high battery consumption. Therefore, it should be used for proper use cases, when user is well aware of the tracking and be turned off as soon as high frequent positioning is not usefull anymore.
+When activated, locations are updated every seconds but for battery and performance optimisation reasons, no POI detection, Distance calculations or Zone Classification are done over the collected locations.
+This mode can be used in background or even when the app has been killed. Nevetheless, due to limitation since Android 8.0, if you want to maintain a high location collection frequency in background we recommend to use a [Foreground Service](https://github.com/woosmap/woosmap-geofencing-android-sdk/blob/master/doc/foregroundservice.md). 
+Because the High Frequency Location mode generates high battery consumption, it should be used for proper use cases, when user is well aware of the tracking and be turned off as soon as high frequent positioning is not usefull anymore.
