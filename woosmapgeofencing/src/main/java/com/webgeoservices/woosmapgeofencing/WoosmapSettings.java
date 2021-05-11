@@ -15,6 +15,7 @@ public class WoosmapSettings {
     public static void saveSettings(Context context){
         SharedPreferences mPrefs = context.getSharedPreferences("WGSGeofencingPref",MODE_PRIVATE);
         SharedPreferences.Editor prefsEditor = mPrefs.edit();
+        prefsEditor.putBoolean( "modeHighFrequencyLocationEnable", modeHighFrequencyLocation );
         prefsEditor.putBoolean( "trackingEnable",trackingEnable );
         prefsEditor.putInt( "currentLocationTimeFilter",currentLocationTimeFilter );
         prefsEditor.putInt( "currentLocationDistanceFilter",currentLocationDistanceFilter );
@@ -43,6 +44,10 @@ public class WoosmapSettings {
         prefsEditor.putString( "DistanceAPIUrl",Urls.DistanceAPIUrl);
         prefsEditor.putString( "GoogleMapStaticUrl",Urls.GoogleMapStaticUrl);
         prefsEditor.putString( "GoogleMapStaticUrl1POI",Urls.GoogleMapStaticUrl1POI);
+        prefsEditor.putBoolean( "checkIfPositionIsInsideGeofencingRegionsEnable",checkIfPositionIsInsideGeofencingRegionsEnable );
+        prefsEditor.putBoolean( "foregroundLocationServiceEnable",foregroundLocationServiceEnable );
+        prefsEditor.putString( "updateServiceNotificationTitle",updateServiceNotificationTitle );
+        prefsEditor.putString( "updateServiceNotificationText",updateServiceNotificationText );
         prefsEditor.commit();
 
     }
@@ -50,10 +55,11 @@ public class WoosmapSettings {
     public static void loadSettings(Context context) {
         SharedPreferences mPrefs = context.getSharedPreferences("WGSGeofencingPref", Context.MODE_PRIVATE);
 
+        WoosmapSettings.modeHighFrequencyLocation = mPrefs.getBoolean( "modeHighFrequencyLocationEnable", WoosmapSettings.modeHighFrequencyLocation );
         WoosmapSettings.trackingEnable = mPrefs.getBoolean( "trackingEnable", WoosmapSettings.trackingEnable );
         WoosmapSettings.currentLocationTimeFilter  = mPrefs.getInt( "currentLocationTimeFilter",WoosmapSettings.currentLocationTimeFilter );
         WoosmapSettings.currentLocationDistanceFilter  = mPrefs.getInt( "currentLocationDistanceFilter",WoosmapSettings.currentLocationDistanceFilter );
-        WoosmapSettings.searchAPIEnable  = mPrefs.getBoolean( "searchAPIEnable",WoosmapSettings.trackingEnable );
+        WoosmapSettings.searchAPIEnable  = mPrefs.getBoolean( "searchAPIEnable",WoosmapSettings.searchAPIEnable );
         WoosmapSettings.visitEnable  = mPrefs.getBoolean( "visitEnable",WoosmapSettings.visitEnable );
         WoosmapSettings.searchAPICreationRegionEnable  = mPrefs.getBoolean( "searchAPICreationRegionEnable",WoosmapSettings.searchAPICreationRegionEnable );
         WoosmapSettings.firstSearchAPIRegionRadius  = mPrefs.getInt( "firstSearchAPIRegionRadius",WoosmapSettings.firstSearchAPIRegionRadius );
@@ -78,7 +84,10 @@ public class WoosmapSettings {
         WoosmapSettings.Urls.DistanceAPIUrl  = mPrefs.getString( "DistanceAPIUrl",WoosmapSettings.Urls.DistanceAPIUrl);
         WoosmapSettings.Urls.GoogleMapStaticUrl  = mPrefs.getString( "GoogleMapStaticUrl",WoosmapSettings.Urls.GoogleMapStaticUrl);
         WoosmapSettings.Urls.GoogleMapStaticUrl1POI  = mPrefs.getString( "GoogleMapStaticUrl1POI",WoosmapSettings.Urls.GoogleMapStaticUrl1POI);
-
+        WoosmapSettings.checkIfPositionIsInsideGeofencingRegionsEnable = mPrefs.getBoolean( "checkIfPositionIsInsideGeofencingRegionsEnable", WoosmapSettings.checkIfPositionIsInsideGeofencingRegionsEnable );
+        WoosmapSettings.foregroundLocationServiceEnable = mPrefs.getBoolean( "foregroundLocationServiceEnable", WoosmapSettings.foregroundLocationServiceEnable );
+        WoosmapSettings.updateServiceNotificationTitle = mPrefs.getString( "updateServiceNotificationTitle", WoosmapSettings.updateServiceNotificationTitle );
+        WoosmapSettings.updateServiceNotificationText = mPrefs.getString( "updateServiceNotificationText", WoosmapSettings.updateServiceNotificationText );
 
     }
 
@@ -86,6 +95,9 @@ public class WoosmapSettings {
     static String PositionDateFormat = "yyyy-MM-dd'T'HH:mm:ss Z";
     static final String WoosmapNotification = "woosmapNotification";
     static public final String WoosmapNotificationChannel = "woosmap_01";
+
+    //Enable/disable Location
+    static public boolean modeHighFrequencyLocation = false;
 
     //Enable/disable Location
     static public boolean trackingEnable = true;
@@ -135,7 +147,7 @@ public class WoosmapSettings {
     static public double distanceDetectionThresholdVisits = 25.0;
 
     // Distance detection threshold for visits
-    static public long minDurationVisitDisplay = 60;
+    static public long minDurationVisitDisplay = 60 * 5;
     static public long durationVisitFilter = 1000 * minDurationVisitDisplay;
 
     //Delay of Duration data
@@ -151,6 +163,15 @@ public class WoosmapSettings {
     // Key for APIs
     static public String privateKeyGMPStatic = "";
     static public String privateKeyWoosmapAPI = "";
+
+    //Checking Position is inside a region
+    static public boolean checkIfPositionIsInsideGeofencingRegionsEnable = true;
+
+    //Notification ForegroundService
+    static public boolean foregroundLocationServiceEnable = false;
+    static public String updateServiceNotificationTitle = "Location updated";
+    static public String updateServiceNotificationText = "";
+
 
     public static class Tags {
         public static final String WoosmapSdkTag = "WoosmapSdk";

@@ -93,6 +93,12 @@ public class PlaceDataAdapter extends ArrayAdapter<PlaceData> {
                 regionDetails += "Transition : Exit \n";
             }
 
+            if(place.isCurrentPositionInside()) {
+                regionDetails += "Current Position Inside : Enter \n";
+            } else {
+                regionDetails += "Current Position Inside :  Exit \n";
+            }
+
             TextView tvdetails = (TextView) convertView.findViewById( R.id.details );
             tvdetails.setText( regionDetails );
 

@@ -88,6 +88,8 @@ Boundary crossing notifications are delivered to your region delegate object. Sp
 
 By experience, the region enter/exit event from android is triggered on new position inside the region or outside. Indeed the events are not triggered on the crossing limit of the region. So its important to have a minimum radius of the region should be set between 100 - 150 meters.
 
+On `onRegionCallback` methods, you can have the information about the state (the current position is inside or outside the region). this information is on the attribute `currentPositionInside`.
+
 Regions have an associated identifier, which this method uses to look up information related to the region and perform the associated action.
 
 Regions creation is enabled on the nearest result of the Search API request . The closest POI is so used to create 3 regions around it (100 m, 200m, and 300 m). If the automatic region monitoring is not necessary for your use cases, settings of the SDK can be modified as follow:

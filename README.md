@@ -501,6 +501,7 @@ Then, just declare your receiver in the Manifest.xml in the application bloc
 ## Additional Documentation
 
 * [Enabling Location](https://github.com/woosmap/woosmap-geofencing-android-sdk/blob/master/doc/EnablingLocation.md): To use location, first enable associated services on the user device. Find out here how to do it and more importantly what are the different permissions and consequences of choices made by the users.
+* [Foreground Service](https://github.com/woosmap/woosmap-geofencing-android-sdk/blob/master/doc/foregroundservice.md): To enable a location service allowing location collection and geofence detection in background with high frequency.
 * [Set up a Firebase Cloud Messaging](https://github.com/woosmap/woosmap-geofencing-android-sdk/blob/master/doc/SetupFirebaseCloudMessaging.md): Find out how to add Firebase Messaging to your App and regularly check if your notification token is up to date.
 * [Handling messages](https://github.com/woosmap/woosmap-geofencing-android-sdk/blob/master/doc/HandlingMessages.md): If you are here, it’s because you want custom notifications. Find out here how to handle those.
 * [Check Location permissions](https://github.com/woosmap/woosmap-geofencing-android-sdk/blob/master/doc/CheckLocationpermissions.md): Retrieve location from the OS location services to enrich your notification.

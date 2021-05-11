@@ -32,6 +32,7 @@ public class PlaceData {
     private int locationId;
     private String regionIdentifier;
     private boolean didEnter;
+    private boolean isCurrentPositionInside;
     private String idStore;
     private double radius;
 
@@ -167,8 +168,16 @@ public class PlaceData {
         return didEnter;
     }
 
+    public boolean isCurrentPositionInside() {
+        return isCurrentPositionInside;
+    }
+
     public void setDidEnter(boolean didEnter) {
         this.didEnter = didEnter;
+    }
+
+    public void setCurrentPositionInside(boolean isCurrentPositionInside) {
+        this.isCurrentPositionInside = isCurrentPositionInside;
     }
 
     public String getRegionIdentifier() {
@@ -233,6 +242,7 @@ public class PlaceData {
         this.radius = 0.0;
         this.regionIdentifier = "";
         this.didEnter = false;
+        this.isCurrentPositionInside = false;
         this.idStore = "";
     }
 
@@ -241,6 +251,7 @@ public class PlaceData {
         this.setLatitude( region.lat );
         this.setLongitude( region.lng );
         this.setDidEnter( region.didEnter );
+        this.setCurrentPositionInside( region.isCurrentPositionInside );
         this.setIdStore(region.idStore);
         this.setRegionIdentifier( region.identifier );
         this.setDate( region.dateTime );
@@ -252,6 +263,7 @@ public class PlaceData {
         this.setLatitude( regionLog.lat );
         this.setLongitude( regionLog.lng );
         this.setDidEnter( regionLog.didEnter );
+        this.setCurrentPositionInside( regionLog.isCurrentPositionInside );
         this.setIdStore( regionLog.idStore );
         this.setRegionIdentifier( regionLog.identifier );
         this.setDate( regionLog.dateTime );
