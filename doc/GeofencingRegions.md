@@ -86,6 +86,8 @@ Whenever the user crosses the boundary of one of your app's registered regions, 
 
 Boundary crossing notifications are delivered to your region delegate object. Specifically, `onRegionCallback` methods.
 
+On the object `Region`, there are an boolean `didEnter` that indicate if you enter or exit of the region. You have another boolean `isCurrentPositionInside` to know if the detection was launch by the position detection or by the system detection. You can get `didEnter` at `false` and `isCurrentPositionInside`at `true`if the position is inside the region and the system don't detect the transition. 
+
 By experience, the region enter/exit event from android is triggered on new position inside the region or outside. Indeed the events are not triggered on the crossing limit of the region. So its important to have a minimum radius of the region should be set between 100 - 150 meters.
 
 On `onRegionCallback` methods, you can have the information about the state (the current position is inside or outside the region). this information is on the attribute `currentPositionInside`.
