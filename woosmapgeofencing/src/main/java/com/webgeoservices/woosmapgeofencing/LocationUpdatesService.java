@@ -255,6 +255,7 @@ public class LocationUpdatesService extends Service {
                 .setContentText(text)
                 .setContentTitle(WoosmapSettings.updateServiceNotificationTitle)
                 .setOngoing(true)
+                .setStyle(new NotificationCompat.BigTextStyle().bigText(text))
                 .setPriority(Notification.PRIORITY_MIN)
                 .setSmallIcon( message_icon )
                 .setTicker(text)
