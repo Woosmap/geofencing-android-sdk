@@ -14,6 +14,7 @@ import android.content.res.Configuration;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Binder;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -185,7 +186,11 @@ public class LocationUpdatesService extends Service {
      */
     public void requestLocationUpdates() {
         if(WoosmapSettings.foregroundLocationServiceEnable) {
-            startService( new Intent( getApplicationContext(), LocationUpdatesService.class ) );
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                startForegroundService( new Intent( getApplicationContext(), LocationUpdatesService.class ) );
+            } else {
+                startService( new Intent( getApplicationContext(), LocationUpdatesService.class ) );
+            }
         }
     }
 
