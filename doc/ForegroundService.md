@@ -39,6 +39,16 @@ In the manifest declare the icon for the notification :
 </manifest>
 ```
 
+Set the channel name  of the notification :
+```java
+WoosmapSettings.WoosmapNotificationChannel =  = "Location Channel"
+```
+
+Set the description of the notification :
+```java
+WoosmapSettings.WoosmapNotificationDescriptionChannel =  = "Description of the channel"
+```
+
 Set the title of the notification :
 ```java
 WoosmapSettings.updateServiceNotificationTitle =  = "Title of the notification for foreground service"

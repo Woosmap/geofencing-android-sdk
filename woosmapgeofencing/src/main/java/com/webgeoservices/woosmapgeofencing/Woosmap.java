@@ -13,7 +13,6 @@ import android.location.Location;
 
 import androidx.annotation.RequiresApi;
 
-import android.os.AsyncTask;
 import android.os.IBinder;
 import android.util.Log;
 
@@ -27,6 +26,7 @@ import com.webgeoservices.woosmapgeofencing.database.Visit;
 import com.webgeoservices.woosmapgeofencing.database.WoosmapDb;
 
 import java.util.Objects;
+import java.util.concurrent.Executors;
 
 import static com.webgeoservices.woosmapgeofencing.WoosmapSettings.Tags.WoosmapSdkTag;
 
@@ -241,7 +241,20 @@ public class Woosmap {
      * @see RegionLogReadyListener
      */
     public void setRegionLogReadyListener(RegionLogReadyListener regionLogReadyListener) {
+        setRegionLogReadyListener(regionLogReadyListener,false);
+    }
+
+    /**
+     * Add a listener to get callback on event region
+     *
+     * @param regionLogReadyListener
+     * @see RegionLogReadyListener
+     */
+    public void setRegionLogReadyListener(RegionLogReadyListener regionLogReadyListener, Boolean sendCurrentState) {
         this.regionLogReadyListener = regionLogReadyListener;
+        if(sendCurrentState) {
+            getLastRegionState();
+        }
     }
 
     private void setupWoosmap(Context context) {
@@ -275,12 +288,14 @@ public class Woosmap {
         } else {
             Log.d(WoosmapSdkTag, "Get Location permissions error");
         }
-        AsyncTask.execute(new Runnable() {
+
+        Executors.newSingleThreadExecutor().execute(new Runnable() {
             @Override
             public void run() {
                 WoosmapDb.getInstance(context).cleanOldGeographicData(context);
             }
         });
+
         if(mLocationUpdateService != null && WoosmapSettings.foregroundLocationServiceEnable) {
             mLocationUpdateService.removeLocationUpdates();
         }
@@ -438,4 +453,16 @@ public class Woosmap {
             mBound = false;
         }
     };
+
+    public void getLastRegionState() {
+        Executors.newSingleThreadExecutor().execute(new Runnable() {
+            @Override
+            public void run() {
+                RegionLog rLog = WoosmapDb.getInstance(context).getRegionLogsDAO().getLastRegionLog();
+                if (Woosmap.getInstance().regionLogReadyListener != null && rLog != null) {
+                    Woosmap.getInstance().regionLogReadyListener.RegionLogReadyCallback(rLog);
+                }
+            }
+        });
+    }
 }

@@ -12,7 +12,6 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.location.Location;
-import android.net.Uri;
 import android.os.Binder;
 import android.os.Build;
 import android.os.Bundle;
@@ -22,23 +21,18 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.webgeoservices.woosmapgeofencing.database.WoosmapDb;
 
 import java.util.Collections;
 
-import static com.webgeoservices.woosmapgeofencing.WoosmapSettings.getNotificationDefaultUri;
+import static android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION;
 
 public class LocationUpdatesService extends Service {
     private static final String PACKAGE_NAME =
@@ -102,6 +96,7 @@ public class LocationUpdatesService extends Service {
 
     @Override
     public void onCreate() {
+        Log.i(TAG, "onCreate");
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
         mLocationCallback = new LocationCallback() {
@@ -124,14 +119,14 @@ public class LocationUpdatesService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         boolean startedFromNotification = intent.getBooleanExtra(EXTRA_STARTED_FROM_NOTIFICATION,
                 false);
-
+        Log.i(TAG, "onStartCommand");
         // We got here because the user decided to remove location updates from the notification.
         if (startedFromNotification) {
             removeLocationUpdates();
             stopSelf();
         }
         // Tells the system to not try to recreate the service after it has been killed.
-        return START_NOT_STICKY;
+        return START_STICKY;
     }
 
     @Override
@@ -170,18 +165,20 @@ public class LocationUpdatesService extends Service {
         // do nothing. Otherwise, we make this service a foreground service.
         if (!mChangingConfiguration && WoosmapSettings.foregroundLocationServiceEnable) {
             Log.i(TAG, "Starting foreground service");
-            startForeground(NOTIFICATION_ID, getNotification());
+            startForeground(NOTIFICATION_ID, getNotification(), FOREGROUND_SERVICE_TYPE_LOCATION);
         }
         return true; // Ensures onRebind() is called when a client re-binds.
     }
 
     @Override
     public void onDestroy() {
+        super.onDestroy();
         mServiceHandler.removeCallbacksAndMessages(null);
+
     }
 
     /**
-     * Makes a request for location updates. Note that in this sample we merely log the
+     * Makes a request for location updates.
      * {@link SecurityException}.
      */
     public void requestLocationUpdates() {
@@ -191,6 +188,8 @@ public class LocationUpdatesService extends Service {
             } else {
                 startService( new Intent( getApplicationContext(), LocationUpdatesService.class ) );
             }
+            startForeground(NOTIFICATION_ID, getNotification());
+            stopForeground(true);
         }
     }
 
@@ -198,20 +197,21 @@ public class LocationUpdatesService extends Service {
         try {
             mFusedLocationClient.requestLocationUpdates(mLocationRequest,
                     mLocationCallback, Looper.myLooper());
+            startForeground(NOTIFICATION_ID, getNotification());
         } catch (SecurityException unlikely) {
             Log.e(TAG, "Lost location permission. Could not request updates. " + unlikely);
         }
     }
 
     /**
-     * Removes location updates. Note that in this sample we merely log the
+     * Removes location updates.
      * {@link SecurityException}.
      */
     public void removeLocationUpdates() {
         Log.i(TAG, "Removing location updates");
         try {
             mFusedLocationClient.removeLocationUpdates(mLocationCallback);
-            //stopSelf();
+            stopForeground(true);
         } catch (SecurityException unlikely) {
             Log.e(TAG, "Lost location permission. Could not remove updates. " + unlikely);
         }
@@ -227,11 +227,13 @@ public class LocationUpdatesService extends Service {
         NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         NotificationCompat.Builder builder;
 
+        PackageManager pm = this.getPackageManager();
+
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            String CHANNEL_ID = "Location Channel";
-            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, "LocationChannel",
-                    NotificationManager.IMPORTANCE_LOW);
-            channel.setDescription("Location channel description");
+            String CHANNEL_ID = WoosmapSettings.WoosmapNotificationChannel;
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, CHANNEL_ID,
+                    NotificationManager.IMPORTANCE_NONE);
+            channel.setDescription(WoosmapSettings.WoosmapNotificationDescriptionChannel);
             channel.setSound(null, null);
             manager.createNotificationChannel(channel);
             builder = new NotificationCompat.Builder(this, CHANNEL_ID);
@@ -245,15 +247,10 @@ public class LocationUpdatesService extends Service {
         intent.putExtra(EXTRA_STARTED_FROM_NOTIFICATION, true);
 
         // The PendingIntent that leads to a call to onStartCommand() in this service.
-        PendingIntent servicePendingIntent = PendingIntent.getService(this, 0, intent,
-                PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent servicePendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-
-
-        // The PendingIntent to launch activity.
-        PendingIntent activityPendingIntent = PendingIntent.getActivity(this, 0,
-                new Intent(Intent.ACTION_VIEW), 0);
-
+        Intent newIntent = pm.getLaunchIntentForPackage(this.getPackageName());
+        PendingIntent mPendingIntent = PendingIntent.getActivity(this,0, newIntent,  PendingIntent.FLAG_UPDATE_CURRENT);
         setIconFromManifestVariable();
 
         return builder
@@ -264,6 +261,7 @@ public class LocationUpdatesService extends Service {
                 .setPriority(Notification.PRIORITY_MIN)
                 .setSmallIcon( message_icon )
                 .setTicker(text)
+                .setContentIntent(mPendingIntent)
                 .setWhen(System.currentTimeMillis()).build();
 
     }
@@ -311,16 +309,19 @@ public class LocationUpdatesService extends Service {
      * @param context The {@link Context}.
      */
     public boolean serviceIsRunningInForeground(Context context) {
+
         ActivityManager manager = (ActivityManager) context.getSystemService(
                 Context.ACTIVITY_SERVICE);
         for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(
                 Integer.MAX_VALUE)) {
             if (getClass().getName().equals(service.service.getClassName())) {
                 if (service.foreground) {
+                    Log.i(TAG, "serviceIsRunningInForeground: true" );
                     return true;
                 }
             }
         }
+        Log.i(TAG, "serviceIsRunningInForeground: false" );
         return false;
     }
 
