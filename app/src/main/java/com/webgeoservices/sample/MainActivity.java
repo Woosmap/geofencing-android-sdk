@@ -240,6 +240,12 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        woosmap.onDestroy();
+    };
+
 
     public void createNotification(String title, String body) {
         final int NOTIFY_ID = 1002;
@@ -549,8 +555,7 @@ public class MainActivity extends AppCompatActivity {
         WoosmapSettings.modeDistance = "driving";
 
         WoosmapSettings.foregroundLocationServiceEnable = false;
-
-
+        
         this.woosmap.setLocationReadyListener(new WoosLocationReadyListener());
         this.woosmap.setSearchAPIReadyListener(new WoosSearchAPIReadyListener());
         this.woosmap.setDistanceAPIReadyListener(new WoosDistanceAPIReadyListener());

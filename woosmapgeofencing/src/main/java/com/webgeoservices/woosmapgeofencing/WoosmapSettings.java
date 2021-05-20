@@ -48,8 +48,10 @@ public class WoosmapSettings {
         prefsEditor.putBoolean( "foregroundLocationServiceEnable",foregroundLocationServiceEnable );
         prefsEditor.putString( "updateServiceNotificationTitle",updateServiceNotificationTitle );
         prefsEditor.putString( "updateServiceNotificationText",updateServiceNotificationText );
-        prefsEditor.putString( "WoosmapNotificationChannel",WoosmapNotificationChannel );
+        prefsEditor.putString( "WoosmapNotificationChannelID",WoosmapNotificationChannelID );
+        prefsEditor.putString( "WoosmapNotificationChannelName",WoosmapNotificationChannelName );
         prefsEditor.putString( "WoosmapNotificationDescriptionChannel",WoosmapNotificationDescriptionChannel );
+        prefsEditor.putBoolean( "WoosmapNotificationActive",WoosmapNotificationActive );
 
         prefsEditor.commit();
 
@@ -91,16 +93,20 @@ public class WoosmapSettings {
         WoosmapSettings.foregroundLocationServiceEnable = mPrefs.getBoolean( "foregroundLocationServiceEnable", WoosmapSettings.foregroundLocationServiceEnable );
         WoosmapSettings.updateServiceNotificationTitle = mPrefs.getString( "updateServiceNotificationTitle", WoosmapSettings.updateServiceNotificationTitle );
         WoosmapSettings.updateServiceNotificationText = mPrefs.getString( "updateServiceNotificationText", WoosmapSettings.updateServiceNotificationText );
-        WoosmapSettings.WoosmapNotificationChannel  = mPrefs.getString( "WoosmapNotificationChannel",WoosmapSettings.WoosmapNotificationChannel );
+        WoosmapSettings.WoosmapNotificationChannelID  = mPrefs.getString( "WoosmapNotificationChannelID",WoosmapSettings.WoosmapNotificationChannelID );
+        WoosmapSettings.WoosmapNotificationChannelName  = mPrefs.getString( "WoosmapNotificationChannelName",WoosmapSettings.WoosmapNotificationChannelID );
         WoosmapSettings.WoosmapNotificationDescriptionChannel  = mPrefs.getString( "WoosmapNotificationDescriptionChannel",WoosmapSettings.WoosmapNotificationDescriptionChannel );
+        WoosmapSettings.WoosmapNotificationActive = mPrefs.getBoolean( "WoosmapNotificationActive", WoosmapSettings.WoosmapNotificationActive );
 
     }
 
     static String AndroidDeviceModel = "android";
     static String PositionDateFormat = "yyyy-MM-dd'T'HH:mm:ss Z";
     static final String WoosmapNotification = "woosmapNotification";
-    static public String WoosmapNotificationChannel = "Location Channel";
+    static public String WoosmapNotificationChannelID = "Location Channel ID";
+    static public String WoosmapNotificationChannelName = "Location Channel Name";
     static public String WoosmapNotificationDescriptionChannel = "Location Channel";
+    static public boolean WoosmapNotificationActive = false;
 
     //Enable/disable Location
     static public boolean modeHighFrequencyLocation = false;
@@ -176,7 +182,7 @@ public class WoosmapSettings {
     //Notification ForegroundService
     static public boolean foregroundLocationServiceEnable = false;
     static public String updateServiceNotificationTitle = "Location updated";
-    static public String updateServiceNotificationText = "";
+    static public String updateServiceNotificationText = "This app use your location";
 
 
     public static class Tags {

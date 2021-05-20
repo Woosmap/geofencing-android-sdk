@@ -12,6 +12,8 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.location.Location;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Binder;
 import android.os.Build;
 import android.os.Bundle;
@@ -60,7 +62,7 @@ public class LocationUpdatesService extends Service {
     /**
      * The identifier for the notification displayed for the foreground service.
      */
-    private static final int NOTIFICATION_ID = 12345678;
+    private static final int NOTIFICATION_ID = 20200520;
 
     /**
      * Used to check whether the bound activity has really gone away and not unbound as part of an
@@ -81,7 +83,6 @@ public class LocationUpdatesService extends Service {
      */
     private LocationCallback mLocationCallback;
 
-    private Handler mServiceHandler;
 
     /**
      * The current location.
@@ -109,9 +110,6 @@ public class LocationUpdatesService extends Service {
 
         createLocationRequest();
 
-        HandlerThread handlerThread = new HandlerThread(TAG);
-        handlerThread.start();
-        mServiceHandler = new Handler(handlerThread.getLooper());
         mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
     }
 
@@ -152,52 +150,46 @@ public class LocationUpdatesService extends Service {
         // and binds once again with this service. The service should cease to be a foreground
         // service when that happens.
         Log.i(TAG, "in onRebind()");
-        stopForeground(true);
         mChangingConfiguration = false;
         super.onRebind(intent);
     }
 
     @Override
     public boolean onUnbind(Intent intent) {
-
+        Log.i(TAG, "onUnbind");
         // Called when the last client (MainActivity in case of this sample) unbinds from this
         // service. If this method is called due to a configuration change in MainActivity, we
         // do nothing. Otherwise, we make this service a foreground service.
         if (!mChangingConfiguration && WoosmapSettings.foregroundLocationServiceEnable) {
             Log.i(TAG, "Starting foreground service");
-            startForeground(NOTIFICATION_ID, getNotification(), FOREGROUND_SERVICE_TYPE_LOCATION);
         }
         return true; // Ensures onRebind() is called when a client re-binds.
     }
 
     @Override
     public void onDestroy() {
+        Log.i(TAG, "onDestroy");
+        removeLocationUpdates();
+        stopForeground(true);
+        stopSelf();
+
         super.onDestroy();
-        mServiceHandler.removeCallbacksAndMessages(null);
-
-    }
-
-    /**
-     * Makes a request for location updates.
-     * {@link SecurityException}.
-     */
-    public void requestLocationUpdates() {
-        if(WoosmapSettings.foregroundLocationServiceEnable) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                startForegroundService( new Intent( getApplicationContext(), LocationUpdatesService.class ) );
-            } else {
-                startService( new Intent( getApplicationContext(), LocationUpdatesService.class ) );
-            }
-            startForeground(NOTIFICATION_ID, getNotification());
-            stopForeground(true);
-        }
     }
 
     public void enableLocationBackground(boolean enable) {
+        Log.i(TAG, "enableLocationBackground");
         try {
             mFusedLocationClient.requestLocationUpdates(mLocationRequest,
                     mLocationCallback, Looper.myLooper());
-            startForeground(NOTIFICATION_ID, getNotification());
+            if(WoosmapSettings.foregroundLocationServiceEnable) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    startForegroundService( new Intent( getApplicationContext(), LocationUpdatesService.class ) );
+                } else {
+                    startService( new Intent( getApplicationContext(), LocationUpdatesService.class ) );
+                }
+            }
+            startForeground(NOTIFICATION_ID, getNotification(), FOREGROUND_SERVICE_TYPE_LOCATION);
+            mNotificationManager.notify(NOTIFICATION_ID, getNotification());
         } catch (SecurityException unlikely) {
             Log.e(TAG, "Lost location permission. Could not request updates. " + unlikely);
         }
@@ -230,11 +222,14 @@ public class LocationUpdatesService extends Service {
         PackageManager pm = this.getPackageManager();
 
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            String CHANNEL_ID = WoosmapSettings.WoosmapNotificationChannel;
-            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, CHANNEL_ID,
-                    NotificationManager.IMPORTANCE_NONE);
+
+            String CHANNEL_ID = WoosmapSettings.WoosmapNotificationChannelID;
+            int active = NotificationManager.IMPORTANCE_NONE;
+            if(WoosmapSettings.WoosmapNotificationActive) {
+                active = NotificationManager.IMPORTANCE_HIGH;
+            }
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, WoosmapSettings.WoosmapNotificationChannelName, active);
             channel.setDescription(WoosmapSettings.WoosmapNotificationDescriptionChannel);
-            channel.setSound(null, null);
             manager.createNotificationChannel(channel);
             builder = new NotificationCompat.Builder(this, CHANNEL_ID);
         } else {
@@ -252,7 +247,7 @@ public class LocationUpdatesService extends Service {
         Intent newIntent = pm.getLaunchIntentForPackage(this.getPackageName());
         PendingIntent mPendingIntent = PendingIntent.getActivity(this,0, newIntent,  PendingIntent.FLAG_UPDATE_CURRENT);
         setIconFromManifestVariable();
-
+        Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         return builder
                 .setContentText(text)
                 .setContentTitle(WoosmapSettings.updateServiceNotificationTitle)
@@ -260,6 +255,7 @@ public class LocationUpdatesService extends Service {
                 .setStyle(new NotificationCompat.BigTextStyle().bigText(text))
                 .setPriority(Notification.PRIORITY_MIN)
                 .setSmallIcon( message_icon )
+                .setSound( defaultSoundUri )
                 .setTicker(text)
                 .setContentIntent(mPendingIntent)
                 .setWhen(System.currentTimeMillis()).build();
@@ -277,10 +273,6 @@ public class LocationUpdatesService extends Service {
         PositionsManager positionsManager = new PositionsManager(getApplicationContext(), db);
         positionsManager.asyncManageLocation( Collections.singletonList( mLocation ) );
 
-        // Update notification content if running as a foreground service.
-        if (serviceIsRunningInForeground(this)) {
-            mNotificationManager.notify(NOTIFICATION_ID, getNotification());
-        }
     }
 
     /**
@@ -303,27 +295,6 @@ public class LocationUpdatesService extends Service {
         }
     }
 
-    /**
-     * Returns true if this is a foreground service.
-     *
-     * @param context The {@link Context}.
-     */
-    public boolean serviceIsRunningInForeground(Context context) {
-
-        ActivityManager manager = (ActivityManager) context.getSystemService(
-                Context.ACTIVITY_SERVICE);
-        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(
-                Integer.MAX_VALUE)) {
-            if (getClass().getName().equals(service.service.getClassName())) {
-                if (service.foreground) {
-                    Log.i(TAG, "serviceIsRunningInForeground: true" );
-                    return true;
-                }
-            }
-        }
-        Log.i(TAG, "serviceIsRunningInForeground: false" );
-        return false;
-    }
 
     private void setIconFromManifestVariable() {
         try {

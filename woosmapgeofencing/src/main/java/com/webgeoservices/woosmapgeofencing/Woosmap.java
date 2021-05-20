@@ -54,8 +54,6 @@ public class Woosmap {
     // A reference to the service used to get location updates.
     private LocationUpdatesService mLocationUpdateService = null;
 
-    // Tracks the bound state of the service.
-    private boolean mBound = false;
 
     /**
      * An interface to add callback on location retrieving
@@ -164,10 +162,7 @@ public class Woosmap {
         }
         this.initWoosmap();
 
-        // Bind to the service. If the service is in foreground mode, this signals to the service
-        // that since this activity is in the foreground, the service can exit foreground mode.
-        context.bindService(new Intent(context, LocationUpdatesService.class), mServiceConnection,
-                Context.BIND_AUTO_CREATE);
+
 
 
         return woosmapInstance;
@@ -312,16 +307,15 @@ public class Woosmap {
 
         WoosmapSettings.saveSettings(context);
 
-        if (mBound) {
-            // Unbind from the service. This signals to the service that this activity is no longer
-            // in the foreground, and the service can respond by promoting itself to a foreground
-            // service.
-            context.unbindService(mServiceConnection);
-            mBound = false;
-        }
-
-        if(mLocationUpdateService != null && WoosmapSettings.foregroundLocationServiceEnable) {
-            mLocationUpdateService.enableLocationBackground( true );
+        if(WoosmapSettings.foregroundLocationServiceEnable){
+            if(mLocationUpdateService != null ) {
+                mLocationUpdateService.enableLocationBackground( true );
+            }else {
+                // Bind to the service. If the service is in foreground mode, this signals to the service
+                // that since this activity is in the foreground, the service can exit foreground mode.
+                context.bindService(new Intent(context, LocationUpdatesService.class), mServiceConnection,
+                        Context.BIND_AUTO_CREATE);
+            }
         }
 
 
@@ -352,7 +346,10 @@ public class Woosmap {
         }
     }
 
-
+    public void onDestroy() {
+        mLocationUpdateService = null;
+        context.unbindService(mServiceConnection);
+    }
 
 
     private Boolean shouldTrackUser() {
@@ -405,7 +402,7 @@ public class Woosmap {
     public void createWoosmapNotifChannel() {
         NotificationManager mNotificationManager =
                 (NotificationManager) this.context.getSystemService(Context.NOTIFICATION_SERVICE);
-        String id = WoosmapSettings.WoosmapNotificationChannel;
+        String id = WoosmapSettings.WoosmapNotificationChannelID;
         CharSequence name = "WoosmapGeofencing";
         String description = "WoosmapGeofencing Notifs";
         int importance = NotificationManager.IMPORTANCE_HIGH;
@@ -437,20 +434,20 @@ public class Woosmap {
     public void removeGeofence() { locationManager.removeGeofences();}
 
     // Monitors the state of the connection to the service.
-    private final ServiceConnection mServiceConnection = new ServiceConnection() {
+    private ServiceConnection mServiceConnection = new ServiceConnection() {
 
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
+            Log.i("LocationUpdatesService", "onServiceConnected");
             LocationUpdatesService.LocalBinder binder = (LocationUpdatesService.LocalBinder) service;
             mLocationUpdateService = binder.getService();
-            mBound = true;
-            mLocationUpdateService.requestLocationUpdates();
+            mLocationUpdateService.enableLocationBackground( true );
         }
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
+            Log.i("LocationUpdatesService", "onServiceDisconnected");
             mLocationUpdateService = null;
-            mBound = false;
         }
     };
 

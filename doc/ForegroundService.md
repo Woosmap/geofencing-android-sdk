@@ -39,9 +39,14 @@ In the manifest declare the icon for the notification :
 </manifest>
 ```
 
+Set the channel ID of the notification :
+```java
+WoosmapSettings.WoosmapNotificationChannelID =  = "Location_Channel_ID"
+```
+
 Set the channel name  of the notification :
 ```java
-WoosmapSettings.WoosmapNotificationChannel =  = "Location Channel"
+WoosmapSettings.WoosmapNotificationChannelName =  = "Location Channel name"
 ```
 
 Set the description of the notification :
@@ -59,11 +64,33 @@ Set the body message of the notification :
 WoosmapSettings.updateServiceNotificationText =  = "Text of the notification for foreground service"
 ```
 
+Set the notification active at true if you want to prioritize the notification :
+```java
+WoosmapSettings.WoosmapNotificationActive = true
+```
+
+Set the notification active at false if you want a silent notification :
+```java
+WoosmapSettings.WoosmapNotificationActive = false
+```
+
+
 ### Enabling Foreground Service
 
 After enabling Woosmap Geofencing SDK, enable the Foreground Service as follow :
 ```java
 WoosmapSettings.foregroundLocationServiceEnable = true;
+```
+
+### Set onDestroy()
+
+Call the onDestroy() method on Wossmap when your app is destroy to stop the service :
+```java
+@Override
+    protected void onDestroy() {
+        super.onDestroy();
+        woosmap.onDestroy();
+    };
 ```
 
 ### Disabling Foreground Service

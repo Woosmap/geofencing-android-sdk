@@ -118,7 +118,7 @@ public class WoosmapMessageBuilderMaps {
 
         mNotificationManager = (NotificationManager) this.context.getSystemService(Context.NOTIFICATION_SERVICE);
 
-        String CHANNEL_ID = WoosmapSettings.WoosmapNotificationChannel;
+        String CHANNEL_ID = WoosmapSettings.WoosmapNotificationChannelID;
         Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 
         mBuilder = new NotificationCompat.Builder(this.context, CHANNEL_ID)
@@ -353,7 +353,7 @@ public class WoosmapMessageBuilderMaps {
     }
 
     private void sendErrorNotification(Context context, String errorMsg) {
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, WoosmapSettings.WoosmapNotificationChannel)
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, WoosmapSettings.WoosmapNotificationChannelID)
                 .setSmallIcon(R.drawable.ic_shopping_cart_black_24dp)
                 .setContentTitle(NotificationError)
                 .setContentText(errorMsg)

@@ -74,7 +74,7 @@ public class WoosmapMessageBuilder {
         NotificationManager mNotificationManager =
                 (NotificationManager) this.context.getSystemService(Context.NOTIFICATION_SERVICE);
 
-        String CHANNEL_ID = WoosmapSettings.WoosmapNotificationChannel;
+        String CHANNEL_ID = WoosmapSettings.WoosmapNotificationChannelID;
         Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         NotificationCompat.Style style;
 
