@@ -41,37 +41,37 @@ In the manifest declare the icon for the notification :
 
 Set the channel ID of the notification :
 ```java
-WoosmapSettings.WoosmapNotificationChannelID =  = "Location_Channel_ID"
+WoosmapSettings.WoosmapNotificationChannelID = "Location_Channel_ID";
 ```
 
 Set the channel name  of the notification :
 ```java
-WoosmapSettings.WoosmapNotificationChannelName =  = "Location Channel name"
+WoosmapSettings.WoosmapNotificationChannelName = "Location Channel name";
 ```
 
 Set the description of the notification :
 ```java
-WoosmapSettings.WoosmapNotificationDescriptionChannel =  = "Description of the channel"
+WoosmapSettings.WoosmapNotificationDescriptionChannel = "Description of the channel";
 ```
 
 Set the title of the notification :
 ```java
-WoosmapSettings.updateServiceNotificationTitle =  = "Title of the notification for foreground service"
+WoosmapSettings.updateServiceNotificationTitle = "Title of the notification for foreground service";
 ```
 
 Set the body message of the notification :
 ```java
-WoosmapSettings.updateServiceNotificationText =  = "Text of the notification for foreground service"
+WoosmapSettings.updateServiceNotificationText = "Text of the notification for foreground service";
 ```
 
 Set the notification active at true if you want to prioritize the notification :
 ```java
-WoosmapSettings.WoosmapNotificationActive = true
+WoosmapSettings.WoosmapNotificationActive = true;
 ```
 
 Set the notification active at false if you want a silent notification :
 ```java
-WoosmapSettings.WoosmapNotificationActive = false
+WoosmapSettings.WoosmapNotificationActive = false;
 ```
 
 
