@@ -347,8 +347,14 @@ public class Woosmap {
     }
 
     public void onDestroy() {
+
+        if(mLocationUpdateService != null && WoosmapSettings.foregroundLocationServiceEnable) {
+            mLocationUpdateService.removeLocationUpdates();
+        }
         mLocationUpdateService = null;
-        context.unbindService(mServiceConnection);
+        if(WoosmapSettings.trackingEnable) {
+            context.unbindService( mServiceConnection );
+        }
     }
 
 
