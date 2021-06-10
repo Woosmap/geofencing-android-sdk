@@ -188,7 +188,11 @@ public class LocationUpdatesService extends Service {
                     startService( new Intent( getApplicationContext(), LocationUpdatesService.class ) );
                 }
             }
-            startForeground(NOTIFICATION_ID, getNotification(), FOREGROUND_SERVICE_TYPE_LOCATION);
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+                startForeground( NOTIFICATION_ID, getNotification(), FOREGROUND_SERVICE_TYPE_LOCATION );
+            } else {
+                startForeground( NOTIFICATION_ID,getNotification() );
+            }
             mNotificationManager.notify(NOTIFICATION_ID, getNotification());
         } catch (SecurityException unlikely) {
             Log.e(TAG, "Lost location permission. Could not request updates. " + unlikely);
