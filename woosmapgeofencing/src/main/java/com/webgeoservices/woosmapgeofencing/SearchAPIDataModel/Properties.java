@@ -1,11 +1,13 @@
 package com.webgeoservices.woosmapgeofencing.SearchAPIDataModel;
 
+import java.util.HashMap;
+
 public class Properties {
     private String store_id;
     private String name;
     private Object contact;
     private Address address;
-    private UserProperties userProperties;
+    private HashMap<String, String> userProperties;
     private Object[] tags;
     private Object[] types;
     private Double distance;
@@ -42,11 +44,11 @@ public class Properties {
         this.address = value;
     }
 
-    public UserProperties getUserProperties() {
+    public HashMap<String, String> getUserProperties() {
         return userProperties;
     }
 
-    public void setUserProperties(UserProperties value) {
+    public void setUserProperties(HashMap<String, String> value) {
         this.userProperties = value;
     }
 

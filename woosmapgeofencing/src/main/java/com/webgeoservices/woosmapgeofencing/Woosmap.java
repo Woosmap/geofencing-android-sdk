@@ -162,9 +162,6 @@ public class Woosmap {
         }
         this.initWoosmap();
 
-
-
-
         return woosmapInstance;
     }
 

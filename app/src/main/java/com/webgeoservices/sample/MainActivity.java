@@ -45,6 +45,7 @@ import com.webgeoservices.woosmapgeofencing.DistanceAPIDataModel.DistanceAPI;
 import com.webgeoservices.woosmapgeofencing.FigmmForVisitsCreator;
 import com.webgeoservices.woosmapgeofencing.PositionsManager;
 import com.webgeoservices.woosmapgeofencing.SearchAPIDataModel.SearchAPI;
+import com.webgeoservices.woosmapgeofencing.SearchAPIDataModel.SearchAPIResponseItem;
 import com.webgeoservices.woosmapgeofencing.Woosmap;
 import com.webgeoservices.woosmapgeofencing.WoosmapSettings;
 import com.webgeoservices.woosmapgeofencing.database.MovingPosition;
@@ -56,6 +57,9 @@ import com.webgeoservices.woosmapgeofencing.database.WoosmapDb;
 import com.webgeoservices.woosmapgeofencing.database.ZOI;
 
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -65,12 +69,14 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 public class MainActivity extends AppCompatActivity {
     public static final boolean AIRSHIP = false;
-    SimpleDateFormat displayDateFormatAirship = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+    static SimpleDateFormat displayDateFormatAirship = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
 
     private static final int REQUEST_PERMISSIONS_REQUEST_CODE = 34;
 
@@ -113,18 +119,20 @@ public class MainActivity extends AppCompatActivity {
             eventBuilder.addProperty("idStore", poi.idStore);
             eventBuilder.addProperty("city", poi.city);
             eventBuilder.addProperty("distance", poi.distance);
+            eventBuilder.addProperty("tags", poi.tags);
+            eventBuilder.addProperty("types", poi.types);
 
-            Gson gson = new Gson();
-            SearchAPI data = gson.fromJson( poi.data,SearchAPI.class );
+            //user Properties
+            JSONObject object = null;
+            try {
+                object = new JSONObject( poi.data );
+                HashMap<String, Object> userPropertiesFiltered = SearchAPIResponseItem.getUserProperties( object,poi.idStore );
+                for (Map.Entry<String, Object> entry : userPropertiesFiltered.entrySet()) {
+                    eventBuilder.addProperty(entry.getKey(), (String) entry.getValue() );
+                }
 
-            Object[] tagsArr = data.getFeatures()[0].getProperties().getTags();
-            if( tagsArr.length != 0) {
-                eventBuilder.addProperty("tag", Arrays.toString(tagsArr));
-            }
-
-            Object[] typesArr = data.getFeatures()[0].getProperties().getTypes();
-            if( typesArr.length != 0) {
-                eventBuilder.addProperty("type", Arrays.toString(typesArr));
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
 
             // Then record it
@@ -259,7 +267,7 @@ public class MainActivity extends AppCompatActivity {
         PendingIntent pendingIntent;
         NotificationCompat.Builder builder;
 
-        NotificationManager notifManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+        NotificationManager notifManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             int importance = NotificationManager.IMPORTANCE_HIGH;
@@ -554,7 +562,19 @@ public class MainActivity extends AppCompatActivity {
 
         WoosmapSettings.modeDistance = "driving";
 
-        WoosmapSettings.foregroundLocationServiceEnable = false;
+        // Active foreground Service
+        WoosmapSettings.foregroundLocationServiceEnable = true;
+
+        // Search API parameters
+        //WoosmapSettings.searchAPIParameters.put("radius","5000");
+        //WoosmapSettings.searchAPIParameters.put("stores_by_page","100");
+
+        // User properties filter
+        //WoosmapSettings.userPropertiesFilter.add( "creation_year" );
+
+        // Fix the radius of geofence POI
+        //WoosmapSettings.poiRadiusNameFromResponse = "creation_year";
+        //WoosmapSettings.poiRadius = 500;
         
         this.woosmap.setLocationReadyListener(new WoosLocationReadyListener());
         this.woosmap.setSearchAPIReadyListener(new WoosSearchAPIReadyListener());

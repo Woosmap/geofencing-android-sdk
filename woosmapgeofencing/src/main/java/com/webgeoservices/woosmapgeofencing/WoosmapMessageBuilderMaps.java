@@ -36,10 +36,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Map;
 import java.util.Random;
 
 import static com.webgeoservices.woosmapgeofencing.WoosmapSettings.Tags.NotificationError;
 import static com.webgeoservices.woosmapgeofencing.WoosmapSettings.getNotificationDefaultUri;
+import static com.webgeoservices.woosmapgeofencing.WoosmapSettings.searchAPIParameters;
 
 public class WoosmapMessageBuilderMaps {
 
@@ -287,7 +289,7 @@ public class WoosmapMessageBuilderMaps {
      */
     private void searchAPIRequest(final Location location, final boolean withGoogleMapStatic) {
         final RequestQueue requestQueue = Volley.newRequestQueue(context);
-        String urlAPI = String.format(WoosmapSettings.Urls.SearchAPIUrl, WoosmapSettings.Urls.WoosmapURL, WoosmapSettings.privateKeyWoosmapAPI, location.getLatitude(), location.getLongitude());
+        String urlAPI = getStoreAPIUrl(location.getLatitude(), location.getLongitude());
         StringRequest stringRequest = new StringRequest(urlAPI, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
@@ -297,8 +299,8 @@ public class WoosmapMessageBuilderMaps {
                 String city = featureSearch.getProperties().getAddress().getCity();
                 String zipcode = featureSearch.getProperties().getAddress().getZipcode();
                 String distance = String.valueOf(featureSearch.getProperties().getDistance());
-                double longitudePOI = featureSearch.getGeometry().getCoordinates()[0];
-                double latitudePOI = featureSearch.getGeometry().getCoordinates()[1];
+                double longitudePOI = featureSearch.getGeometry().getLocation().getLng();
+                double latitudePOI = featureSearch.getGeometry().getLocation().getLat();
                 // Fill body message with informations from API
                 String messageBody = "city = " + city + "\nzipcode =" + zipcode + "\ndistance = " + distance;
 
@@ -326,6 +328,20 @@ public class WoosmapMessageBuilderMaps {
             }
         });
         requestQueue.add(stringRequest);
+    }
+
+    public String getStoreAPIUrl(Double lat, Double lng) {
+        String url = String.format(WoosmapSettings.Urls.SearchAPIUrl, WoosmapSettings.Urls.WoosmapURL, WoosmapSettings.privateKeyWoosmapAPI, lat, lng);
+        if (!searchAPIParameters.isEmpty()) {
+            StringBuilder stringBuilder =  new StringBuilder(url);
+
+            for (Map.Entry<String, String> entry : WoosmapSettings.searchAPIParameters.entrySet()) {
+                stringBuilder.append("&" + entry.getKey() + "=" + entry.getValue());
+            }
+
+            url = stringBuilder.toString();
+        }
+        return url;
     }
 
     private static Bitmap getBitmapFromURL(String src) {

@@ -130,7 +130,7 @@ fun requestSearchAPI(positon: MovingPosition) {
         return
     }
 
-    val url = String.format(WoosmapSettings.Urls.SearchAPIUrl, WoosmapSettings.Urls.WoosmapURL, WoosmapSettings.privateKeyWoosmapAPI, positon.lat, positon.lng)
+    val url = getStoreAPIUrl(positon.lat,positon.lng)
     val req = StringRequest(Request.Method.GET, url,
             Response.Listener<String> { response ->
                 Thread {

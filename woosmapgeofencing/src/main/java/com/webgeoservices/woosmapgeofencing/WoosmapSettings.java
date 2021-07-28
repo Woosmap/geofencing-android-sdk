@@ -8,6 +8,12 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.google.common.reflect.TypeToken;
+import com.google.gson.Gson;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+
 import static android.content.Context.MODE_PRIVATE;
 
 public class WoosmapSettings {
@@ -22,9 +28,8 @@ public class WoosmapSettings {
         prefsEditor.putBoolean( "searchAPIEnable",searchAPIEnable );
         prefsEditor.putBoolean( "visitEnable",visitEnable );
         prefsEditor.putBoolean( "searchAPICreationRegionEnable",searchAPICreationRegionEnable );
-        prefsEditor.putInt( "firstSearchAPIRegionRadius",firstSearchAPIRegionRadius );
-        prefsEditor.putInt( "secondSearchAPIRegionRadius",secondSearchAPIRegionRadius );
-        prefsEditor.putInt( "thirdSearchAPIRegionRadius",thirdSearchAPIRegionRadius );
+        prefsEditor.putInt( "poiRadius",poiRadius );
+        prefsEditor.putString( "poiRadius",poiRadiusNameFromResponse );
         prefsEditor.putInt( "searchAPITimeFilter",searchAPITimeFilter );
         prefsEditor.putInt( "searchAPIDistanceFilter",searchAPIDistanceFilter );
         prefsEditor.putBoolean( "distanceAPIEnable",distanceAPIEnable );
@@ -52,6 +57,12 @@ public class WoosmapSettings {
         prefsEditor.putString( "WoosmapNotificationChannelName",WoosmapNotificationChannelName );
         prefsEditor.putString( "WoosmapNotificationDescriptionChannel",WoosmapNotificationDescriptionChannel );
         prefsEditor.putBoolean( "WoosmapNotificationActive",WoosmapNotificationActive );
+        //convert to string using gson
+        Gson gson = new Gson();
+        String searchAPIHashMapString = gson.toJson(searchAPIParameters);
+        prefsEditor.putString("searchAPIParameters", searchAPIHashMapString).apply();
+        String userPropertiesHashMapString = gson.toJson(userPropertiesFilter);
+        prefsEditor.putString("userPropertiesFilter", userPropertiesHashMapString).apply();
 
         prefsEditor.commit();
 
@@ -67,9 +78,8 @@ public class WoosmapSettings {
         WoosmapSettings.searchAPIEnable  = mPrefs.getBoolean( "searchAPIEnable",WoosmapSettings.searchAPIEnable );
         WoosmapSettings.visitEnable  = mPrefs.getBoolean( "visitEnable",WoosmapSettings.visitEnable );
         WoosmapSettings.searchAPICreationRegionEnable  = mPrefs.getBoolean( "searchAPICreationRegionEnable",WoosmapSettings.searchAPICreationRegionEnable );
-        WoosmapSettings.firstSearchAPIRegionRadius  = mPrefs.getInt( "firstSearchAPIRegionRadius",WoosmapSettings.firstSearchAPIRegionRadius );
-        WoosmapSettings.secondSearchAPIRegionRadius  = mPrefs.getInt( "secondSearchAPIRegionRadius",WoosmapSettings.secondSearchAPIRegionRadius );
-        WoosmapSettings.thirdSearchAPIRegionRadius  = mPrefs.getInt( "thirdSearchAPIRegionRadius",WoosmapSettings.thirdSearchAPIRegionRadius );
+        WoosmapSettings.poiRadius  = mPrefs.getInt( "poiRadius",WoosmapSettings.poiRadius );
+        WoosmapSettings.poiRadiusNameFromResponse  = mPrefs.getString( "poiRadiusNameFromResponse",WoosmapSettings.poiRadiusNameFromResponse );
         WoosmapSettings.searchAPITimeFilter  = mPrefs.getInt( "searchAPITimeFilter",WoosmapSettings.searchAPITimeFilter );
         WoosmapSettings.searchAPIDistanceFilter  = mPrefs.getInt( "searchAPIDistanceFilter",WoosmapSettings.searchAPIDistanceFilter );
         WoosmapSettings.distanceAPIEnable  = mPrefs.getBoolean( "distanceAPIEnable",WoosmapSettings.distanceAPIEnable );
@@ -98,6 +108,20 @@ public class WoosmapSettings {
         WoosmapSettings.WoosmapNotificationDescriptionChannel  = mPrefs.getString( "WoosmapNotificationDescriptionChannel",WoosmapSettings.WoosmapNotificationDescriptionChannel );
         WoosmapSettings.WoosmapNotificationActive = mPrefs.getBoolean( "WoosmapNotificationActive", WoosmapSettings.WoosmapNotificationActive );
 
+        //convert to string using gson
+        java.lang.reflect.Type type = new TypeToken<HashMap<String, String>>(){}.getType();
+        Gson gson = new Gson();
+        SharedPreferences.Editor prefsEditor = mPrefs.edit();
+        String searchAPIHashMapString = gson.toJson(searchAPIParameters);
+        prefsEditor.putString("searchAPIParameters", searchAPIHashMapString).apply();
+        String userPropertiesHashMapString = gson.toJson(userPropertiesFilter);
+        prefsEditor.putString("userPropertiesFilter", userPropertiesHashMapString).apply();
+
+        String searchAPIParametersString = mPrefs.getString("searchAPIParameters", searchAPIHashMapString);
+        WoosmapSettings.searchAPIParameters = gson.fromJson(searchAPIParametersString, type);
+
+        String userPropertiesFilterString = mPrefs.getString("userPropertiesFilter", userPropertiesHashMapString);
+        WoosmapSettings.userPropertiesFilter = gson.fromJson(userPropertiesFilterString, type);
     }
 
     static String AndroidDeviceModel = "android";
@@ -129,10 +153,11 @@ public class WoosmapSettings {
     //Enable/disable Creation region on SearchAPI
     static public boolean searchAPICreationRegionEnable = true;
 
-    //Radius region From SearchAPI (m)
-    static public int firstSearchAPIRegionRadius = 100;
-    static public int secondSearchAPIRegionRadius = 200;
-    static public int thirdSearchAPIRegionRadius = 300;
+    //POI radius
+    static public int poiRadius = 100;
+
+    //POI radius parameters name
+    static public String poiRadiusNameFromResponse = "";
 
     //filter time to request Search API
     static public int searchAPITimeFilter = 0;
@@ -183,6 +208,11 @@ public class WoosmapSettings {
     static public boolean foregroundLocationServiceEnable = false;
     static public String updateServiceNotificationTitle = "Location updated";
     static public String updateServiceNotificationText = "This app use your location";
+
+    static public HashMap<String, String> searchAPIParameters = new HashMap<String, String>();
+    static public ArrayList<String> userPropertiesFilter = new ArrayList<String>();
+
+
 
 
     public static class Tags {

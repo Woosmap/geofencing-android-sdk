@@ -18,6 +18,9 @@ public interface RegionsPAO {
     @Delete
     void deleteRegion(Region region);
 
+    @Query("DELETE FROM regions WHERE identifier LIKE '%POI_%'")
+    void deleteAllPOIRegion();
+
     @Query("DELETE FROM regions WHERE identifier = :id")
     void deleteRegionFromId(String id);
 
