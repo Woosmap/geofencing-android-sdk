@@ -162,9 +162,6 @@ public class Woosmap {
         }
         this.initWoosmap();
 
-
-
-
         return woosmapInstance;
     }
 
@@ -263,9 +260,12 @@ public class Woosmap {
      * @return Woosmap
      */
     public static Woosmap getInstance() {
-        if (woosmapInstance == null) {
-            //if there is no instance available... create new one
-            woosmapInstance = new Woosmap();
+        if  (woosmapInstance == null) {
+            synchronized (Woosmap.class) {
+                if (woosmapInstance == null) {
+                    woosmapInstance = new Woosmap();
+                }
+            }
         }
         return woosmapInstance;
     }
