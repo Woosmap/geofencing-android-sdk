@@ -115,13 +115,15 @@ public class LocationUpdatesService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        boolean startedFromNotification = intent.getBooleanExtra(EXTRA_STARTED_FROM_NOTIFICATION,
-                false);
-        Log.i(TAG, "onStartCommand");
-        // We got here because the user decided to remove location updates from the notification.
-        if (startedFromNotification) {
-            removeLocationUpdates();
-            stopSelf();
+        if(intent != null) {
+            boolean startedFromNotification = intent.getBooleanExtra( EXTRA_STARTED_FROM_NOTIFICATION,
+                    false );
+            Log.i( TAG, "onStartCommand" );
+            // We got here because the user decided to remove location updates from the notification.
+            if (startedFromNotification) {
+                removeLocationUpdates();
+                stopSelf();
+            }
         }
         // Tells the system to not try to recreate the service after it has been killed.
         return START_STICKY;
