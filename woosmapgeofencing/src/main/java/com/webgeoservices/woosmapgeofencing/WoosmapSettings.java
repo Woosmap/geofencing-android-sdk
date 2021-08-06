@@ -11,8 +11,10 @@ import android.util.Log;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -29,7 +31,7 @@ public class WoosmapSettings {
         prefsEditor.putBoolean( "visitEnable",visitEnable );
         prefsEditor.putBoolean( "searchAPICreationRegionEnable",searchAPICreationRegionEnable );
         prefsEditor.putInt( "poiRadius",poiRadius );
-        prefsEditor.putString( "poiRadius",poiRadiusNameFromResponse );
+        prefsEditor.putString( "poiRadiusNameFromResponse",poiRadiusNameFromResponse );
         prefsEditor.putInt( "searchAPITimeFilter",searchAPITimeFilter );
         prefsEditor.putInt( "searchAPIDistanceFilter",searchAPIDistanceFilter );
         prefsEditor.putBoolean( "distanceAPIEnable",distanceAPIEnable );
@@ -78,7 +80,7 @@ public class WoosmapSettings {
         WoosmapSettings.searchAPIEnable  = mPrefs.getBoolean( "searchAPIEnable",WoosmapSettings.searchAPIEnable );
         WoosmapSettings.visitEnable  = mPrefs.getBoolean( "visitEnable",WoosmapSettings.visitEnable );
         WoosmapSettings.searchAPICreationRegionEnable  = mPrefs.getBoolean( "searchAPICreationRegionEnable",WoosmapSettings.searchAPICreationRegionEnable );
-        WoosmapSettings.poiRadius  = mPrefs.getInt( "poiRadius",WoosmapSettings.poiRadius );
+        WoosmapSettings.poiRadius =  mPrefs.getInt( "poiRadius",WoosmapSettings.poiRadius );
         WoosmapSettings.poiRadiusNameFromResponse  = mPrefs.getString( "poiRadiusNameFromResponse",WoosmapSettings.poiRadiusNameFromResponse );
         WoosmapSettings.searchAPITimeFilter  = mPrefs.getInt( "searchAPITimeFilter",WoosmapSettings.searchAPITimeFilter );
         WoosmapSettings.searchAPIDistanceFilter  = mPrefs.getInt( "searchAPIDistanceFilter",WoosmapSettings.searchAPIDistanceFilter );
@@ -121,7 +123,9 @@ public class WoosmapSettings {
         WoosmapSettings.searchAPIParameters = gson.fromJson(searchAPIParametersString, type);
 
         String userPropertiesFilterString = mPrefs.getString("userPropertiesFilter", userPropertiesHashMapString);
-        WoosmapSettings.userPropertiesFilter = gson.fromJson(userPropertiesFilterString, type);
+        Type typeArray = new TypeToken<List<String>>() {}.getType();
+        WoosmapSettings.userPropertiesFilter = gson.fromJson(userPropertiesFilterString, typeArray);
+
     }
 
     static String AndroidDeviceModel = "android";

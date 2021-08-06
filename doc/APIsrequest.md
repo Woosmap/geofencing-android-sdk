@@ -159,6 +159,9 @@ fun requestSearchAPI(positon: MovingPosition) {
                             if (Woosmap.getInstance().searchAPIReadyListener != null) {
                                 Woosmap.getInstance().searchAPIReadyListener.SearchAPIReadyCallback(POIaround)
                             }
+                            if (Woosmap.getInstance().airshipSearchAPIReadyListener != null) {
+                                Woosmap.getInstance().airshipSearchAPIReadyListener.AirshipSearchAPIReadyCallback(setDataAirshipPOI(POIaround))
+                            }
                         }
                     }
 

@@ -25,6 +25,7 @@ import com.webgeoservices.woosmapgeofencing.database.RegionLog;
 import com.webgeoservices.woosmapgeofencing.database.Visit;
 import com.webgeoservices.woosmapgeofencing.database.WoosmapDb;
 
+import java.util.HashMap;
 import java.util.Objects;
 import java.util.concurrent.Executors;
 
@@ -44,6 +45,11 @@ public class Woosmap {
     private Boolean vistingEnable = false;
     private Boolean isForegroundEnabled = false;
     private String asyncTrackNotifOpened = null;
+
+    AirshipSearchAPIReadyListener airshipSearchAPIReadyListener = null;
+    AirshipVisitReadyListener airshipVisitReadyListener = null;
+    AirshipRegionLogReadyListener airshipRegionLogReadyListener = null;
+
     LocationReadyListener locationReadyListener = null;
     SearchAPIReadyListener searchAPIReadyListener = null;
     VisitReadyListener visitReadyListener = null;
@@ -54,6 +60,40 @@ public class Woosmap {
     // A reference to the service used to get location updates.
     private LocationUpdatesService mLocationUpdateService = null;
 
+
+    public interface AirshipSearchAPIReadyListener {
+
+        /**
+         * When Woosmap get a new POI it calls this method to create a event for airship
+         *
+         * @param dataEvent an dictonnary of dataPOI
+         */
+        void AirshipSearchAPIReadyCallback(HashMap<String, Object> dataEvent);
+    }
+
+    /**
+     * An interface to add callback on Visit retrieving
+     */
+    public interface AirshipVisitReadyListener {
+        /**
+         * When Woosmap get a new Visit it calls this method
+         *
+         * @param dataEvent an dictonnary of a Visit
+         */
+        void AirshipVisitReadyCallback(HashMap<String, Object> dataEvent);
+    }
+
+    /**
+     * An interface to add callback on RegionLog retrieving
+     */
+    public interface AirshipRegionLogReadyListener {
+        /**
+         * When Woosmap get a region when event (enter,exit) it calls this method
+         *
+         * @param dataEvent an dictonnary of a Region Log
+         */
+        void AirshipRegionLogReadyCallback(HashMap<String, Object> dataEvent);
+    }
 
     /**
      * An interface to add callback on location retrieving
@@ -77,7 +117,9 @@ public class Woosmap {
          * @param poi an user's location
          */
         void SearchAPIReadyCallback(POI poi);
+
     }
+
 
     /**
      * An interface to add callback on Distance API retrieving
@@ -175,6 +217,35 @@ public class Woosmap {
         return woosmapInstance;
     }
 
+    /**
+     * Add a listener to get callback on new POI for Airship
+     *
+     * @param airshipSearchAPIReadyListener
+     * @see AirshipSearchAPIReadyListener
+     */
+    public void setAirshipSearchAPIReadyListener(AirshipSearchAPIReadyListener airshipSearchAPIReadyListener) {
+        this.airshipSearchAPIReadyListener = airshipSearchAPIReadyListener;
+    }
+
+    /**
+     * Add a listener to get callback on new Visit for airship
+     *
+     * @param airshipVisitReadyListener
+     * @see AirshipVisitReadyListener
+     */
+    public void setAirshipVisitReadyListener(AirshipVisitReadyListener airshipVisitReadyListener) {
+        this.airshipVisitReadyListener = airshipVisitReadyListener;
+    }
+
+    /**
+     * Add a listener to get callback on event region for airship
+     *
+     * @param airshipRegionLogReadyListener
+     * @see AirshipRegionLogReadyListener
+     */
+    public void setAirhshipRegionLogReadyListener(AirshipRegionLogReadyListener airshipRegionLogReadyListener) {
+        this.airshipRegionLogReadyListener = airshipRegionLogReadyListener;
+    }
 
     /**
      * Add a listener to get callback on new locations

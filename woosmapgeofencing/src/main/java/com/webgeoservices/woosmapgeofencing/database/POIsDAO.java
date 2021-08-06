@@ -25,6 +25,9 @@ public interface POIsDAO {
     @Query("SELECT * FROM POI WHERE locationId = :locId")
     POI getPOIbyLocationID(int locId);
 
+    @Query("SELECT * FROM POI WHERE idStore = :idStore")
+    POI getPOIbyStoreId(String idStore);
+
     @Query("SELECT * FROM POI WHERE locationId = :locId")
     public abstract LiveData<POI> getPOIbyLocationID2(int locId);
 

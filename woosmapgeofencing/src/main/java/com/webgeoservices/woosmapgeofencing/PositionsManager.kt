@@ -16,14 +16,15 @@ import com.google.android.gms.location.GeofencingRequest
 import com.google.android.gms.maps.model.LatLng
 import com.google.gson.Gson
 import com.webgeoservices.woosmapgeofencing.DistanceAPIDataModel.DistanceAPI
-import com.webgeoservices.woosmapgeofencing.SearchAPIDataModel.SearchAPI
 import com.webgeoservices.woosmapgeofencing.SearchAPIDataModel.SearchAPIResponseItem
 import com.webgeoservices.woosmapgeofencing.WoosmapSettings.*
 import com.webgeoservices.woosmapgeofencing.WoosmapSettings.Tags.WoosmapSdkTag
 import com.webgeoservices.woosmapgeofencing.WoosmapSettings.Tags.WoosmapVisitsTag
 import com.webgeoservices.woosmapgeofencing.database.*
 import org.jetbrains.anko.doAsync
+import org.json.JSONException
 import org.json.JSONObject
+import java.text.SimpleDateFormat
 import java.util.*
 
 
@@ -32,6 +33,8 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
     private var temporaryCurrentVisits: MutableList<Visit> = mutableListOf<Visit>()
     private var temporaryFinishedVisits: MutableList<Visit> = mutableListOf<Visit>()
     private var requestQueue: RequestQueue? = null
+
+    var displayDateFormatAirship = SimpleDateFormat("dd-MM-yyyy HH:mm:ss")
 
 
     private fun visitsDetectionAlgo(lastVisit: Visit, location: Location) {
@@ -179,10 +182,49 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
                     if (Woosmap.getInstance().regionLogReadyListener != null) {
                         Woosmap.getInstance().regionLogReadyListener.RegionLogReadyCallback(regionLog)
                     }
+                    if (Woosmap.getInstance().airshipRegionLogReadyListener != null) {
+                        Woosmap.getInstance().airshipRegionLogReadyListener.AirshipRegionLogReadyCallback(setDataAirshipRegionLog(regionLog))
+                    }
                }
             }
         }
 
+    }
+
+    private fun setDataAirshipRegionLog(regionLog: RegionLog): HashMap<String, Any>? {
+        var data = HashMap<String, Any>()
+
+        var eventName = ""
+
+        eventName =
+            if (regionLog.identifier.contains("HOME") || regionLog.identifier.contains("WORK")) {
+                "woos_zoi_classified_"
+            } else {
+                "woos_geofence_"
+            }
+
+        // Create and name an event
+        if (regionLog.isCurrentPositionInside)
+            eventName += "entered_event"
+        else
+            eventName += "exited_event"
+
+
+        if(regionLog.idStore.isEmpty()) {
+            data.put("event", eventName)
+            data.put("id", regionLog.id)
+            data.put("date", displayDateFormatAirship.format(regionLog.dateTime))
+            data.put("radius", regionLog.radius)
+            data.put("latitude", regionLog.lat)
+            data.put("longitude", regionLog.lng)
+        } else {
+            val poi = this.db.poIsDAO.getPOIbyStoreId(regionLog.idStore)
+            setDataAirshipPOI(poi)?.let { data.putAll(it) }
+            data.put("event", eventName)
+            data.put("id", regionLog.id)
+        }
+
+        return data
     }
 
     private fun filterDistanceBetweenRequestSearAPI(newPOI: POI): Boolean {
@@ -324,6 +366,9 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
                 if (Woosmap.getInstance().regionLogReadyListener != null) {
                     Woosmap.getInstance().regionLogReadyListener.RegionLogReadyCallback(regionLog)
                 }
+                if (Woosmap.getInstance().airshipRegionLogReadyListener != null) {
+                    Woosmap.getInstance().airshipRegionLogReadyListener.AirshipRegionLogReadyCallback(setDataAirshipRegionLog(regionLog))
+                }
             }
         }
 
@@ -364,11 +409,11 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
                                 POIaround.lng = searchAPIResponseItem.geometry.location.lng
                                 POIaround.radius = searchAPIResponseItem.radius.toInt()
                                 POIaround.address = searchAPIResponseItem.formattedAddress
-                                POIaround.radius = searchAPIResponseItem.radius.toInt()
                                 POIaround.contact = searchAPIResponseItem.contact
                                 POIaround.types = searchAPIResponseItem.types.joinToString(" - ")
                                 POIaround.tags = searchAPIResponseItem.tags.joinToString(" - ")
                                 POIaround.countryCode = searchAPIResponseItem.countryCode
+                                POIaround.openNow = searchAPIResponseItem.openNow
                                 POIaround.data = response
 
                                 POIList.add(POIaround)
@@ -390,6 +435,10 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
                                                 POIaround
                                             )
                                         }
+                                        if (Woosmap.getInstance().airshipSearchAPIReadyListener != null) {
+                                            Woosmap.getInstance().airshipSearchAPIReadyListener.AirshipSearchAPIReadyCallback(setDataAirshipPOI(POIaround))
+
+                                        }
                                     }
                                 }
                             }
@@ -407,6 +456,41 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
                 Log.e(WoosmapSdkTag, error.toString() + " search API")
             })
         requestQueue?.add(req)
+    }
+
+    private fun setDataAirshipPOI(POIaround: POI): HashMap<String, Any>? {
+        var data = HashMap<String, Any>()
+        data.put("event", "woos_poi_event")
+        data.put("city", POIaround.city)
+        data.put("zipCode", POIaround.zipCode)
+        data.put("date", displayDateFormatAirship.format(POIaround.dateTime))
+        data.put("distance", POIaround.distance)
+        data.put("idStore", POIaround.idStore)
+        data.put("name", POIaround.name)
+        data.put("lat", POIaround.lat)
+        data.put("lng", POIaround.lng)
+        data.put("radius", POIaround.lng)
+        data.put("address", POIaround.address)
+        data.put("contact", POIaround.contact)
+        data.put("types", POIaround.types)
+        data.put("tags", POIaround.tags)
+        data.put("countryCode", POIaround.countryCode)
+        data.put("openNow",POIaround.openNow)
+
+        //user Properties
+        try {
+            var json = JSONObject(POIaround.data)
+            val userPropertiesFiltered =
+                SearchAPIResponseItem.getUserProperties(json, POIaround.idStore)
+            for ((key, value) in userPropertiesFiltered) {
+                data.put(key, value)
+            }
+        } catch (e: JSONException) {
+            e.printStackTrace()
+        }
+
+        return data
+
     }
 
     private fun cleanPOIRegion(poiList: MutableList<POI>) {
@@ -476,6 +560,9 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
                     if (Woosmap.getInstance().searchAPIReadyListener != null) {
                         Woosmap.getInstance().searchAPIReadyListener.SearchAPIReadyCallback(POIaround)
                     }
+                    if (Woosmap.getInstance().airshipSearchAPIReadyListener != null) {
+                        Woosmap.getInstance().airshipSearchAPIReadyListener.AirshipSearchAPIReadyCallback(setDataAirshipPOI(POIaround))
+                    }
 
                 }.start()
             },
@@ -520,7 +607,6 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
                                 POIaround.lng = searchAPIResponseItem.geometry.location.lng
                                 POIaround.radius = searchAPIResponseItem.radius.toInt()
                                 POIaround.address = searchAPIResponseItem.formattedAddress
-                                POIaround.radius = searchAPIResponseItem.radius.toInt()
                                 POIaround.contact = searchAPIResponseItem.contact
                                 POIaround.types = searchAPIResponseItem.types.joinToString(" - ")
                                 POIaround.tags = searchAPIResponseItem.tags.joinToString(" - ")
@@ -532,6 +618,11 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
                                     Woosmap.getInstance().searchAPIReadyListener.SearchAPIReadyCallback(
                                         POIaround
                                     )
+                                }
+
+                                if (Woosmap.getInstance().airshipSearchAPIReadyListener != null) {
+                                    Woosmap.getInstance().airshipSearchAPIReadyListener.AirshipSearchAPIReadyCallback(setDataAirshipPOI(POIaround))
+
                                 }
                             }
                         }
@@ -619,9 +710,26 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
             if (Woosmap.getInstance().visitReadyListener != null) {
                 Woosmap.getInstance().visitReadyListener.VisitReadyCallback(visit)
             }
+
+            if (Woosmap.getInstance().airshipVisitReadyListener != null) {
+                Woosmap.getInstance().airshipVisitReadyListener.AirshipVisitReadyCallback(setDataAirshipVisit(visit))
+            }
+
         }
 
 
+    }
+
+    private fun setDataAirshipVisit(visit: Visit): HashMap<String, Any>? {
+        var data = HashMap<String, Any>()
+        data.put("event", "woos_visit_event")
+        data.put("arrivalDate", displayDateFormatAirship.format(visit.startTime))
+        data.put("departureDate", displayDateFormatAirship.format(visit.endTime))
+        data.put("id", visit.id)
+        data.put("latitude", visit.lat)
+        data.put("longitude", visit.lng)
+
+        return data
     }
 
     fun cleanOldPositions() {
@@ -695,6 +803,9 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
             if(regionDetected.didEnter != regionDetected.isCurrentPositionInside) {
                 if (Woosmap.getInstance().regionLogReadyListener != null) {
                     Woosmap.getInstance().regionLogReadyListener.RegionLogReadyCallback(regionLog)
+                }
+                if (Woosmap.getInstance().airshipRegionLogReadyListener != null) {
+                    Woosmap.getInstance().airshipRegionLogReadyListener.AirshipRegionLogReadyCallback(setDataAirshipRegionLog(regionLog))
                 }
             }
         }.start()
