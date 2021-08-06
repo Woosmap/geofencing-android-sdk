@@ -552,8 +552,6 @@ public class MainActivity extends AppCompatActivity {
         WoosmapSettings.privateKeyWoosmapAPI = "";
         WoosmapSettings.privateKeyGMPStatic = "";
 
-        WoosmapSettings.modeDistance = "driving";
-
         WoosmapSettings.foregroundLocationServiceEnable = false;
         
         this.woosmap.setLocationReadyListener(new WoosLocationReadyListener());
@@ -563,8 +561,7 @@ public class MainActivity extends AppCompatActivity {
         this.woosmap.setRegionReadyListener( new WoosRegionReadyListener() );
         this.woosmap.setRegionLogReadyListener( new WoosRegionLogReadyListener() );
 
-        // Visit Detection Enable
-        WoosmapSettings.visitEnable = true;
+        this.woosmap.startTracking( Woosmap.ConfigurationProfile.liveTracking );
 
         // For android version >= 8 you have to create a channel or use the woosmap's channel
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

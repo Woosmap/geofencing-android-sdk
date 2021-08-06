@@ -21,6 +21,7 @@ public class WoosmapSettings {
         prefsEditor.putInt( "currentLocationDistanceFilter",currentLocationDistanceFilter );
         prefsEditor.putBoolean( "searchAPIEnable",searchAPIEnable );
         prefsEditor.putBoolean( "visitEnable",visitEnable );
+        prefsEditor.putBoolean( "creationOfZOIEnable",creationOfZOIEnable );
         prefsEditor.putBoolean( "searchAPICreationRegionEnable",searchAPICreationRegionEnable );
         prefsEditor.putInt( "firstSearchAPIRegionRadius",firstSearchAPIRegionRadius );
         prefsEditor.putInt( "secondSearchAPIRegionRadius",secondSearchAPIRegionRadius );
@@ -66,6 +67,7 @@ public class WoosmapSettings {
         WoosmapSettings.currentLocationDistanceFilter  = mPrefs.getInt( "currentLocationDistanceFilter",WoosmapSettings.currentLocationDistanceFilter );
         WoosmapSettings.searchAPIEnable  = mPrefs.getBoolean( "searchAPIEnable",WoosmapSettings.searchAPIEnable );
         WoosmapSettings.visitEnable  = mPrefs.getBoolean( "visitEnable",WoosmapSettings.visitEnable );
+        WoosmapSettings.creationOfZOIEnable = mPrefs.getBoolean( "creationOfZOIEnable",WoosmapSettings.creationOfZOIEnable );
         WoosmapSettings.searchAPICreationRegionEnable  = mPrefs.getBoolean( "searchAPICreationRegionEnable",WoosmapSettings.searchAPICreationRegionEnable );
         WoosmapSettings.firstSearchAPIRegionRadius  = mPrefs.getInt( "firstSearchAPIRegionRadius",WoosmapSettings.firstSearchAPIRegionRadius );
         WoosmapSettings.secondSearchAPIRegionRadius  = mPrefs.getInt( "secondSearchAPIRegionRadius",WoosmapSettings.secondSearchAPIRegionRadius );
@@ -122,6 +124,9 @@ public class WoosmapSettings {
 
     //Enable/disable VisitEnable
     static public boolean visitEnable = true;
+
+    //Enable/disable Creation of ZOI
+    static public boolean creationOfZOIEnable = false;
 
     //Enable/disable SearchAPI
     static public boolean searchAPIEnable = true;
