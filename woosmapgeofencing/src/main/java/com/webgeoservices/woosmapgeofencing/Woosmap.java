@@ -509,6 +509,7 @@ public class Woosmap {
         try {
             JSONObject obj = new JSONObject(loadJSONFromAsset(profile));
             WoosmapSettings.trackingEnable = obj.getBoolean( "trackingEnable" );
+            WoosmapSettings.foregroundLocationServiceEnable = obj.getBoolean( "foregroundLocationServiceEnable" );
             WoosmapSettings.modeHighFrequencyLocation = obj.getBoolean( "modeHighFrequencyLocation" );
 
             WoosmapSettings.visitEnable = obj.getBoolean( "visitEnable" );
