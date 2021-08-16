@@ -53,8 +53,8 @@ public class SearchAPIResponseItem implements Parcelable {
             formattedAddress = in.readString();
             name = in.readString();
             types = in.createStringArray();
-            item=new JSONObject(in.readString());
-            geometry= in.readParcelable(Geometry.class.getClassLoader());
+            item = new JSONObject(in.readString());
+            geometry = in.readParcelable(Geometry.class.getClassLoader());
         }catch (JSONException ex){
             Log.e(TAG,ex.getMessage());
         }
@@ -228,6 +228,7 @@ public class SearchAPIResponseItem implements Parcelable {
 
         }catch (Exception ex){
             Log.e(TAG,ex.getMessage());
+            return null;
         }
         return detailsResponseItem;
     }
@@ -255,7 +256,11 @@ public class SearchAPIResponseItem implements Parcelable {
                             userPropertiesFiltered = detailsResponseItem.userProperties;
                         } else {
                             for (String key : WoosmapSettings.userPropertiesFilter) {
-                                userPropertiesFiltered.put( key, detailsResponseItem.userProperties.get( key ) );
+                                if (detailsResponseItem.userProperties.get( key ) != null) {
+                                    userPropertiesFiltered.put( key, detailsResponseItem.userProperties.get( key ) );
+                                } else {
+                                    userPropertiesFiltered.put( key, "null" );
+                                }
                             }
                         }
                     }

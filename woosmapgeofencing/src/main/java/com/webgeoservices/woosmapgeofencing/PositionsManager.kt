@@ -397,47 +397,52 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
                                 val searchAPIResponseItem = SearchAPIResponseItem.fromJSON(
                                     jsonObject.getJSONArray("features").getJSONObject(i)
                                 )
-                                val POIaround = POI()
-                                POIaround.city = searchAPIResponseItem.city
-                                POIaround.zipCode = searchAPIResponseItem.zipCode
-                                POIaround.dateTime = positon.dateTime
-                                POIaround.distance = searchAPIResponseItem.distance
-                                POIaround.locationId = positon.id
-                                POIaround.idStore = searchAPIResponseItem.idstore
-                                POIaround.name = searchAPIResponseItem.name
-                                POIaround.lat = searchAPIResponseItem.geometry.location.lat
-                                POIaround.lng = searchAPIResponseItem.geometry.location.lng
-                                POIaround.radius = searchAPIResponseItem.radius.toInt()
-                                POIaround.address = searchAPIResponseItem.formattedAddress
-                                POIaround.contact = searchAPIResponseItem.contact
-                                POIaround.types = searchAPIResponseItem.types.joinToString(" - ")
-                                POIaround.tags = searchAPIResponseItem.tags.joinToString(" - ")
-                                POIaround.countryCode = searchAPIResponseItem.countryCode
-                                POIaround.openNow = searchAPIResponseItem.openNow
-                                POIaround.data = response
+                                if(searchAPIResponseItem != null) {
+                                    val POIaround = POI()
+                                    POIaround.city = searchAPIResponseItem.city
+                                    POIaround.zipCode = searchAPIResponseItem.zipCode
+                                    POIaround.dateTime = positon.dateTime
+                                    POIaround.distance = searchAPIResponseItem.distance
+                                    POIaround.locationId = positon.id
+                                    POIaround.idStore = searchAPIResponseItem.idstore
+                                    POIaround.name = searchAPIResponseItem.name
+                                    POIaround.lat = searchAPIResponseItem.geometry.location.lat
+                                    POIaround.lng = searchAPIResponseItem.geometry.location.lng
+                                    POIaround.radius = searchAPIResponseItem.radius.toInt()
+                                    POIaround.address = searchAPIResponseItem.formattedAddress
+                                    POIaround.contact = searchAPIResponseItem.contact
+                                    POIaround.types =
+                                        searchAPIResponseItem.types.joinToString(" - ")
+                                    POIaround.tags = searchAPIResponseItem.tags.joinToString(" - ")
+                                    POIaround.countryCode = searchAPIResponseItem.countryCode
+                                    POIaround.openNow = searchAPIResponseItem.openNow
+                                    POIaround.data = response
 
-                                POIList.add(POIaround)
-                                createPOIRegion(
-                                    "POI_" + POIaround.name,
-                                    POIaround.radius,
-                                    POIaround.lat,
-                                    POIaround.lng,
-                                    POIaround.idStore
-                                )
+                                    POIList.add(POIaround)
+                                    createPOIRegion(
+                                        "POI_" + POIaround.name,
+                                        POIaround.radius,
+                                        POIaround.lat,
+                                        POIaround.lng,
+                                        POIaround.idStore
+                                    )
 
-                                if (!filterDistanceBetweenRequestSearAPI(POIaround)) {
-                                    if (WoosmapSettings.distanceAPIEnable) {
-                                        requestDistanceAPI(POIaround, positon)
-                                    } else {
-                                        this.db.poIsDAO.createPOI(POIaround)
-                                        if (Woosmap.getInstance().searchAPIReadyListener != null) {
-                                            Woosmap.getInstance().searchAPIReadyListener.SearchAPIReadyCallback(
-                                                POIaround
-                                            )
-                                        }
-                                        if (Woosmap.getInstance().airshipSearchAPIReadyListener != null) {
-                                            Woosmap.getInstance().airshipSearchAPIReadyListener.AirshipSearchAPIReadyCallback(setDataAirshipPOI(POIaround))
+                                    if (!filterDistanceBetweenRequestSearAPI(POIaround)) {
+                                        if (WoosmapSettings.distanceAPIEnable) {
+                                            requestDistanceAPI(POIaround, positon)
+                                        } else {
+                                            this.db.poIsDAO.createPOI(POIaround)
+                                            if (Woosmap.getInstance().searchAPIReadyListener != null) {
+                                                Woosmap.getInstance().searchAPIReadyListener.SearchAPIReadyCallback(
+                                                    POIaround
+                                                )
+                                            }
+                                            if (Woosmap.getInstance().airshipSearchAPIReadyListener != null) {
+                                                Woosmap.getInstance().airshipSearchAPIReadyListener.AirshipSearchAPIReadyCallback(
+                                                    setDataAirshipPOI(POIaround)
+                                                )
 
+                                            }
                                         }
                                     }
                                 }
@@ -595,34 +600,39 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
                                 val searchAPIResponseItem = SearchAPIResponseItem.fromJSON(
                                     jsonObject.getJSONArray("features").getJSONObject(i)
                                 )
-                                val POIaround = POI()
-                                POIaround.city = searchAPIResponseItem.city
-                                POIaround.zipCode = searchAPIResponseItem.zipCode
-                                POIaround.dateTime = System.currentTimeMillis()
-                                POIaround.distance = searchAPIResponseItem.distance
-                                POIaround.locationId = positionId
-                                POIaround.idStore = searchAPIResponseItem.idstore
-                                POIaround.name = searchAPIResponseItem.name
-                                POIaround.lat = searchAPIResponseItem.geometry.location.lat
-                                POIaround.lng = searchAPIResponseItem.geometry.location.lng
-                                POIaround.radius = searchAPIResponseItem.radius.toInt()
-                                POIaround.address = searchAPIResponseItem.formattedAddress
-                                POIaround.contact = searchAPIResponseItem.contact
-                                POIaround.types = searchAPIResponseItem.types.joinToString(" - ")
-                                POIaround.tags = searchAPIResponseItem.tags.joinToString(" - ")
-                                POIaround.countryCode = searchAPIResponseItem.countryCode
-                                POIaround.data = response
+                                if(searchAPIResponseItem != null) {
+                                    val POIaround = POI()
+                                    POIaround.city = searchAPIResponseItem.city
+                                    POIaround.zipCode = searchAPIResponseItem.zipCode
+                                    POIaround.dateTime = System.currentTimeMillis()
+                                    POIaround.distance = searchAPIResponseItem.distance
+                                    POIaround.locationId = positionId
+                                    POIaround.idStore = searchAPIResponseItem.idstore
+                                    POIaround.name = searchAPIResponseItem.name
+                                    POIaround.lat = searchAPIResponseItem.geometry.location.lat
+                                    POIaround.lng = searchAPIResponseItem.geometry.location.lng
+                                    POIaround.radius = searchAPIResponseItem.radius.toInt()
+                                    POIaround.address = searchAPIResponseItem.formattedAddress
+                                    POIaround.contact = searchAPIResponseItem.contact
+                                    POIaround.types =
+                                        searchAPIResponseItem.types.joinToString(" - ")
+                                    POIaround.tags = searchAPIResponseItem.tags.joinToString(" - ")
+                                    POIaround.countryCode = searchAPIResponseItem.countryCode
+                                    POIaround.data = response
 
-                                this.db.poIsDAO.createPOI(POIaround)
-                                if (Woosmap.getInstance().searchAPIReadyListener != null) {
-                                    Woosmap.getInstance().searchAPIReadyListener.SearchAPIReadyCallback(
-                                        POIaround
-                                    )
-                                }
+                                    this.db.poIsDAO.createPOI(POIaround)
+                                    if (Woosmap.getInstance().searchAPIReadyListener != null) {
+                                        Woosmap.getInstance().searchAPIReadyListener.SearchAPIReadyCallback(
+                                            POIaround
+                                        )
+                                    }
 
-                                if (Woosmap.getInstance().airshipSearchAPIReadyListener != null) {
-                                    Woosmap.getInstance().airshipSearchAPIReadyListener.AirshipSearchAPIReadyCallback(setDataAirshipPOI(POIaround))
+                                    if (Woosmap.getInstance().airshipSearchAPIReadyListener != null) {
+                                        Woosmap.getInstance().airshipSearchAPIReadyListener.AirshipSearchAPIReadyCallback(
+                                            setDataAirshipPOI(POIaround)
+                                        )
 
+                                    }
                                 }
                             }
                         }
