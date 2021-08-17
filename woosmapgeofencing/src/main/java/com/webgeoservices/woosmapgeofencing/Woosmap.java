@@ -25,6 +25,7 @@ import com.webgeoservices.woosmapgeofencing.database.RegionLog;
 import com.webgeoservices.woosmapgeofencing.database.Visit;
 import com.webgeoservices.woosmapgeofencing.database.WoosmapDb;
 
+
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.concurrent.Executors;
@@ -60,7 +61,6 @@ public class Woosmap {
     // A reference to the service used to get location updates.
     private LocationUpdatesService mLocationUpdateService = null;
 
-
     public interface AirshipSearchAPIReadyListener {
 
         /**
@@ -93,6 +93,15 @@ public class Woosmap {
          * @param dataEvent an dictonnary of a Region Log
          */
         void AirshipRegionLogReadyCallback(HashMap<String, Object> dataEvent);
+    }
+  
+    public final class ConfigurationProfile {
+
+        public static final String liveTracking = "liveTracking";
+        public static final String passiveTracking = "passiveTracking";
+        public static final String stopsTracking = "visitsTracking";
+
+        private ConfigurationProfile() { }
     }
 
     /**
@@ -331,9 +340,12 @@ public class Woosmap {
      * @return Woosmap
      */
     public static Woosmap getInstance() {
-        if (woosmapInstance == null) {
-            //if there is no instance available... create new one
-            woosmapInstance = new Woosmap();
+        if  (woosmapInstance == null) {
+            synchronized (Woosmap.class) {
+                if (woosmapInstance == null) {
+                    woosmapInstance = new Woosmap();
+                }
+            }
         }
         return woosmapInstance;
     }
@@ -535,5 +547,68 @@ public class Woosmap {
                 }
             }
         });
+    }
+
+    public void stopTracking() {
+        WoosmapSettings.trackingEnable = false;
+        this.locationManager.removeLocationUpdates();
+    }
+
+    public String loadJSONFromAsset(String fileName) {
+        String json = null;
+        try {
+            InputStream is = this.context.getAssets().open(fileName +".json");
+            int size = is.available();
+            byte[] buffer = new byte[size];
+            is.read(buffer);
+            is.close();
+            json = new String(buffer, "UTF-8");
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            return null;
+        }
+        return json;
+    }
+
+    public void startTracking(String profile) {
+
+        try {
+            JSONObject obj = new JSONObject(loadJSONFromAsset(profile));
+            WoosmapSettings.trackingEnable = obj.getBoolean( "trackingEnable" );
+            WoosmapSettings.foregroundLocationServiceEnable = obj.getBoolean( "foregroundLocationServiceEnable" );
+            WoosmapSettings.modeHighFrequencyLocation = obj.getBoolean( "modeHighFrequencyLocation" );
+
+            WoosmapSettings.visitEnable = obj.getBoolean( "visitEnable" );
+            WoosmapSettings.classificationEnable = obj.getBoolean( "classificationEnable" );
+            if(!obj.isNull( "minDurationVisitDisplay" )) {
+                WoosmapSettings.minDurationVisitDisplay = obj.getLong( "minDurationVisitDisplay" );
+            }
+            if(!obj.isNull( "radiusDetectionClassifiedZOI" )) {
+                WoosmapSettings.radiusDetectionClassifiedZOI = obj.getInt( "radiusDetectionClassifiedZOI" );
+            }
+            if(!obj.isNull( "distanceDetectionThresholdVisits" )) {
+                WoosmapSettings.distanceDetectionThresholdVisits = obj.getDouble( "distanceDetectionThresholdVisits" );
+            }
+            WoosmapSettings.creationOfZOIEnable = obj.getBoolean( "creationOfZOIEnable" );
+
+            WoosmapSettings.currentLocationTimeFilter = obj.getInt( "currentLocationTimeFilter" );
+            WoosmapSettings.currentLocationDistanceFilter = obj.getInt( "currentLocationTimeFilter" );
+            WoosmapSettings.accuracyFilter = obj.getInt( "accuracyFilter" );
+
+            WoosmapSettings.searchAPIEnable = obj.getBoolean( "searchAPIEnable" );
+            WoosmapSettings.searchAPICreationRegionEnable = obj.getBoolean( "searchAPICreationRegionEnable" );
+            WoosmapSettings.searchAPITimeFilter = obj.getInt( "searchAPITimeFilter" );
+            WoosmapSettings.searchAPIDistanceFilter = obj.getInt( "searchAPIDistanceFilter" );
+
+            WoosmapSettings.distanceAPIEnable = obj.getBoolean( "distanceAPIEnable" );
+            WoosmapSettings.modeDistance = obj.getString( "modeDistance" );
+            WoosmapSettings.outOfTimeDelay = obj.getInt( "outOfTimeDelay" );
+            WoosmapSettings.numberOfDayDataDuration = obj.getLong( "numberOfDayDataDuration" );
+
+            enableTracking(WoosmapSettings.trackingEnable);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 }

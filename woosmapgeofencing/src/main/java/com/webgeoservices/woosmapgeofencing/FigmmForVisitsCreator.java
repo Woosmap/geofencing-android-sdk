@@ -40,8 +40,10 @@ public class FigmmForVisitsCreator {
     }
 
     public void figmmForVisit(Visit visit) {
-        visit_m = visit;
-        figmmAlgo(visit.lat,visit.lng,visit.accuracy,visit.uuid, visit.startTime, visit.endTime);
+        if (WoosmapSettings.creationOfZOIEnable) {
+            visit_m = visit;
+            figmmAlgo( visit.lat, visit.lng, visit.accuracy, visit.uuid, visit.startTime, visit.endTime );
+        }
     }
 
     public void figmmForVisitTest(Visit visit) {

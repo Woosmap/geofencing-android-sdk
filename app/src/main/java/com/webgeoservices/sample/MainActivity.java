@@ -331,17 +331,60 @@ public class MainActivity extends AppCompatActivity {
 
         });
 
+        // TODO this could maybe be remove with new profiles methods
         final SharedPreferences mPrefs = getApplicationContext().getSharedPreferences("WGSGeofencingPref",MODE_PRIVATE);
-        final SharedPreferences.Editor editor = mPrefs.edit();
         boolean trackingEnable = mPrefs.getBoolean("trackingEnable",true);
         boolean searchAPIEnable = mPrefs.getBoolean("searchAPIEnable",true);
         boolean distanceAPIEnable = mPrefs.getBoolean("distanceAPIEnable",true);
-        boolean modeHighFrequencyLocationEnable = mPrefs.getBoolean("modeHighFrequencyLocationEnable",false);
-        WoosmapSettings.trackingEnable = trackingEnable;
-        WoosmapSettings.searchAPIEnable = searchAPIEnable;
-        WoosmapSettings.distanceAPIEnable = distanceAPIEnable;
-        WoosmapSettings.modeHighFrequencyLocation = modeHighFrequencyLocationEnable;
 
+//        boolean modeHighFrequencyLocationEnable = mPrefs.getBoolean("modeHighFrequencyLocationEnable",false);
+//        WoosmapSettings.trackingEnable = trackingEnable;
+//        WoosmapSettings.searchAPIEnable = searchAPIEnable;
+//        WoosmapSettings.distanceAPIEnable = distanceAPIEnable;
+//        WoosmapSettings.modeHighFrequencyLocation = modeHighFrequencyLocationEnable;
+
+        // Set Filter on user Location
+        //WoosmapSettings.currentLocationTimeFilter = 30;
+
+        // Set Filter on search API
+        //WoosmapSettings.searchAPITimeFilter = 30;
+        //WoosmapSettings.searchAPIDistanceFilter = 50;
+
+        // Set Filter on Accuracy of the location
+        //WoosmapSettings.accuracyFilter = 10;
+
+        // Instanciate woosmap object
+        this.woosmap = Woosmap.getInstance().initializeWoosmap(this);
+
+        // Set the Delay of Duration data
+        WoosmapSettings.numberOfDayDataDuration = 30;
+
+        // Set Keys
+        WoosmapSettings.privateKeyWoosmapAPI = "";
+        WoosmapSettings.privateKeyGMPStatic = "";
+
+        WoosmapSettings.foregroundLocationServiceEnable = false;
+        
+        this.woosmap.setLocationReadyListener(new WoosLocationReadyListener());
+        this.woosmap.setSearchAPIReadyListener(new WoosSearchAPIReadyListener());
+        this.woosmap.setDistanceAPIReadyListener(new WoosDistanceAPIReadyListener());
+        this.woosmap.setVisitReadyListener(new WoosVisitReadyListener());
+        this.woosmap.setRegionReadyListener( new WoosRegionReadyListener() );
+        this.woosmap.setRegionLogReadyListener( new WoosRegionLogReadyListener() );
+
+        this.woosmap.startTracking( Woosmap.ConfigurationProfile.liveTracking );
+
+        // For android version >= 8 you have to create a channel or use the woosmap's channel
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            this.woosmap.createWoosmapNotifChannel();
+        }
+
+        this.InitializeOptionsPanel();
+    }
+
+    private void InitializeOptionsPanel() {
+        final SharedPreferences mPrefs = getApplicationContext().getSharedPreferences("WGSGeofencingPref",MODE_PRIVATE);
+        final SharedPreferences.Editor editor = mPrefs.edit();
         final FloatingActionButton enableLocationUpdateBtn = findViewById(R.id.UpdateLocation);
         enableLocationUpdateBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -560,6 +603,7 @@ public class MainActivity extends AppCompatActivity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             this.woosmap.createWoosmapNotifChannel();
         }
+
     }
 
     private void loadPOI() {

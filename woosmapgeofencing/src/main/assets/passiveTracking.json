@@ -1,0 +1,27 @@
+{
+    "trackingEnable": true,
+    "foregroundLocationServiceEnable": false,
+    "modeHighFrequencyLocation": false,
+
+    "visitEnable": false,
+    "classificationEnable": false,
+    "minDurationVisitDisplay": null,
+    "radiusDetectionClassifiedZOI": null,
+    "distanceDetectionThresholdVisits": null,
+    "creationOfZOIEnable": false,
+    "accuracyVisitFilter": null,
+
+    "currentLocationTimeFilter": 0,
+    "currentLocationDistanceFilter": 0,
+    "accuracyFilter": 100,
+
+    "searchAPIEnable": false,
+    "searchAPICreationRegionEnable": false,
+    "searchAPITimeFilter": 0,
+    "searchAPIDistanceFilter": 0,
+
+    "distanceAPIEnable": false,
+    "modeDistance": "driving",
+    "outOfTimeDelay": 300,
+    "dataDurationDelay": 30
+}
