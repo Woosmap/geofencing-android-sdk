@@ -167,11 +167,13 @@ public class SearchAPIResponseItem implements Parcelable {
             detailsResponseItem.contact = properties.getString("contact");
             detailsResponseItem.distance = (Double) properties.get("distance");
 
-            detailsResponseItem.userProperties = new Gson().fromJson(properties.get("user_properties").toString(), HashMap.class);
-            if(detailsResponseItem.userProperties.get( WoosmapSettings.poiRadiusNameFromResponse ) != null) {
-                detailsResponseItem.radius = (Double) detailsResponseItem.userProperties.get( WoosmapSettings.poiRadiusNameFromResponse );
-            } else {
-                detailsResponseItem.radius = Double.valueOf( WoosmapSettings.poiRadius );
+            if(properties.has("user_properties")) {
+                detailsResponseItem.userProperties = new Gson().fromJson( properties.get( "user_properties" ).toString(), HashMap.class );
+                if ( detailsResponseItem.userProperties != null && detailsResponseItem.userProperties.get( WoosmapSettings.poiRadiusNameFromResponse ) != null) {
+                    detailsResponseItem.radius = (Double) detailsResponseItem.userProperties.get( WoosmapSettings.poiRadiusNameFromResponse );
+                } else {
+                    detailsResponseItem.radius = Double.valueOf( WoosmapSettings.poiRadius );
+                }
             }
 
             if(properties.has("open")){
@@ -251,15 +253,17 @@ public class SearchAPIResponseItem implements Parcelable {
                     JSONObject feature = features.getJSONObject( i );
                     properties=feature.getJSONObject("properties");
                     if(properties.getString("store_id").equals(storeId)) {
-                        detailsResponseItem.userProperties = new Gson().fromJson(properties.get("user_properties").toString(), HashMap.class);
-                        if(WoosmapSettings.userPropertiesFilter.isEmpty()){
-                            userPropertiesFiltered = detailsResponseItem.userProperties;
-                        } else {
-                            for (String key : WoosmapSettings.userPropertiesFilter) {
-                                if (detailsResponseItem.userProperties.get( key ) != null) {
-                                    userPropertiesFiltered.put( key, detailsResponseItem.userProperties.get( key ) );
-                                } else {
-                                    userPropertiesFiltered.put( key, "null" );
+                        if(properties.has("user_properties")) {
+                            detailsResponseItem.userProperties = new Gson().fromJson( properties.get( "user_properties" ).toString(), HashMap.class );
+                            if (WoosmapSettings.userPropertiesFilter.isEmpty()) {
+                                userPropertiesFiltered = detailsResponseItem.userProperties;
+                            } else {
+                                for (String key : WoosmapSettings.userPropertiesFilter) {
+                                    if (detailsResponseItem.userProperties != null && detailsResponseItem.userProperties.get( key ) != null ) {
+                                        userPropertiesFiltered.put( key, detailsResponseItem.userProperties.get( key ) );
+                                    } else {
+                                        userPropertiesFiltered.put( key, "null" );
+                                    }
                                 }
                             }
                         }
