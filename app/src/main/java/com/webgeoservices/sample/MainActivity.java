@@ -337,11 +337,11 @@ public class MainActivity extends AppCompatActivity {
         boolean searchAPIEnable = mPrefs.getBoolean("searchAPIEnable",true);
         boolean distanceAPIEnable = mPrefs.getBoolean("distanceAPIEnable",true);
 
-//        boolean modeHighFrequencyLocationEnable = mPrefs.getBoolean("modeHighFrequencyLocationEnable",false);
-//        WoosmapSettings.trackingEnable = trackingEnable;
-//        WoosmapSettings.searchAPIEnable = searchAPIEnable;
-//        WoosmapSettings.distanceAPIEnable = distanceAPIEnable;
-//        WoosmapSettings.modeHighFrequencyLocation = modeHighFrequencyLocationEnable;
+        boolean modeHighFrequencyLocationEnable = mPrefs.getBoolean("modeHighFrequencyLocationEnable",false);
+        WoosmapSettings.trackingEnable = trackingEnable;
+        WoosmapSettings.searchAPIEnable = searchAPIEnable;
+        WoosmapSettings.distanceAPIEnable = distanceAPIEnable;
+        WoosmapSettings.modeHighFrequencyLocation = modeHighFrequencyLocationEnable;
 
         // Set Filter on user Location
         //WoosmapSettings.currentLocationTimeFilter = 30;
@@ -364,13 +364,29 @@ public class MainActivity extends AppCompatActivity {
         WoosmapSettings.privateKeyGMPStatic = "";
 
         WoosmapSettings.foregroundLocationServiceEnable = false;
-        
+
         this.woosmap.setLocationReadyListener(new WoosLocationReadyListener());
         this.woosmap.setSearchAPIReadyListener(new WoosSearchAPIReadyListener());
         this.woosmap.setDistanceAPIReadyListener(new WoosDistanceAPIReadyListener());
         this.woosmap.setVisitReadyListener(new WoosVisitReadyListener());
         this.woosmap.setRegionReadyListener( new WoosRegionReadyListener() );
         this.woosmap.setRegionLogReadyListener( new WoosRegionLogReadyListener() );
+
+        // Airship Listener
+        //this.woosmap.setAirshipSearchAPIReadyListener( new WoosAirshipSearchAPIReadyListener() );
+        //this.woosmap.setAirshipVisitReadyListener( new WoosAirshipVisitReadyListener() );
+        //this.woosmap.setAirhshipRegionLogReadyListener( new WoosAirshipRegionLogReadyListener() );
+
+        // Search API parameters
+        //WoosmapSettings.searchAPIParameters.put("radius","5000");
+        //WoosmapSettings.searchAPIParameters.put("stores_by_page","100");
+
+        // User properties filter
+        //WoosmapSettings.userPropertiesFilter.add( "creation_year" );
+
+        // Fix the radius of geofence POI
+        //WoosmapSettings.poiRadiusNameFromResponse = "creation_year";
+        //WoosmapSettings.poiRadius = 500;
 
         this.woosmap.startTracking( Woosmap.ConfigurationProfile.liveTracking );
 
@@ -572,16 +588,7 @@ public class MainActivity extends AppCompatActivity {
         // Active foreground Service
         WoosmapSettings.foregroundLocationServiceEnable = false;
 
-        // Search API parameters
-        //WoosmapSettings.searchAPIParameters.put("radius","5000");
-        //WoosmapSettings.searchAPIParameters.put("stores_by_page","100");
 
-        // User properties filter
-        //WoosmapSettings.userPropertiesFilter.add( "creation_year" );
-
-        // Fix the radius of geofence POI
-        //WoosmapSettings.poiRadiusNameFromResponse = "creation_year";
-        //WoosmapSettings.poiRadius = 500;
         
         this.woosmap.setLocationReadyListener(new WoosLocationReadyListener());
         this.woosmap.setSearchAPIReadyListener(new WoosSearchAPIReadyListener());
@@ -590,10 +597,7 @@ public class MainActivity extends AppCompatActivity {
         this.woosmap.setRegionReadyListener( new WoosRegionReadyListener() );
         this.woosmap.setRegionLogReadyListener( new WoosRegionLogReadyListener() );
 
-        // Airship Listener
-        //this.woosmap.setAirshipSearchAPIReadyListener( new WoosAirshipSearchAPIReadyListener() );
-        //this.woosmap.setAirshipVisitReadyListener( new WoosAirshipVisitReadyListener() );
-        //this.woosmap.setAirhshipRegionLogReadyListener( new WoosAirshipRegionLogReadyListener() );
+
 
 
         // Visit Detection Enable
