@@ -25,14 +25,14 @@ public interface POIsDAO {
     @Query("SELECT * FROM POI WHERE locationId = :locId")
     POI getPOIbyLocationID(int locId);
 
+    @Query("SELECT * FROM POI WHERE idStore = :idStore")
+    POI getPOIbyStoreId(String idStore);
+
     @Query("SELECT * FROM POI WHERE locationId = :locId")
     public abstract LiveData<POI> getPOIbyLocationID2(int locId);
 
     @Query("SELECT * FROM POI ORDER BY dateTime DESC LIMIT 1,2")
     POI getPreviousLastPOI();
-
-    @Query("SELECT * FROM POI WHERE isUpload=0 ORDER BY dateTime DESC")
-    POI [] getFailedPOI();
 
     @Query("DELETE FROM POI")
     void deleteAllPOIs();

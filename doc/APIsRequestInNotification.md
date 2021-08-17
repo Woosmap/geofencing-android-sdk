@@ -23,7 +23,7 @@ getLatestLocation(this.context, new OnSuccessListener<Location> () {
 
         final RequestQueue requestQueue = Volley.newRequestQueue(context);
 
-        String urlAPI = String.format(WoosmapSettings.Urls.SearchAPIUrl, WoosmapSettings.privateKeySearchAPI, location.getLatitude(), location.getLongitude ());
+        val url = getStoreAPIUrl(location.getLatitude, location.getLongitude)
         StringRequest stringRequest = new StringRequest (urlAPI, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {

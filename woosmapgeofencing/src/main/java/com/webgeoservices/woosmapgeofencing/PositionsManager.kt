@@ -8,7 +8,6 @@ import android.util.Log
 import android.util.Pair
 import com.android.volley.Request
 import com.android.volley.RequestQueue
-import com.android.volley.Response
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import com.google.android.gms.location.Geofence
@@ -17,11 +16,15 @@ import com.google.android.gms.location.GeofencingRequest
 import com.google.android.gms.maps.model.LatLng
 import com.google.gson.Gson
 import com.webgeoservices.woosmapgeofencing.DistanceAPIDataModel.DistanceAPI
-import com.webgeoservices.woosmapgeofencing.SearchAPIDataModel.SearchAPI
+import com.webgeoservices.woosmapgeofencing.SearchAPIDataModel.SearchAPIResponseItem
 import com.webgeoservices.woosmapgeofencing.WoosmapSettings.*
+import com.webgeoservices.woosmapgeofencing.WoosmapSettings.Tags.WoosmapSdkTag
 import com.webgeoservices.woosmapgeofencing.WoosmapSettings.Tags.WoosmapVisitsTag
 import com.webgeoservices.woosmapgeofencing.database.*
 import org.jetbrains.anko.doAsync
+import org.json.JSONException
+import org.json.JSONObject
+import java.text.SimpleDateFormat
 import java.util.*
 
 
@@ -30,6 +33,8 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
     private var temporaryCurrentVisits: MutableList<Visit> = mutableListOf<Visit>()
     private var temporaryFinishedVisits: MutableList<Visit> = mutableListOf<Visit>()
     private var requestQueue: RequestQueue? = null
+
+    var displayDateFormatAirship = SimpleDateFormat("dd-MM-yyyy HH:mm:ss")
 
 
     private fun visitsDetectionAlgo(lastVisit: Visit, location: Location) {
@@ -177,10 +182,49 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
                     if (Woosmap.getInstance().regionLogReadyListener != null) {
                         Woosmap.getInstance().regionLogReadyListener.RegionLogReadyCallback(regionLog)
                     }
+                    if (Woosmap.getInstance().airshipRegionLogReadyListener != null) {
+                        Woosmap.getInstance().airshipRegionLogReadyListener.AirshipRegionLogReadyCallback(setDataAirshipRegionLog(regionLog))
+                    }
                }
             }
         }
 
+    }
+
+    private fun setDataAirshipRegionLog(regionLog: RegionLog): HashMap<String, Any>? {
+        var data = HashMap<String, Any>()
+
+        var eventName = ""
+
+        eventName =
+            if (regionLog.identifier.contains("HOME") || regionLog.identifier.contains("WORK")) {
+                "woos_zoi_classified_"
+            } else {
+                "woos_geofence_"
+            }
+
+        // Create and name an event
+        if (regionLog.isCurrentPositionInside)
+            eventName += "entered_event"
+        else
+            eventName += "exited_event"
+
+
+        if(regionLog.idStore.isEmpty()) {
+            data.put("event", eventName)
+            data.put("id", regionLog.id)
+            data.put("date", displayDateFormatAirship.format(regionLog.dateTime))
+            data.put("radius", regionLog.radius)
+            data.put("latitude", regionLog.lat)
+            data.put("longitude", regionLog.lng)
+        } else {
+            val poi = this.db.poIsDAO.getPOIbyStoreId(regionLog.idStore)
+            setDataAirshipPOI(poi)?.let { data.putAll(it) }
+            data.put("event", eventName)
+            data.put("id", regionLog.id)
+        }
+
+        return data
     }
 
     private fun filterDistanceBetweenRequestSearAPI(newPOI: POI): Boolean {
@@ -322,6 +366,9 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
                 if (Woosmap.getInstance().regionLogReadyListener != null) {
                     Woosmap.getInstance().regionLogReadyListener.RegionLogReadyCallback(regionLog)
                 }
+                if (Woosmap.getInstance().airshipRegionLogReadyListener != null) {
+                    Woosmap.getInstance().airshipRegionLogReadyListener.AirshipRegionLogReadyCallback(setDataAirshipRegionLog(regionLog))
+                }
             }
         }
 
@@ -336,54 +383,156 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
             return
         }
 
-        val url = String.format(WoosmapSettings.Urls.SearchAPIUrl, WoosmapSettings.Urls.WoosmapURL, WoosmapSettings.privateKeyWoosmapAPI, positon.lat, positon.lng)
+        val url = getStoreAPIUrl(positon.lat, positon.lng)
         val req = StringRequest(Request.Method.GET, url,
-                Response.Listener<String> { response ->
-                    Thread {
-                        val gson = Gson()
-                        val data = gson.fromJson(response, SearchAPI::class.java)
+            { response ->
+                Thread {
+                    assert(response != null)
+                    val jsonObject = JSONObject(response.toString())
+                    var POIList: MutableList<POI> = mutableListOf<POI>()
+                    if (!jsonObject.has("error_message")) {
+                        val features = jsonObject.getJSONArray("features")
+                        if ( features.length() > 0) {
+                            for (i in 0 until features.length()) {
+                                val searchAPIResponseItem = SearchAPIResponseItem.fromJSON(
+                                    jsonObject.getJSONArray("features").getJSONObject(i)
+                                )
+                                if(searchAPIResponseItem != null) {
+                                    val POIaround = POI()
+                                    POIaround.city = searchAPIResponseItem.city
+                                    POIaround.zipCode = searchAPIResponseItem.zipCode
+                                    POIaround.dateTime = positon.dateTime
+                                    POIaround.distance = searchAPIResponseItem.distance
+                                    POIaround.locationId = positon.id
+                                    POIaround.idStore = searchAPIResponseItem.idstore
+                                    POIaround.name = searchAPIResponseItem.name
+                                    POIaround.lat = searchAPIResponseItem.geometry.location.lat
+                                    POIaround.lng = searchAPIResponseItem.geometry.location.lng
+                                    POIaround.radius = searchAPIResponseItem.radius.toInt()
+                                    POIaround.address = searchAPIResponseItem.formattedAddress
+                                    POIaround.contact = searchAPIResponseItem.contact
+                                    POIaround.types =
+                                        searchAPIResponseItem.types.joinToString(" - ")
+                                    POIaround.tags = searchAPIResponseItem.tags.joinToString(" - ")
+                                    POIaround.countryCode = searchAPIResponseItem.countryCode
+                                    POIaround.openNow = searchAPIResponseItem.openNow
+                                    POIaround.data = response
 
-                        if(data.features.isEmpty())
-                            return@Thread
-                        val featureSearch = data.features[0]
-                        val name = featureSearch.properties.name
-                        val city = featureSearch.properties.address.city
-                        val zipcode = featureSearch.properties.address.zipcode
-                        val idStore = featureSearch.properties.storeID
-                        val distance = featureSearch.properties.distance.toString()
-                        val longitudePOI = featureSearch.geometry.coordinates[0]
-                        val latitudePOI = featureSearch.geometry.coordinates[1]
-                        val POIaround = POI()
-                        POIaround.city = city
-                        POIaround.zipCode = zipcode
-                        POIaround.dateTime = positon.dateTime
-                        POIaround.distance = distance.toDouble()
-                        POIaround.locationId = positon.id
-                        POIaround.idStore = idStore
-                        POIaround.name = name
-                        POIaround.lat = latitudePOI
-                        POIaround.lng = longitudePOI
-                        POIaround.data = response
+                                    POIList.add(POIaround)
+                                    createPOIRegion(
+                                        "POI_" + POIaround.name,
+                                        POIaround.radius,
+                                        POIaround.lat,
+                                        POIaround.lng,
+                                        POIaround.idStore
+                                    )
 
-                        createPOIRegion("POI_" + featureSearch.properties.name, latitudePOI, longitudePOI, idStore )
+                                    if (!filterDistanceBetweenRequestSearAPI(POIaround)) {
+                                        if (WoosmapSettings.distanceAPIEnable) {
+                                            requestDistanceAPI(POIaround, positon)
+                                        } else {
+                                            this.db.poIsDAO.createPOI(POIaround)
+                                            if (Woosmap.getInstance().searchAPIReadyListener != null) {
+                                                Woosmap.getInstance().searchAPIReadyListener.SearchAPIReadyCallback(
+                                                    POIaround
+                                                )
+                                            }
+                                            if (Woosmap.getInstance().airshipSearchAPIReadyListener != null) {
+                                                Woosmap.getInstance().airshipSearchAPIReadyListener.AirshipSearchAPIReadyCallback(
+                                                    setDataAirshipPOI(POIaround)
+                                                )
 
-                        if (!filterDistanceBetweenRequestSearAPI(POIaround)) {
-                            if(WoosmapSettings.distanceAPIEnable) {
-                                requestDistanceAPI(POIaround,positon)
-                            }else {
-                                this.db.poIsDAO.createPOI(POIaround)
-                                if (Woosmap.getInstance().searchAPIReadyListener != null) {
-                                    Woosmap.getInstance().searchAPIReadyListener.SearchAPIReadyCallback(POIaround)
+                                            }
+                                        }
+                                    }
                                 }
                             }
+                            cleanPOIRegion(POIList)
+                        } else {
+                            Log.d(WoosmapSdkTag, "ZERO RESULTS")
                         }
+                    } else {
+                        Log.d(WoosmapSdkTag, jsonObject.getString("error_message"))
+                    }
 
-                    }.start()
-                },
-                Response.ErrorListener { error ->
-                    Log.e(WoosmapSettings.Tags.WoosmapSdkTag, error.toString() + " search API")
-                })
+                }.start()
+            },
+            { error ->
+                Log.e(WoosmapSdkTag, error.toString() + " search API")
+            })
         requestQueue?.add(req)
+    }
+
+    private fun setDataAirshipPOI(POIaround: POI): HashMap<String, Any>? {
+        var data = HashMap<String, Any>()
+        data.put("event", "woos_poi_event")
+        data.put("city", POIaround.city)
+        data.put("zipCode", POIaround.zipCode)
+        data.put("date", displayDateFormatAirship.format(POIaround.dateTime))
+        data.put("distance", POIaround.distance)
+        data.put("idStore", POIaround.idStore)
+        data.put("name", POIaround.name)
+        data.put("lat", POIaround.lat)
+        data.put("lng", POIaround.lng)
+        data.put("radius", POIaround.lng)
+        data.put("address", POIaround.address)
+        data.put("contact", POIaround.contact)
+        data.put("types", POIaround.types)
+        data.put("tags", POIaround.tags)
+        data.put("countryCode", POIaround.countryCode)
+        data.put("openNow",POIaround.openNow)
+
+        //user Properties
+        try {
+            var json = JSONObject(POIaround.data)
+            val userPropertiesFiltered =
+                SearchAPIResponseItem.getUserProperties(json, POIaround.idStore)
+            for ((key, value) in userPropertiesFiltered) {
+                data.put(key, value)
+            }
+        } catch (e: JSONException) {
+            e.printStackTrace()
+        }
+
+        return data
+
+    }
+
+    private fun cleanPOIRegion(poiList: MutableList<POI>) {
+        Thread {
+
+            var regionsPOI = this.db.regionsDAO.regionPOI
+
+            regionsPOI.forEach {
+                var regionExist = false
+                for(POIadded in poiList) {
+                    if (it.identifier.contains("POI_" + POIadded.name)) {
+                        regionExist = true
+                    }
+                }
+                if (!regionExist) {
+                    //Remove last POI geofence in geofencing manager
+                    Woosmap.getInstance().removeGeofence(it.identifier)
+                    //Remove last POI geofence in db
+                    this.db.regionsDAO.deleteRegionFromId(it.identifier)
+                }
+            }
+        }.start()
+
+    }
+
+
+    fun getStoreAPIUrl(lat: Double, lng: Double): String? {
+        var url = String.format(WoosmapSettings.Urls.SearchAPIUrl, WoosmapSettings.Urls.WoosmapURL, WoosmapSettings.privateKeyWoosmapAPI, lat, lng)
+            if (!WoosmapSettings.searchAPIParameters.isEmpty()) {
+                val stringBuilder: StringBuilder = StringBuilder(url)
+
+                for ((key, value) in WoosmapSettings.searchAPIParameters) {
+                    stringBuilder.append("&" + key + "=" + value)
+                }
+                url = stringBuilder.toString()
+            }
+        return url
     }
 
     fun requestDistanceAPI(POIaround: POI, positon: MovingPosition) {
@@ -399,29 +548,32 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
 
         val url = String.format(WoosmapSettings.Urls.DistanceAPIUrl, WoosmapSettings.Urls.WoosmapURL, WoosmapSettings.modeDistance, positon.lat, positon.lng, destination, WoosmapSettings.privateKeyWoosmapAPI)
         val req = StringRequest(Request.Method.GET, url,
-                Response.Listener<String> { response ->
-                    Thread {
-                        val gson = Gson()
-                        val data = gson.fromJson(response, DistanceAPI::class.java)
-                        val status = data.status
+            { response ->
+                Thread {
+                    val gson = Gson()
+                    val data = gson.fromJson(response, DistanceAPI::class.java)
+                    val status = data.status
 
-                        if(status == "OK"){
-                            if(data.rows.get(0).elements.get(0).status == "OK" ) {
-                                POIaround.travelingDistance = data.rows.get(0).elements.get(0).distance.text
-                                POIaround.duration = data.rows[0].elements[0].duration.text
-                            }
+                    if(status == "OK"){
+                        if(data.rows.get(0).elements.get(0).status == "OK" ) {
+                            POIaround.travelingDistance = data.rows.get(0).elements.get(0).distance.text
+                            POIaround.duration = data.rows[0].elements[0].duration.text
                         }
+                    }
 
-                        this.db.poIsDAO.createPOI(POIaround)
-                        if (Woosmap.getInstance().searchAPIReadyListener != null) {
-                            Woosmap.getInstance().searchAPIReadyListener.SearchAPIReadyCallback(POIaround)
-                        }
+                    this.db.poIsDAO.createPOI(POIaround)
+                    if (Woosmap.getInstance().searchAPIReadyListener != null) {
+                        Woosmap.getInstance().searchAPIReadyListener.SearchAPIReadyCallback(POIaround)
+                    }
+                    if (Woosmap.getInstance().airshipSearchAPIReadyListener != null) {
+                        Woosmap.getInstance().airshipSearchAPIReadyListener.AirshipSearchAPIReadyCallback(setDataAirshipPOI(POIaround))
+                    }
 
-                    }.start()
-                },
-                Response.ErrorListener { error ->
-                    Log.e(WoosmapSettings.Tags.WoosmapSdkTag, error.toString() + " Distance API")
-                })
+                }.start()
+            },
+            { error ->
+                Log.e(WoosmapSdkTag, error.toString() + " Distance API")
+            })
         requestQueue?.add(req)
     }
 
@@ -434,76 +586,80 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
             return
         }
 
-        val url = String.format(WoosmapSettings.Urls.SearchAPIUrl, WoosmapSettings.Urls.WoosmapURL, WoosmapSettings.privateKeyWoosmapAPI, lat, lng)
+        val url = getStoreAPIUrl(lat, lng)
         val req = StringRequest(Request.Method.GET, url,
-                Response.Listener<String> { response ->
-                    Thread {
-                        val gson = Gson()
-                        val data = gson.fromJson(response, SearchAPI::class.java)
-                        if(data.features.isEmpty())
-                            return@Thread
-                        val featureSearch = data.features[0]
-                        val name = featureSearch.properties.name
-                        val idStore = featureSearch.properties.storeID
-                        val city = featureSearch.properties.address.city
-                        val zipcode = featureSearch.properties.address.zipcode
-                        val distance = featureSearch.properties.distance.toString()
-                        val longitudePOI = featureSearch.geometry.coordinates[0]
-                        val latitudePOI = featureSearch.geometry.coordinates[1]
-                        val POIaround = POI()
-                        POIaround.city = city
-                        POIaround.name = name
-                        POIaround.idStore = idStore
-                        POIaround.zipCode = zipcode
-                        POIaround.distance = distance.toDouble()
-                        POIaround.dateTime = System.currentTimeMillis()
-                        POIaround.lat = latitudePOI
-                        POIaround.lng = longitudePOI
-                        POIaround.locationId = positionId
-                        POIaround.data = response
+            { response ->
+                Thread {
+                    assert(response != null)
+                    val jsonObject = JSONObject(response.toString())
+                    var POIList: MutableList<POI> = mutableListOf<POI>()
+                    if (!jsonObject.has("error_message")) {
+                        val features = jsonObject.getJSONArray("features")
+                        if (features.length() > 0) {
+                            for (i in 0 until features.length()) {
+                                val searchAPIResponseItem = SearchAPIResponseItem.fromJSON(
+                                    jsonObject.getJSONArray("features").getJSONObject(i)
+                                )
+                                if(searchAPIResponseItem != null) {
+                                    val POIaround = POI()
+                                    POIaround.city = searchAPIResponseItem.city
+                                    POIaround.zipCode = searchAPIResponseItem.zipCode
+                                    POIaround.dateTime = System.currentTimeMillis()
+                                    POIaround.distance = searchAPIResponseItem.distance
+                                    POIaround.locationId = positionId
+                                    POIaround.idStore = searchAPIResponseItem.idstore
+                                    POIaround.name = searchAPIResponseItem.name
+                                    POIaround.lat = searchAPIResponseItem.geometry.location.lat
+                                    POIaround.lng = searchAPIResponseItem.geometry.location.lng
+                                    POIaround.radius = searchAPIResponseItem.radius.toInt()
+                                    POIaround.address = searchAPIResponseItem.formattedAddress
+                                    POIaround.contact = searchAPIResponseItem.contact
+                                    POIaround.types =
+                                        searchAPIResponseItem.types.joinToString(" - ")
+                                    POIaround.tags = searchAPIResponseItem.tags.joinToString(" - ")
+                                    POIaround.countryCode = searchAPIResponseItem.countryCode
+                                    POIaround.data = response
 
-                        this.db.poIsDAO.createPOI(POIaround)
-                        if (Woosmap.getInstance().searchAPIReadyListener != null) {
-                            Woosmap.getInstance().searchAPIReadyListener.SearchAPIReadyCallback(POIaround)
+                                    this.db.poIsDAO.createPOI(POIaround)
+                                    if (Woosmap.getInstance().searchAPIReadyListener != null) {
+                                        Woosmap.getInstance().searchAPIReadyListener.SearchAPIReadyCallback(
+                                            POIaround
+                                        )
+                                    }
+
+                                    if (Woosmap.getInstance().airshipSearchAPIReadyListener != null) {
+                                        Woosmap.getInstance().airshipSearchAPIReadyListener.AirshipSearchAPIReadyCallback(
+                                            setDataAirshipPOI(POIaround)
+                                        )
+
+                                    }
+                                }
+                            }
                         }
-
-                    }.start()
-                },
-                Response.ErrorListener { error ->
-                    Log.e(WoosmapSettings.Tags.WoosmapSdkTag, error.toString() + " search API")
-                })
+                    }
+                }.start()
+            },
+            { error ->
+                Log.e(WoosmapSdkTag, error.toString() + " search API")
+            })
         requestQueue?.add(req)
     }
 
-    private fun createPOIRegion(POIid: String, latitudePOI: Double, longitudePOI: Double, POIidStore: String) {
-
+    private fun createPOIRegion(POIid: String, POIradius: Int, latitudePOI: Double, longitudePOI: Double, POIidStore: String) {
         Thread {
-
             var regionsPOI = this.db.regionsDAO.regionPOI
             var regionExist = false
 
             regionsPOI.forEach {
-                if(!it.identifier.contains(POIid)) {
-                    //Remove last POI geofence in geofencing manager
-                    Woosmap.getInstance().removeGeofence(it.identifier)
-                    //Remove last POI geofence in db
-                    this.db.regionsDAO.deleteRegionFromId(it.identifier)
-                    regionExist = false
-                }else {
-                    regionExist = true
-                }
+                regionExist = it.identifier.contains(POIid)
             }
 
             if (!regionExist) {
-                Woosmap.getInstance().addGeofence(POIid + "_" + firstSearchAPIRegionRadius, LatLng(latitudePOI, longitudePOI), firstSearchAPIRegionRadius.toFloat(), POIidStore)
-                Woosmap.getInstance().addGeofence(POIid + "_" + secondSearchAPIRegionRadius, LatLng(latitudePOI, longitudePOI), secondSearchAPIRegionRadius.toFloat(), POIidStore)
-                Woosmap.getInstance().addGeofence(POIid + "_" + thirdSearchAPIRegionRadius, LatLng(latitudePOI, longitudePOI), thirdSearchAPIRegionRadius.toFloat(), POIidStore)
+                Woosmap.getInstance().addGeofence(POIid + "_" + POIradius, LatLng(latitudePOI, longitudePOI),
+                    POIradius.toFloat(), POIidStore)
             }
-
         }.start()
-
     }
-
 
     fun distanceAPI(latOrigin: Double, lngOrigin: Double, listPosition: MutableList<Pair<Double, Double>>, locationId: Int = 0) {
         if (requestQueue == null) {
@@ -521,27 +677,27 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
 
         val url = String.format(WoosmapSettings.Urls.DistanceAPIUrl, WoosmapSettings.Urls.WoosmapURL, WoosmapSettings.modeDistance, latOrigin, lngOrigin, destination, WoosmapSettings.privateKeyWoosmapAPI)
         val req = StringRequest(Request.Method.GET, url,
-                Response.Listener<String> { response ->
-                    Thread {
-                        val gson = Gson()
-                        val data = gson.fromJson(response, DistanceAPI::class.java)
-                        val status = data.status
-                        if(locationId != 0 && status.contains("OK") && data.rows.get(0).elements.get(0).status.contains("OK")) {
-                            var poiToUpdate = this.db.poIsDAO.getPOIbyLocationID(locationId)
-                            poiToUpdate.travelingDistance = data.rows.get(0).elements.get(0).distance.text
-                            poiToUpdate.duration = data.rows.get(0).elements.get(0).duration.text
-                            this.db.poIsDAO.updatePOI(poiToUpdate)
-                        }
+            { response ->
+                Thread {
+                    val gson = Gson()
+                    val data = gson.fromJson(response, DistanceAPI::class.java)
+                    val status = data.status
+                    if(locationId != 0 && status.contains("OK") && data.rows.get(0).elements.get(0).status.contains("OK")) {
+                        var poiToUpdate = this.db.poIsDAO.getPOIbyLocationID(locationId)
+                        poiToUpdate.travelingDistance = data.rows.get(0).elements.get(0).distance.text
+                        poiToUpdate.duration = data.rows.get(0).elements.get(0).duration.text
+                        this.db.poIsDAO.updatePOI(poiToUpdate)
+                    }
 
-                        if (Woosmap.getInstance().distanceAPIReadyListener != null) {
-                            Woosmap.getInstance().distanceAPIReadyListener.DistanceAPIReadyCallback(data)
-                        }
+                    if (Woosmap.getInstance().distanceAPIReadyListener != null) {
+                        Woosmap.getInstance().distanceAPIReadyListener.DistanceAPIReadyCallback(data)
+                    }
 
-                    }.start()
-                },
-                Response.ErrorListener { error ->
-                    Log.e(WoosmapSettings.Tags.WoosmapSdkTag, error.toString() + " Distance API")
-                })
+                }.start()
+            },
+            { error ->
+                Log.e(WoosmapSdkTag, error.toString() + " Distance API")
+            })
         requestQueue?.add(req)
     }
 
@@ -564,9 +720,26 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
             if (Woosmap.getInstance().visitReadyListener != null) {
                 Woosmap.getInstance().visitReadyListener.VisitReadyCallback(visit)
             }
+
+            if (Woosmap.getInstance().airshipVisitReadyListener != null) {
+                Woosmap.getInstance().airshipVisitReadyListener.AirshipVisitReadyCallback(setDataAirshipVisit(visit))
+            }
+
         }
 
 
+    }
+
+    private fun setDataAirshipVisit(visit: Visit): HashMap<String, Any>? {
+        var data = HashMap<String, Any>()
+        data.put("event", "woos_visit_event")
+        data.put("arrivalDate", displayDateFormatAirship.format(visit.startTime))
+        data.put("departureDate", displayDateFormatAirship.format(visit.endTime))
+        data.put("id", visit.id)
+        data.put("latitude", visit.lat)
+        data.put("longitude", visit.lng)
+
+        return data
     }
 
     fun cleanOldPositions() {
@@ -641,6 +814,9 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
                 if (Woosmap.getInstance().regionLogReadyListener != null) {
                     Woosmap.getInstance().regionLogReadyListener.RegionLogReadyCallback(regionLog)
                 }
+                if (Woosmap.getInstance().airshipRegionLogReadyListener != null) {
+                    Woosmap.getInstance().airshipRegionLogReadyListener.AirshipRegionLogReadyCallback(setDataAirshipRegionLog(regionLog))
+                }
             }
         }.start()
     }
@@ -658,7 +834,7 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
         Thread {
             val region = this.db.regionsDAO.getRegionFromId(id)
             if(region != null) {
-                Log.d(WoosmapSettings.Tags.WoosmapSdkTag, "Region already exist")
+                Log.d(WoosmapSdkTag, "Region already exist")
             } else {
                 createRegion(id, radius.toDouble(),latitude,longitude,idStore)
             }
@@ -666,11 +842,11 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
 
         geofencingClient.addGeofences(geofencingRequest, geofencePendingIntent)?.run {
             addOnSuccessListener {
-                Log.d(WoosmapSettings.Tags.WoosmapSdkTag,"onSuccess: Geofence Added...")
+                Log.d(WoosmapSdkTag,"onSuccess: Geofence Added...")
             }
             addOnFailureListener {
                 val errorMessage = geofenceHelper.getErrorString(exception)
-                Log.d(WoosmapSettings.Tags.WoosmapSdkTag,"onFailure "+errorMessage)
+                Log.d(WoosmapSdkTag,"onFailure "+errorMessage)
             }
         }
     }

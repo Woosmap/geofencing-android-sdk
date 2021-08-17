@@ -19,8 +19,14 @@ public class POI {
     public String travelingDistance;
     public String duration;
     public long dateTime;
-    public int isUpload = 0;
     public String data;
+    public int radius;
+    public String contact;
+    public String tags;
+    public String types;
+    public String countryCode;
+    public String address;
+    public boolean openNow;
 
 }
 

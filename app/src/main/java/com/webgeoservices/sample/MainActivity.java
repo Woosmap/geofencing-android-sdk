@@ -37,14 +37,12 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
-import com.google.gson.Gson;
 import com.urbanairship.UAirship;
 import com.urbanairship.analytics.CustomEvent;
 import com.webgeoservices.sample.model.PlaceData;
 import com.webgeoservices.woosmapgeofencing.DistanceAPIDataModel.DistanceAPI;
 import com.webgeoservices.woosmapgeofencing.FigmmForVisitsCreator;
 import com.webgeoservices.woosmapgeofencing.PositionsManager;
-import com.webgeoservices.woosmapgeofencing.SearchAPIDataModel.SearchAPI;
 import com.webgeoservices.woosmapgeofencing.Woosmap;
 import com.webgeoservices.woosmapgeofencing.WoosmapSettings;
 import com.webgeoservices.woosmapgeofencing.database.MovingPosition;
@@ -55,7 +53,6 @@ import com.webgeoservices.woosmapgeofencing.database.Visit;
 import com.webgeoservices.woosmapgeofencing.database.WoosmapDb;
 import com.webgeoservices.woosmapgeofencing.database.ZOI;
 
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -65,12 +62,14 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 public class MainActivity extends AppCompatActivity {
     public static final boolean AIRSHIP = false;
-    SimpleDateFormat displayDateFormatAirship = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+    static SimpleDateFormat displayDateFormatAirship = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
 
     private static final int REQUEST_PERMISSIONS_REQUEST_CODE = 34;
 
@@ -96,6 +95,44 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    public class WoosAirshipSearchAPIReadyListener implements Woosmap.AirshipSearchAPIReadyListener {
+        public void AirshipSearchAPIReadyCallback(HashMap<String, Object> dataEvent) {
+            sendAirshipEvent( dataEvent );
+        }
+    }
+
+
+    public class WoosAirshipVisitReadyListener implements Woosmap.AirshipVisitReadyListener {
+        public void AirshipVisitReadyCallback(HashMap<String, Object> dataEvent) {
+            sendAirshipEvent( dataEvent );
+        }
+    }
+
+    public class WoosAirshipRegionLogReadyListener implements Woosmap.AirshipRegionLogReadyListener {
+        public void AirshipRegionLogReadyCallback(HashMap<String, Object> dataEvent) {
+            sendAirshipEvent( dataEvent );
+        }
+    }
+
+
+
+    void sendAirshipEvent(HashMap<String, Object> dataEvent){
+        if(AIRSHIP) {
+            // Create and name an event
+            CustomEvent.Builder eventBuilder = new CustomEvent.Builder( (String) dataEvent.get( "event" ) );
+
+            // Set custom event properties on the builder
+            for (Map.Entry<String, Object> entry : dataEvent.entrySet()) {
+                eventBuilder.addProperty(entry.getKey(),  entry.getValue().toString() );
+            }
+
+            // Then record it
+            CustomEvent event = eventBuilder.build();
+
+            event.track();
+        }
+    }
+
     public class WoosSearchAPIReadyListener implements Woosmap.SearchAPIReadyListener {
         public void SearchAPIReadyCallback(POI poi) {
             onPOICallback(poi);
@@ -103,35 +140,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void onPOICallback(POI poi) {
-        if(AIRSHIP) {
-            // Create and name an event
-            CustomEvent.Builder eventBuilder = new CustomEvent.Builder("poi_event");
-
-            // Set custom event properties on the builder
-            eventBuilder.addProperty("date", displayDateFormatAirship.format(poi.dateTime));
-            eventBuilder.addProperty("name", poi.name);
-            eventBuilder.addProperty("idStore", poi.idStore);
-            eventBuilder.addProperty("city", poi.city);
-            eventBuilder.addProperty("distance", poi.distance);
-
-            Gson gson = new Gson();
-            SearchAPI data = gson.fromJson( poi.data,SearchAPI.class );
-
-            Object[] tagsArr = data.getFeatures()[0].getProperties().getTags();
-            if( tagsArr.length != 0) {
-                eventBuilder.addProperty("tag", Arrays.toString(tagsArr));
-            }
-
-            Object[] typesArr = data.getFeatures()[0].getProperties().getTypes();
-            if( typesArr.length != 0) {
-                eventBuilder.addProperty("type", Arrays.toString(typesArr));
-            }
-
-            // Then record it
-            CustomEvent event = eventBuilder.build();
-            event.track();
-        }
     }
+
+
 
     public class WoosDistanceAPIReadyListener implements Woosmap.DistanceAPIReadyListener {
         public void DistanceAPIReadyCallback(DistanceAPI distanceAPIData) {
@@ -149,21 +160,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void onVisitCallback(Visit visit) {
-        if(AIRSHIP) {
-            // Create and name an event
-            CustomEvent.Builder eventBuilder = new CustomEvent.Builder("visit_event");
-
-            // Set custom event properties on the builder
-            eventBuilder.addProperty("arrivalDate", displayDateFormatAirship.format(visit.startTime));
-            eventBuilder.addProperty("departureDate",displayDateFormatAirship.format(visit.endTime));
-            eventBuilder.addProperty("id", visit.id);
-            eventBuilder.addProperty("latitude", visit.lat);
-            eventBuilder.addProperty("longitude", visit.lng);
-
-            // Then record it
-            CustomEvent event = eventBuilder.build();
-            event.track();
-        }
     }
 
     public class WoosRegionReadyListener implements Woosmap.RegionReadyListener {
@@ -185,30 +181,6 @@ public class MainActivity extends AppCompatActivity {
         createNotification("Region update from geofence detection","Region : " + regionLog.identifier + "\n" + "didenter : " + regionLog.didEnter +
                 "\n" + "isCurrentPositionInside : " + regionLog.isCurrentPositionInside +
                 "\n" + "Date : " + displayDateFormatAirship.format(regionLog.dateTime));
-        if(AIRSHIP) {
-
-            String eventName = "";
-
-            if (regionLog.identifier.contains("HOME") || regionLog.identifier.contains("WORK")) {
-                eventName = "zoi_classified_";
-            } else {
-                eventName = "geofence_";
-            }
-
-            // Create and name an event
-            CustomEvent.Builder eventBuilder = new CustomEvent.Builder(regionLog.didEnter ? eventName + "entered_event" : eventName + "exited_event");
-
-            // Set custom event properties on the builder
-            eventBuilder.addProperty("date", displayDateFormatAirship.format(regionLog.dateTime));
-            eventBuilder.addProperty("id",regionLog.identifier);
-            eventBuilder.addProperty("radius", regionLog.radius);
-            eventBuilder.addProperty("latitude", regionLog.lat);
-            eventBuilder.addProperty("longitude", regionLog.lng);
-
-            // Then record it
-            CustomEvent event = eventBuilder.build();
-            event.track();
-        }
     }
 
     @Override
@@ -259,7 +231,7 @@ public class MainActivity extends AppCompatActivity {
         PendingIntent pendingIntent;
         NotificationCompat.Builder builder;
 
-        NotificationManager notifManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+        NotificationManager notifManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             int importance = NotificationManager.IMPORTANCE_HIGH;
@@ -365,11 +337,11 @@ public class MainActivity extends AppCompatActivity {
         boolean searchAPIEnable = mPrefs.getBoolean("searchAPIEnable",true);
         boolean distanceAPIEnable = mPrefs.getBoolean("distanceAPIEnable",true);
 
-//        boolean modeHighFrequencyLocationEnable = mPrefs.getBoolean("modeHighFrequencyLocationEnable",false);
-//        WoosmapSettings.trackingEnable = trackingEnable;
-//        WoosmapSettings.searchAPIEnable = searchAPIEnable;
-//        WoosmapSettings.distanceAPIEnable = distanceAPIEnable;
-//        WoosmapSettings.modeHighFrequencyLocation = modeHighFrequencyLocationEnable;
+        boolean modeHighFrequencyLocationEnable = mPrefs.getBoolean("modeHighFrequencyLocationEnable",false);
+        WoosmapSettings.trackingEnable = trackingEnable;
+        WoosmapSettings.searchAPIEnable = searchAPIEnable;
+        WoosmapSettings.distanceAPIEnable = distanceAPIEnable;
+        WoosmapSettings.modeHighFrequencyLocation = modeHighFrequencyLocationEnable;
 
         // Set Filter on user Location
         //WoosmapSettings.currentLocationTimeFilter = 30;
@@ -392,13 +364,29 @@ public class MainActivity extends AppCompatActivity {
         WoosmapSettings.privateKeyGMPStatic = "";
 
         WoosmapSettings.foregroundLocationServiceEnable = false;
-        
+
         this.woosmap.setLocationReadyListener(new WoosLocationReadyListener());
         this.woosmap.setSearchAPIReadyListener(new WoosSearchAPIReadyListener());
         this.woosmap.setDistanceAPIReadyListener(new WoosDistanceAPIReadyListener());
         this.woosmap.setVisitReadyListener(new WoosVisitReadyListener());
         this.woosmap.setRegionReadyListener( new WoosRegionReadyListener() );
         this.woosmap.setRegionLogReadyListener( new WoosRegionLogReadyListener() );
+
+        // Airship Listener
+        //this.woosmap.setAirshipSearchAPIReadyListener( new WoosAirshipSearchAPIReadyListener() );
+        //this.woosmap.setAirshipVisitReadyListener( new WoosAirshipVisitReadyListener() );
+        //this.woosmap.setAirhshipRegionLogReadyListener( new WoosAirshipRegionLogReadyListener() );
+
+        // Search API parameters
+        //WoosmapSettings.searchAPIParameters.put("radius","5000");
+        //WoosmapSettings.searchAPIParameters.put("stores_by_page","100");
+
+        // User properties filter
+        //WoosmapSettings.userPropertiesFilter.add( "creation_year" );
+
+        // Fix the radius of geofence POI
+        //WoosmapSettings.poiRadiusNameFromResponse = "creation_year";
+        //WoosmapSettings.poiRadius = 500;
 
         this.woosmap.startTracking( Woosmap.ConfigurationProfile.liveTracking );
 
@@ -574,6 +562,52 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+
+        // Set Filter on user Location
+        //WoosmapSettings.currentLocationTimeFilter = 30;
+
+        // Set Filter on search API
+        //WoosmapSettings.searchAPITimeFilter = 30;
+        //WoosmapSettings.searchAPIDistanceFilter = 50;
+
+        // Set Filter on Accuracy of the location
+        //WoosmapSettings.accuracyFilter = 10;
+
+        // Instanciate woosmap object
+        this.woosmap = Woosmap.getInstance().initializeWoosmap(this);
+
+        // Set the Delay of Duration data
+        WoosmapSettings.numberOfDayDataDuration = 30;
+
+        // Set Keys
+        WoosmapSettings.privateKeyWoosmapAPI = "";
+        WoosmapSettings.privateKeyGMPStatic = "";
+
+        WoosmapSettings.modeDistance = "driving";
+
+        // Active foreground Service
+        WoosmapSettings.foregroundLocationServiceEnable = false;
+
+
+        
+        this.woosmap.setLocationReadyListener(new WoosLocationReadyListener());
+        this.woosmap.setSearchAPIReadyListener(new WoosSearchAPIReadyListener());
+        this.woosmap.setDistanceAPIReadyListener(new WoosDistanceAPIReadyListener());
+        this.woosmap.setVisitReadyListener(new WoosVisitReadyListener());
+        this.woosmap.setRegionReadyListener( new WoosRegionReadyListener() );
+        this.woosmap.setRegionLogReadyListener( new WoosRegionLogReadyListener() );
+
+
+
+
+        // Visit Detection Enable
+        WoosmapSettings.visitEnable = true;
+
+        // For android version >= 8 you have to create a channel or use the woosmap's channel
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            this.woosmap.createWoosmapNotifChannel();
+        }
+
     }
 
     private void loadPOI() {

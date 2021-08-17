@@ -130,7 +130,7 @@ fun requestSearchAPI(positon: MovingPosition) {
         return
     }
 
-    val url = String.format(WoosmapSettings.Urls.SearchAPIUrl, WoosmapSettings.Urls.WoosmapURL, WoosmapSettings.privateKeyWoosmapAPI, positon.lat, positon.lng)
+    val url = getStoreAPIUrl(positon.lat,positon.lng)
     val req = StringRequest(Request.Method.GET, url,
             Response.Listener<String> { response ->
                 Thread {
@@ -158,6 +158,9 @@ fun requestSearchAPI(positon: MovingPosition) {
                             this.db.poIsDAO.createPOI(POIaround)
                             if (Woosmap.getInstance().searchAPIReadyListener != null) {
                                 Woosmap.getInstance().searchAPIReadyListener.SearchAPIReadyCallback(POIaround)
+                            }
+                            if (Woosmap.getInstance().airshipSearchAPIReadyListener != null) {
+                                Woosmap.getInstance().airshipSearchAPIReadyListener.AirshipSearchAPIReadyCallback(setDataAirshipPOI(POIaround))
                             }
                         }
                     }
