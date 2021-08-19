@@ -563,51 +563,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // Set Filter on user Location
-        //WoosmapSettings.currentLocationTimeFilter = 30;
-
-        // Set Filter on search API
-        //WoosmapSettings.searchAPITimeFilter = 30;
-        //WoosmapSettings.searchAPIDistanceFilter = 50;
-
-        // Set Filter on Accuracy of the location
-        //WoosmapSettings.accuracyFilter = 10;
-
-        // Instanciate woosmap object
-        this.woosmap = Woosmap.getInstance().initializeWoosmap(this);
-
-        // Set the Delay of Duration data
-        WoosmapSettings.numberOfDayDataDuration = 30;
-
-        // Set Keys
-        WoosmapSettings.privateKeyWoosmapAPI = "";
-        WoosmapSettings.privateKeyGMPStatic = "";
-
-        WoosmapSettings.modeDistance = "driving";
-
-        // Active foreground Service
-        WoosmapSettings.foregroundLocationServiceEnable = false;
-
-
-        
-        this.woosmap.setLocationReadyListener(new WoosLocationReadyListener());
-        this.woosmap.setSearchAPIReadyListener(new WoosSearchAPIReadyListener());
-        this.woosmap.setDistanceAPIReadyListener(new WoosDistanceAPIReadyListener());
-        this.woosmap.setVisitReadyListener(new WoosVisitReadyListener());
-        this.woosmap.setRegionReadyListener( new WoosRegionReadyListener() );
-        this.woosmap.setRegionLogReadyListener( new WoosRegionLogReadyListener() );
-
-
-
-
-        // Visit Detection Enable
-        WoosmapSettings.visitEnable = true;
-
-        // For android version >= 8 you have to create a channel or use the woosmap's channel
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            this.woosmap.createWoosmapNotifChannel();
-        }
-
     }
 
     private void loadPOI() {

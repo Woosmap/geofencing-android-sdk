@@ -608,7 +608,7 @@ public class Woosmap {
             WoosmapSettings.distanceAPIEnable = obj.getBoolean( "distanceAPIEnable" );
             WoosmapSettings.modeDistance = obj.getString( "modeDistance" );
             WoosmapSettings.outOfTimeDelay = obj.getInt( "outOfTimeDelay" );
-            WoosmapSettings.numberOfDayDataDuration = obj.getLong( "numberOfDayDataDuration" );
+            WoosmapSettings.numberOfDayDataDuration = obj.getLong( "dataDurationDelay" );
 
             enableTracking(WoosmapSettings.trackingEnable);
 

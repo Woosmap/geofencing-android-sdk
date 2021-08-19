@@ -15,12 +15,12 @@
     "currentLocationDistanceFilter": 0,
     "accuracyFilter": 100,
 
-    "searchAPIEnable": false,
+    "searchAPIEnable": true,
     "searchAPICreationRegionEnable": false,
     "searchAPITimeFilter": 0,
     "searchAPIDistanceFilter": 0,
 
-    "distanceAPIEnable": false,
+    "distanceAPIEnable": true,
     "modeDistance": "driving",
     "outOfTimeDelay": 300,
     "dataDurationDelay": 30
