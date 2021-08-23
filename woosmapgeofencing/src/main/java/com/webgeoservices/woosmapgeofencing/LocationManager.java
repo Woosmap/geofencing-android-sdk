@@ -65,6 +65,7 @@ class LocationManager {
 
     public void removeGeofences() {
         mGeofencingClient.removeGeofences(getGeofencePendingIntent());
+        db.getRegionsDAO().deleteAllRegions();
     }
 
     public void removeGeofences(String id) {
@@ -198,7 +199,7 @@ class LocationManager {
     @SuppressLint("MissingPermission")
     public void setMonitoringRegions() {
         Log.d(WoosmapSdkTag,"Geofence Add on Reboot");
-        removeGeofences();
+        mGeofencingClient.removeGeofences(getGeofencePendingIntent());
         Region[] regions = db.getRegionsDAO().getAllRegions();
         for (Region regionToAdd : regions) {
             Geofence geofence = geofenceHelper.getGeofence(regionToAdd.identifier, new LatLng( regionToAdd.lng, regionToAdd.lat ), (float) regionToAdd.radius, Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_DWELL | Geofence.GEOFENCE_TRANSITION_EXIT);

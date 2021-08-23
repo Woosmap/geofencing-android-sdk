@@ -487,8 +487,10 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
             var json = JSONObject(POIaround.data)
             val userPropertiesFiltered =
                 SearchAPIResponseItem.getUserProperties(json, POIaround.idStore)
-            for ((key, value) in userPropertiesFiltered) {
-                data.put(key, value)
+            if(userPropertiesFiltered != null) {
+                for ((key, value) in userPropertiesFiltered) {
+                    data.put(key, value)
+                }
             }
         } catch (e: JSONException) {
             e.printStackTrace()
