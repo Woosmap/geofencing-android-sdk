@@ -112,7 +112,7 @@ public class WoosmapSettings {
     static public boolean modeHighFrequencyLocation = false;
 
     //Enable/disable Location
-    static public boolean trackingEnable = true;
+    static public boolean trackingEnable = false;
 
     //filter time to refresh user location
     static public int currentLocationTimeFilter = 0;
@@ -121,7 +121,7 @@ public class WoosmapSettings {
     static public int currentLocationDistanceFilter = 0;
 
     //Enable/disable VisitEnable
-    static public boolean visitEnable = true;
+    static public boolean visitEnable = false;
 
     //Enable/disable SearchAPI
     static public boolean searchAPIEnable = true;
@@ -167,7 +167,7 @@ public class WoosmapSettings {
     static public long dataDurationDelay = numberOfDayDataDuration * 1000 * 86400;
 
     //Active Classification
-    static public boolean classificationEnable = true;
+    static public boolean classificationEnable = false;
 
     // Distance detection threshold for a ZOI classified
     static public int radiusDetectionClassifiedZOI = 50;

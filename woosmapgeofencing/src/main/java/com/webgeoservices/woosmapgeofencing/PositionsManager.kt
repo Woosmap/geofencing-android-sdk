@@ -173,11 +173,15 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
                 regionLog.radius = it.radius
                 regionLog.isCurrentPositionInside = isInside
                 this.db.regionLogsDAO.createRegionLog(regionLog)
-                if(it.didEnter != isInside) {
+                if (WoosmapSettings.modeHighFrequencyLocation) {
                     if (Woosmap.getInstance().regionLogReadyListener != null) {
                         Woosmap.getInstance().regionLogReadyListener.RegionLogReadyCallback(regionLog)
                     }
-               }
+                } else if(it.didEnter != isInside) {
+                    if (Woosmap.getInstance().regionLogReadyListener != null) {
+                        Woosmap.getInstance().regionLogReadyListener.RegionLogReadyCallback(regionLog)
+                    }
+                }
             }
         }
 
