@@ -104,5 +104,5 @@ dependencies {
     // Message Center
     implementation "com.urbanairship.android:urbanairship-message-center:$airshipVersion"
 }
-
-apply plugin: 'com.google.gms.google-services'
+// If you want use Firebase for notification
+//apply plugin: 'com.google.gms.google-services'

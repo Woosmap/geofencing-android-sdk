@@ -133,6 +133,29 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public class WoosMarketingCloudSearchAPIReadyListener implements Woosmap.MarketingCloudSearchAPIReadyListener {
+        public void MarketingCloudSearchAPIReadyCallback(HashMap<String, Object> dataEvent) {
+            sendMarketingCloudEvent( dataEvent );
+        }
+    }
+
+
+    public class WoosMarketingCloudVisitReadyListener implements Woosmap.MarketingCloudVisitReadyListener {
+        public void MarketingCloudVisitReadyCallback(HashMap<String, Object> dataEvent) {
+            sendMarketingCloudEvent( dataEvent );
+        }
+    }
+
+    public class WoosMarketingCloudRegionLogReadyListener implements Woosmap.MarketingCloudRegionLogReadyListener {
+        public void MarketingCloudRegionLogReadyCallback(HashMap<String, Object> dataEvent) {
+            sendMarketingCloudEvent( dataEvent );
+        }
+    }
+
+    void sendMarketingCloudEvent(HashMap<String, Object> dataEvent){
+        // Call Marketing Cloud API here
+    }
+
     public class WoosSearchAPIReadyListener implements Woosmap.SearchAPIReadyListener {
         public void SearchAPIReadyCallback(POI poi) {
             onPOICallback(poi);
@@ -376,6 +399,11 @@ public class MainActivity extends AppCompatActivity {
         //this.woosmap.setAirshipSearchAPIReadyListener( new WoosAirshipSearchAPIReadyListener() );
         //this.woosmap.setAirshipVisitReadyListener( new WoosAirshipVisitReadyListener() );
         //this.woosmap.setAirhshipRegionLogReadyListener( new WoosAirshipRegionLogReadyListener() );
+
+        // Marketing CLoud Listener
+        //this.woosmap.setMarketingCloudSearchAPIReadyListener( new WoosMarketingCloudSearchAPIReadyListener() );
+        //this.woosmap.setMarketingCloudVisitReadyListener( new WoosMarketingCloudVisitReadyListener() );
+        //this.woosmap.setMarketingCloudRegionLogReadyListener( new WoosMarketingCloudRegionLogReadyListener() );
 
         // Search API parameters
         //WoosmapSettings.searchAPIParameters.put("radius","5000");

@@ -23,5 +23,7 @@
     "distanceAPIEnable": true,
     "modeDistance": "driving",
     "outOfTimeDelay": 300,
-    "dataDurationDelay": 30
+    "dataDurationDelay": 30,
+
+    "FCMEnable":false
 }
