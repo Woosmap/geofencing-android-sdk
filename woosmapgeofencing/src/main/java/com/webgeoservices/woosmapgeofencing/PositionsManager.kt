@@ -178,14 +178,27 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
                 regionLog.radius = it.radius
                 regionLog.isCurrentPositionInside = isInside
                 this.db.regionLogsDAO.createRegionLog(regionLog)
-                if(it.didEnter != isInside) {
+                if (WoosmapSettings.modeHighFrequencyLocation) {
                     if (Woosmap.getInstance().regionLogReadyListener != null) {
                         Woosmap.getInstance().regionLogReadyListener.RegionLogReadyCallback(regionLog)
                     }
                     if (Woosmap.getInstance().airshipRegionLogReadyListener != null) {
                         Woosmap.getInstance().airshipRegionLogReadyListener.AirshipRegionLogReadyCallback(setDataAirshipRegionLog(regionLog))
                     }
-               }
+                    if (Woosmap.getInstance().marketingCloudRegionLogReadyListener != null) {
+                        Woosmap.getInstance().marketingCloudRegionLogReadyListener.MarketingCloudRegionLogReadyCallback(setDataAirshipRegionLog(regionLog))
+                    }
+                } else if(it.didEnter != isInside) {
+                    if (Woosmap.getInstance().regionLogReadyListener != null) {
+                        Woosmap.getInstance().regionLogReadyListener.RegionLogReadyCallback(regionLog)
+                    }
+                    if (Woosmap.getInstance().airshipRegionLogReadyListener != null) {
+                        Woosmap.getInstance().airshipRegionLogReadyListener.AirshipRegionLogReadyCallback(setDataAirshipRegionLog(regionLog))
+                    }
+                    if (Woosmap.getInstance().marketingCloudRegionLogReadyListener != null) {
+                        Woosmap.getInstance().marketingCloudRegionLogReadyListener.MarketingCloudRegionLogReadyCallback(setDataAirshipRegionLog(regionLog))
+                    }
+                }
             }
         }
 
@@ -369,6 +382,9 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
                 if (Woosmap.getInstance().airshipRegionLogReadyListener != null) {
                     Woosmap.getInstance().airshipRegionLogReadyListener.AirshipRegionLogReadyCallback(setDataAirshipRegionLog(regionLog))
                 }
+                if (Woosmap.getInstance().marketingCloudRegionLogReadyListener != null) {
+                    Woosmap.getInstance().marketingCloudRegionLogReadyListener.MarketingCloudRegionLogReadyCallback(setDataAirshipRegionLog(regionLog))
+                }
             }
         }
 
@@ -441,7 +457,11 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
                                                 Woosmap.getInstance().airshipSearchAPIReadyListener.AirshipSearchAPIReadyCallback(
                                                     setDataAirshipPOI(POIaround)
                                                 )
-
+                                            }
+                                            if (Woosmap.getInstance().marketingCloudSearchAPIReadyListener != null) {
+                                                Woosmap.getInstance().marketingCloudSearchAPIReadyListener.MarketingCloudSearchAPIReadyCallback(
+                                                    setDataAirshipPOI(POIaround)
+                                                )
                                             }
                                         }
                                     }
@@ -570,6 +590,9 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
                     if (Woosmap.getInstance().airshipSearchAPIReadyListener != null) {
                         Woosmap.getInstance().airshipSearchAPIReadyListener.AirshipSearchAPIReadyCallback(setDataAirshipPOI(POIaround))
                     }
+                    if (Woosmap.getInstance().marketingCloudSearchAPIReadyListener != null) {
+                        Woosmap.getInstance().marketingCloudSearchAPIReadyListener.MarketingCloudSearchAPIReadyCallback(setDataAirshipPOI(POIaround))
+                    }
 
                 }.start()
             },
@@ -633,7 +656,12 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
                                         Woosmap.getInstance().airshipSearchAPIReadyListener.AirshipSearchAPIReadyCallback(
                                             setDataAirshipPOI(POIaround)
                                         )
+                                    }
 
+                                    if (Woosmap.getInstance().marketingCloudSearchAPIReadyListener != null) {
+                                        Woosmap.getInstance().marketingCloudSearchAPIReadyListener.MarketingCloudSearchAPIReadyCallback(
+                                            setDataAirshipPOI(POIaround)
+                                        )
                                     }
                                 }
                             }
@@ -727,6 +755,10 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
                 Woosmap.getInstance().airshipVisitReadyListener.AirshipVisitReadyCallback(setDataAirshipVisit(visit))
             }
 
+            if (Woosmap.getInstance().marketingCloudVisitReadyListener != null) {
+                Woosmap.getInstance().marketingCloudVisitReadyListener.MarketingCloudVisitReadyCallback(setDataAirshipVisit(visit))
+            }
+
         }
 
 
@@ -818,6 +850,9 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
                 }
                 if (Woosmap.getInstance().airshipRegionLogReadyListener != null) {
                     Woosmap.getInstance().airshipRegionLogReadyListener.AirshipRegionLogReadyCallback(setDataAirshipRegionLog(regionLog))
+                }
+                if (Woosmap.getInstance().marketingCloudRegionLogReadyListener != null) {
+                    Woosmap.getInstance().marketingCloudRegionLogReadyListener.MarketingCloudRegionLogReadyCallback(setDataAirshipRegionLog(regionLog))
                 }
             }
         }.start()

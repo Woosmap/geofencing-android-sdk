@@ -56,6 +56,10 @@ public class Woosmap {
     AirshipVisitReadyListener airshipVisitReadyListener = null;
     AirshipRegionLogReadyListener airshipRegionLogReadyListener = null;
 
+    MarketingCloudSearchAPIReadyListener marketingCloudSearchAPIReadyListener = null;
+    MarketingCloudVisitReadyListener marketingCloudVisitReadyListener = null;
+    MarketingCloudRegionLogReadyListener marketingCloudRegionLogReadyListener = null;
+
     LocationReadyListener locationReadyListener = null;
     SearchAPIReadyListener searchAPIReadyListener = null;
     VisitReadyListener visitReadyListener = null;
@@ -81,7 +85,7 @@ public class Woosmap {
      */
     public interface AirshipVisitReadyListener {
         /**
-         * When Woosmap get a new Visit it calls this method
+         * When Woosmap get a new Visit it calls this method to create a event for airship
          *
          * @param dataEvent an dictonnary of a Visit
          */
@@ -93,11 +97,45 @@ public class Woosmap {
      */
     public interface AirshipRegionLogReadyListener {
         /**
-         * When Woosmap get a region when event (enter,exit) it calls this method
+         * When Woosmap get a region when event (enter,exit) it calls this method to create a event for airship
          *
          * @param dataEvent an dictonnary of a Region Log
          */
         void AirshipRegionLogReadyCallback(HashMap<String, Object> dataEvent);
+    }
+
+    public interface MarketingCloudSearchAPIReadyListener {
+
+        /**
+         * When Woosmap get a new POI it calls this method to create a event for Marketing Cloud
+         *
+         * @param dataEvent an dictonnary of dataPOI
+         */
+        void MarketingCloudSearchAPIReadyCallback(HashMap<String, Object> dataEvent);
+    }
+
+    /**
+     * An interface to add callback on Visit retrieving
+     */
+    public interface MarketingCloudVisitReadyListener {
+        /**
+         * When Woosmap get a new Visit it calls this method to create a event for Marketing Cloud
+         *
+         * @param dataEvent an dictonnary of a Visit
+         */
+        void MarketingCloudVisitReadyCallback(HashMap<String, Object> dataEvent);
+    }
+
+    /**
+     * An interface to add callback on RegionLog retrieving
+     */
+    public interface MarketingCloudRegionLogReadyListener {
+        /**
+         * When Woosmap get a region when event (enter,exit) it calls this method to create a event for Marketing Cloud
+         *
+         * @param dataEvent an dictonnary of a Region Log
+         */
+        void MarketingCloudRegionLogReadyCallback(HashMap<String, Object> dataEvent);
     }
   
     public final class ConfigurationProfile {
@@ -198,8 +236,6 @@ public class Woosmap {
      */
     public Woosmap initializeWoosmap(final Context context) {
         Woosmap woosmapInstance = initializeWoosmap(context, null);
-        // Asynchronous loading of fcm token
-        WoosmapInstanceIDService.Companion.initializedFCMToken();
         return woosmapInstance;
     }
 
@@ -260,6 +296,38 @@ public class Woosmap {
     public void setAirhshipRegionLogReadyListener(AirshipRegionLogReadyListener airshipRegionLogReadyListener) {
         this.airshipRegionLogReadyListener = airshipRegionLogReadyListener;
     }
+
+    /**
+     * Add a listener to get callback on new POI for MarketingCloud
+     *
+     * @param marketingCloudSearchAPIReadyListener
+     * @see MarketingCloudSearchAPIReadyListener
+     */
+    public void setMarketingCloudSearchAPIReadyListener(MarketingCloudSearchAPIReadyListener marketingCloudSearchAPIReadyListener) {
+        this.marketingCloudSearchAPIReadyListener = marketingCloudSearchAPIReadyListener;
+    }
+
+    /**
+     * Add a listener to get callback on new Visit for MarketingCloud
+     *
+     * @param marketingCloudVisitReadyListener
+     * @see MarketingCloudVisitReadyListener
+     */
+    public void setMarketingCloudVisitReadyListener(MarketingCloudVisitReadyListener marketingCloudVisitReadyListener) {
+        this.marketingCloudVisitReadyListener = marketingCloudVisitReadyListener;
+    }
+
+    /**
+     * Add a listener to get callback on event region for MarketingCloud
+     *
+     * @param marketingCloudRegionLogReadyListener
+     * @see MarketingCloudRegionLogReadyListener
+     */
+    public void setMarketingCloudRegionLogReadyListener(MarketingCloudRegionLogReadyListener marketingCloudRegionLogReadyListener) {
+        this.marketingCloudRegionLogReadyListener = marketingCloudRegionLogReadyListener;
+    }
+
+
 
     /**
      * Add a listener to get callback on new locations
@@ -398,8 +466,7 @@ public class Woosmap {
             }else {
                 // Bind to the service. If the service is in foreground mode, this signals to the service
                 // that since this activity is in the foreground, the service can exit foreground mode.
-                context.bindService(new Intent(context, LocationUpdatesService.class), mServiceConnection,
-                        Context.BIND_AUTO_CREATE);
+                getInstance().context.bindService(new Intent(context, LocationUpdatesService.class), mServiceConnection,Context.BIND_AUTO_CREATE);
             }
         }
 
@@ -438,7 +505,7 @@ public class Woosmap {
         }
         mLocationUpdateService = null;
         if(WoosmapSettings.trackingEnable) {
-            context.unbindService( mServiceConnection );
+            getInstance().context.unbindService( mServiceConnection );
         }
     }
 
@@ -610,10 +677,18 @@ public class Woosmap {
             WoosmapSettings.outOfTimeDelay = obj.getInt( "outOfTimeDelay" );
             WoosmapSettings.numberOfDayDataDuration = obj.getLong( "dataDurationDelay" );
 
+            enableFCM(obj.getBoolean("FCMEnable" ));
             enableTracking(WoosmapSettings.trackingEnable);
 
         } catch (JSONException e) {
             e.printStackTrace();
+        }
+    }
+
+    private void enableFCM(boolean fcmEnable) {
+        if(fcmEnable){
+            // Asynchronous loading of fcm token
+            WoosmapInstanceIDService.Companion.initializedFCMToken();
         }
     }
 }
