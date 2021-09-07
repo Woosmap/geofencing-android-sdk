@@ -286,6 +286,7 @@ class ZoiQualifierTests{
 
     @Test
     fun test_when_update_recurrent_zois_status_then_return_new_qualifications_and_updated_zois_id(){
+        WoosmapSettings.classificationEnable = true
         val listZoiToTest: MutableList<Map<*, *>> = ArrayList()
         val zoiHomeToTest = HashMap<String, Any>()
         val weekly_density_home_test: IntArray = intArrayOf(
