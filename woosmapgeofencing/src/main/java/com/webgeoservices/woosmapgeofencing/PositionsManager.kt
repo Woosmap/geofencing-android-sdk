@@ -35,6 +35,7 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
     private var requestQueue: RequestQueue? = null
 
     var displayDateFormatAirship = SimpleDateFormat("dd-MM-yyyy HH:mm:ss")
+    var displayDateFormatISO8601 = SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'")
 
 
     private fun visitsDetectionAlgo(lastVisit: Visit, location: Location) {
@@ -186,7 +187,7 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
                         Woosmap.getInstance().airshipRegionLogReadyListener.AirshipRegionLogReadyCallback(setDataAirshipRegionLog(regionLog))
                     }
                     if (Woosmap.getInstance().marketingCloudRegionLogReadyListener != null) {
-                        Woosmap.getInstance().marketingCloudRegionLogReadyListener.MarketingCloudRegionLogReadyCallback(setDataAirshipRegionLog(regionLog))
+                        Woosmap.getInstance().marketingCloudRegionLogReadyListener.MarketingCloudRegionLogReadyCallback(setDataAirshipRegionLog(regionLog,true))
                     }
                 } else if(it.didEnter != isInside) {
                     if (Woosmap.getInstance().regionLogReadyListener != null) {
@@ -196,7 +197,7 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
                         Woosmap.getInstance().airshipRegionLogReadyListener.AirshipRegionLogReadyCallback(setDataAirshipRegionLog(regionLog))
                     }
                     if (Woosmap.getInstance().marketingCloudRegionLogReadyListener != null) {
-                        Woosmap.getInstance().marketingCloudRegionLogReadyListener.MarketingCloudRegionLogReadyCallback(setDataAirshipRegionLog(regionLog))
+                        Woosmap.getInstance().marketingCloudRegionLogReadyListener.MarketingCloudRegionLogReadyCallback(setDataAirshipRegionLog(regionLog,true))
                     }
                 }
             }
@@ -204,7 +205,7 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
 
     }
 
-    private fun setDataAirshipRegionLog(regionLog: RegionLog): HashMap<String, Any>? {
+    private fun setDataAirshipRegionLog(regionLog: RegionLog, formatDateISO8601: Boolean = false): HashMap<String, Any>? {
         var data = HashMap<String, Any>()
 
         var eventName = ""
@@ -226,13 +227,17 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
         if(regionLog.idStore.isEmpty()) {
             data.put("event", eventName)
             data.put("id", regionLog.id)
-            data.put("date", displayDateFormatAirship.format(regionLog.dateTime))
+            if(formatDateISO8601) {
+                data.put("date", displayDateFormatISO8601.format(regionLog.dateTime))
+            } else {
+                data.put("date", displayDateFormatAirship.format(regionLog.dateTime))
+            }
             data.put("radius", regionLog.radius)
             data.put("latitude", regionLog.lat)
             data.put("longitude", regionLog.lng)
         } else {
             val poi = this.db.poIsDAO.getPOIbyStoreId(regionLog.idStore)
-            setDataAirshipPOI(poi)?.let { data.putAll(it) }
+            setDataAirshipPOI(poi,formatDateISO8601)?.let { data.putAll(it) }
             data.put("event", eventName)
             data.put("id", regionLog.id)
         }
@@ -383,7 +388,7 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
                     Woosmap.getInstance().airshipRegionLogReadyListener.AirshipRegionLogReadyCallback(setDataAirshipRegionLog(regionLog))
                 }
                 if (Woosmap.getInstance().marketingCloudRegionLogReadyListener != null) {
-                    Woosmap.getInstance().marketingCloudRegionLogReadyListener.MarketingCloudRegionLogReadyCallback(setDataAirshipRegionLog(regionLog))
+                    Woosmap.getInstance().marketingCloudRegionLogReadyListener.MarketingCloudRegionLogReadyCallback(setDataAirshipRegionLog(regionLog,true))
                 }
             }
         }
@@ -460,7 +465,7 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
                                             }
                                             if (Woosmap.getInstance().marketingCloudSearchAPIReadyListener != null) {
                                                 Woosmap.getInstance().marketingCloudSearchAPIReadyListener.MarketingCloudSearchAPIReadyCallback(
-                                                    setDataAirshipPOI(POIaround)
+                                                    setDataAirshipPOI(POIaround,true)
                                                 )
                                             }
                                         }
@@ -483,12 +488,16 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
         requestQueue?.add(req)
     }
 
-    private fun setDataAirshipPOI(POIaround: POI): HashMap<String, Any>? {
+    private fun setDataAirshipPOI(POIaround: POI, formatDateISO8601: Boolean = false): HashMap<String, Any>? {
         var data = HashMap<String, Any>()
         data.put("event", "woos_poi_event")
         data.put("city", POIaround.city)
         data.put("zipCode", POIaround.zipCode)
-        data.put("date", displayDateFormatAirship.format(POIaround.dateTime))
+        if(formatDateISO8601) {
+            data.put("date", displayDateFormatISO8601.format(POIaround.dateTime))
+        } else {
+            data.put("date", displayDateFormatAirship.format(POIaround.dateTime))
+        }
         data.put("distance", POIaround.distance)
         data.put("idStore", POIaround.idStore)
         data.put("name", POIaround.name)
@@ -591,7 +600,7 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
                         Woosmap.getInstance().airshipSearchAPIReadyListener.AirshipSearchAPIReadyCallback(setDataAirshipPOI(POIaround))
                     }
                     if (Woosmap.getInstance().marketingCloudSearchAPIReadyListener != null) {
-                        Woosmap.getInstance().marketingCloudSearchAPIReadyListener.MarketingCloudSearchAPIReadyCallback(setDataAirshipPOI(POIaround))
+                        Woosmap.getInstance().marketingCloudSearchAPIReadyListener.MarketingCloudSearchAPIReadyCallback(setDataAirshipPOI(POIaround, true))
                     }
 
                 }.start()
@@ -660,7 +669,7 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
 
                                     if (Woosmap.getInstance().marketingCloudSearchAPIReadyListener != null) {
                                         Woosmap.getInstance().marketingCloudSearchAPIReadyListener.MarketingCloudSearchAPIReadyCallback(
-                                            setDataAirshipPOI(POIaround)
+                                            setDataAirshipPOI(POIaround,true)
                                         )
                                     }
                                 }
@@ -756,7 +765,7 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
             }
 
             if (Woosmap.getInstance().marketingCloudVisitReadyListener != null) {
-                Woosmap.getInstance().marketingCloudVisitReadyListener.MarketingCloudVisitReadyCallback(setDataAirshipVisit(visit))
+                Woosmap.getInstance().marketingCloudVisitReadyListener.MarketingCloudVisitReadyCallback(setDataAirshipVisit(visit,true))
             }
 
         }
@@ -764,11 +773,16 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
 
     }
 
-    private fun setDataAirshipVisit(visit: Visit): HashMap<String, Any>? {
+    private fun setDataAirshipVisit(visit: Visit, formatDateISO8601: Boolean = false): HashMap<String, Any>? {
         var data = HashMap<String, Any>()
         data.put("event", "woos_visit_event")
-        data.put("arrivalDate", displayDateFormatAirship.format(visit.startTime))
-        data.put("departureDate", displayDateFormatAirship.format(visit.endTime))
+        if (formatDateISO8601) {
+            data.put("arrivalDate", displayDateFormatISO8601.format(visit.startTime))
+            data.put("departureDate", displayDateFormatISO8601.format(visit.endTime))
+        } else {
+            data.put("arrivalDate", displayDateFormatAirship.format(visit.startTime))
+            data.put("departureDate", displayDateFormatAirship.format(visit.endTime))
+        }
         data.put("id", visit.id)
         data.put("latitude", visit.lat)
         data.put("longitude", visit.lng)
@@ -852,7 +866,7 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
                     Woosmap.getInstance().airshipRegionLogReadyListener.AirshipRegionLogReadyCallback(setDataAirshipRegionLog(regionLog))
                 }
                 if (Woosmap.getInstance().marketingCloudRegionLogReadyListener != null) {
-                    Woosmap.getInstance().marketingCloudRegionLogReadyListener.MarketingCloudRegionLogReadyCallback(setDataAirshipRegionLog(regionLog))
+                    Woosmap.getInstance().marketingCloudRegionLogReadyListener.MarketingCloudRegionLogReadyCallback(setDataAirshipRegionLog(regionLog,true))
                 }
             }
         }.start()
