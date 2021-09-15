@@ -24,31 +24,39 @@
         android:configChanges="orientation|screenSize"
         android:fullBackupContent="@xml/backup_descriptor"
         android:largeHeap="true">
-        <activity android:name="com.webgeoservices.sample.MainActivity">
+        <activity android:name="com.webgeoservices.sample.MainActivity"
+            android:exported="true"
+            >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
             <intent-filter>
-                 <data android:scheme="sample"
-                android:host="notif" />
+                <data android:scheme="sample"
+                    android:host="notif" />
             </intent-filter>
         </activity>
-        <!-- comment to enable airship -->
-        <service android:name="com.webgeoservices.woosmapgeofencing.WoosmapInstanceIDService">
+        <!--  comment to enable airship
+        <service android:name="com.webgeoservices.woosmapgeofencing.WoosmapInstanceIDService"
+            android:exported="true"
+            >
             <intent-filter>
                 <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
             </intent-filter>
         </service>
-        <service android:name="com.webgeoservices.woosmapgeofencing.WoosmapMessagingService">
+        <service android:name="com.webgeoservices.woosmapgeofencing.WoosmapMessagingService"
+            android:exported="true"
+            >
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
-        </service>
+        </service> -->
         <!-- Uncomment to enable airship -->
         <!--       <meta-data android:name="com.urbanairship.autopilot"
                    android:value="com.webgeoservices.sample.SampleAutopilot"/>-->
-        <receiver android:name="com.webgeoservices.sample.RunOnStartup">
+        <receiver android:name="com.webgeoservices.sample.RunOnStartup"
+            android:exported="true"
+            >
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
                 <category android:name="android.intent.category.DEFAULT" />
@@ -56,24 +64,24 @@
         </receiver>
 
 
-        <meta-data
-            android:name="com.google.firebase.messaging.default_notification_channel"
-            android:value="@string/default_notification_channel_id" />
-        <meta-data
-            android:name="com.google.firebase.messaging.default_notification_icon"
-            android:resource="@drawable/ic_shopping_cart_black_24dp" />
-        <meta-data
-            android:name="com.google.firebase.messaging.default_notification_color"
-            android:resource="@color/colorPrimaryDark" />
-        <meta-data
-            android:name="woosmap.messaging.default_notification_icon"
-            android:resource="@drawable/ic_android_black_24dp" />
-        <meta-data android:name="woosmap_notification_defautl_uri"
-            android:value="sample://notif" />
-        <meta-data
-            android:name="com.google.android.geo.API_KEY"
-            android:value=""/>
+        <!-- <meta-data
+             android:name="com.google.firebase.messaging.default_notification_channel"
+             android:value="@string/default_notification_channel_id" />
+         <meta-data
+             android:name="com.google.firebase.messaging.default_notification_icon"
+             android:resource="@drawable/ic_shopping_cart_black_24dp" />
+         <meta-data
+             android:name="com.google.firebase.messaging.default_notification_color"
+             android:resource="@color/colorPrimaryDark" /> -->
+         <meta-data
+             android:name="woosmap.messaging.default_notification_icon"
+             android:resource="@drawable/ic_android_black_24dp" />
+         <meta-data android:name="woosmap_notification_defautl_uri"
+             android:value="sample://notif" />
+         <meta-data
+             android:name="com.google.android.geo.API_KEY"
+             android:value=""/>
 
-    </application>
+     </application>
 
-       </manifest>
+ </manifest>

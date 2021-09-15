@@ -247,11 +247,16 @@ public class LocationUpdatesService extends Service {
         // Extra to help us figure out if we arrived in onStartCommand via the notification or not.
         intent.putExtra(EXTRA_STARTED_FROM_NOTIFICATION, true);
 
+        int flags = PendingIntent.FLAG_UPDATE_CURRENT;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            flags = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE;
+        }
+
         // The PendingIntent that leads to a call to onStartCommand() in this service.
-        PendingIntent servicePendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent servicePendingIntent = PendingIntent.getService(this, 0, intent, flags);
 
         Intent newIntent = pm.getLaunchIntentForPackage(this.getPackageName());
-        PendingIntent mPendingIntent = PendingIntent.getActivity(this,0, newIntent,  PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent mPendingIntent = PendingIntent.getActivity(this,0, newIntent,  flags);
         setIconFromManifestVariable();
         Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         return builder
