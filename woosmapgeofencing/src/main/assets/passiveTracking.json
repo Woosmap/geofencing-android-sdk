@@ -16,11 +16,11 @@
     "accuracyFilter": 100,
 
     "searchAPIEnable": true,
-    "searchAPICreationRegionEnable": false,
+    "searchAPICreationRegionEnable": true,
     "searchAPITimeFilter": 0,
     "searchAPIDistanceFilter": 0,
 
-    "distanceAPIEnable": true,
+    "distanceAPIEnable": false,
     "modeDistance": "driving",
     "outOfTimeDelay": 300,
     "dataDurationDelay": 30,
