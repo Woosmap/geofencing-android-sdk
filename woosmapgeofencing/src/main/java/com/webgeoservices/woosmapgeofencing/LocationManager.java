@@ -82,7 +82,11 @@ class LocationManager {
 
 
     private PendingIntent getGeofencePendingIntent() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            Intent intent = new Intent(context, GeofenceBroadcastReceiver.class);
+            mGeofencePendingIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.
+                    FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE);
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             Intent intent = new Intent(context, GeofenceBroadcastReceiver.class);
             mGeofencePendingIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.
                     FLAG_UPDATE_CURRENT);
@@ -115,7 +119,12 @@ class LocationManager {
     }
 
     private void createLocationPendingIntent() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            Intent intent = new Intent(this.context, LocationUpdatesBroadcastReceiver.class);
+            intent.setAction(LocationUpdatesBroadcastReceiver.ACTION_PROCESS_UPDATES);
+            int flags = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE;
+            mLocationIntent = PendingIntent.getBroadcast(this.context, 0, intent, flags);
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             Intent intent = new Intent(this.context, LocationUpdatesBroadcastReceiver.class);
             intent.setAction(LocationUpdatesBroadcastReceiver.ACTION_PROCESS_UPDATES);
             mLocationIntent = PendingIntent.getBroadcast(this.context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);

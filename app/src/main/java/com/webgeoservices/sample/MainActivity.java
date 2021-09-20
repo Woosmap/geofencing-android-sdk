@@ -231,7 +231,7 @@ public class MainActivity extends AppCompatActivity {
         super.onPause();
         Log.d("WoosmapGeofencing", "BackGround");
         if (checkPermissions()) {
-            this.woosmap.onPause();
+           this.woosmap.onPause();
         }
     }
 
@@ -271,7 +271,11 @@ public class MainActivity extends AppCompatActivity {
 
             intent = new Intent(this, MainActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
+            int flags = PendingIntent.FLAG_UPDATE_CURRENT;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                flags = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE;
+            }
+            pendingIntent = PendingIntent.getActivity(this, 0, intent, flags);
 
             builder.setContentTitle(title)  // required
                     .setSmallIcon(android.R.drawable.ic_popup_reminder) // required
@@ -386,7 +390,7 @@ public class MainActivity extends AppCompatActivity {
         WoosmapSettings.privateKeyWoosmapAPI = "";
         WoosmapSettings.privateKeyGMPStatic = "";
 
-        WoosmapSettings.foregroundLocationServiceEnable = false;
+        WoosmapSettings.foregroundLocationServiceEnable = true;
 
         this.woosmap.setLocationReadyListener(new WoosLocationReadyListener());
         this.woosmap.setSearchAPIReadyListener(new WoosSearchAPIReadyListener());

@@ -13,6 +13,7 @@ import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.util.Log;
@@ -154,7 +155,11 @@ public class WoosmapMessageBuilderMaps {
         resultIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         resultIntent.putExtra(WoosmapSettings.WoosmapNotification, datas.notificationId);
         Log.d(WoosmapSettings.Tags.WoosmapSdkTag, "notif: " + datas.notificationId);
-        mPendingIntent = PendingIntent.getActivity(this.context, 0, resultIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        int flags = PendingIntent.FLAG_UPDATE_CURRENT;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            flags = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE;
+        }
+        mPendingIntent = PendingIntent.getActivity(this.context, 0, resultIntent, flags);
 
 
         if (!WoosmapSettings.privateKeyGMPStatic.isEmpty() && !WoosmapSettings.privateKeyWoosmapAPI.isEmpty()) {

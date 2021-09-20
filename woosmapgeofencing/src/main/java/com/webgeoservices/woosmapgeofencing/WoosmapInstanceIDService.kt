@@ -2,7 +2,7 @@ package com.webgeoservices.woosmapgeofencing
 
 import android.util.Log
 import com.google.android.gms.tasks.OnCompleteListener
-import com.google.firebase.iid.FirebaseInstanceId
+//import com.google.firebase.iid.FirebaseInstanceId
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.webgeoservices.woosmapgeofencing.WoosmapSettings.Tags.WoosmapSdkTag
 
@@ -16,7 +16,7 @@ internal class WoosmapInstanceIDService : FirebaseMessagingService() {
 
     companion object {
         fun initializedFCMToken() {
-            FirebaseInstanceId.getInstance().instanceId
+            /*FirebaseInstanceId.getInstance().instanceId
                     .addOnCompleteListener(OnCompleteListener { task ->
                         if (!task.isSuccessful) {
                             Log.w(WoosmapSdkTag, "getInstanceId failed", task.exception)
@@ -26,7 +26,7 @@ internal class WoosmapInstanceIDService : FirebaseMessagingService() {
                         // Get new Instance ID token
                         val token = task.result?.token
                         Woosmap.setMessageToken(token)
-                    })
+                    })*/
         }
     }
 
