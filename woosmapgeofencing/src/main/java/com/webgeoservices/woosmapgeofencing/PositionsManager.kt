@@ -35,7 +35,7 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
     private var requestQueue: RequestQueue? = null
 
     var displayDateFormatAirship = SimpleDateFormat("dd-MM-yyyy HH:mm:ss")
-    var displayDateFormatISO8601 = SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'")
+    var displayDateFormatISO8601 = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
 
 
     private fun visitsDetectionAlgo(lastVisit: Visit, location: Location) {
@@ -503,12 +503,12 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
         data.put("name", POIaround.name)
         data.put("lat", POIaround.lat)
         data.put("lng", POIaround.lng)
-        data.put("radius", POIaround.lng)
+        data.put("radius", POIaround.radius)
         data.put("address", POIaround.address)
         data.put("contact", POIaround.contact)
         data.put("types", POIaround.types)
         data.put("tags", POIaround.tags)
-        data.put("countryCode", POIaround.countryCode)
+        data.put("country_code", POIaround.countryCode)
         data.put("openNow",POIaround.openNow)
 
         //user Properties
