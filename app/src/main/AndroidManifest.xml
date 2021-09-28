@@ -36,21 +36,6 @@
                     android:host="notif" />
             </intent-filter>
         </activity>
-        <!--  comment to enable airship
-        <service android:name="com.webgeoservices.woosmapgeofencing.WoosmapInstanceIDService"
-            android:exported="true"
-            >
-            <intent-filter>
-                <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
-            </intent-filter>
-        </service>
-        <service android:name="com.webgeoservices.woosmapgeofencing.WoosmapMessagingService"
-            android:exported="true"
-            >
-            <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT" />
-            </intent-filter>
-        </service> -->
         <!-- Uncomment to enable airship -->
         <!--       <meta-data android:name="com.urbanairship.autopilot"
                    android:value="com.webgeoservices.sample.SampleAutopilot"/>-->
@@ -64,15 +49,6 @@
         </receiver>
 
 
-        <!-- <meta-data
-             android:name="com.google.firebase.messaging.default_notification_channel"
-             android:value="@string/default_notification_channel_id" />
-         <meta-data
-             android:name="com.google.firebase.messaging.default_notification_icon"
-             android:resource="@drawable/ic_shopping_cart_black_24dp" />
-         <meta-data
-             android:name="com.google.firebase.messaging.default_notification_color"
-             android:resource="@color/colorPrimaryDark" /> -->
          <meta-data
              android:name="woosmap.messaging.default_notification_icon"
              android:resource="@drawable/ic_android_black_24dp" />

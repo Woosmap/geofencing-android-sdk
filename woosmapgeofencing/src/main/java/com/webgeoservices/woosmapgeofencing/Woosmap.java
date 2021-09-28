@@ -677,7 +677,6 @@ public class Woosmap {
             WoosmapSettings.outOfTimeDelay = obj.getInt( "outOfTimeDelay" );
             WoosmapSettings.numberOfDayDataDuration = obj.getLong( "dataDurationDelay" );
 
-            enableFCM(obj.getBoolean("FCMEnable" ));
             enableTracking(WoosmapSettings.trackingEnable);
 
         } catch (JSONException e) {
@@ -685,10 +684,6 @@ public class Woosmap {
         }
     }
 
-    private void enableFCM(boolean fcmEnable) {
-        if(fcmEnable){
-            // Asynchronous loading of fcm token
-            WoosmapInstanceIDService.Companion.initializedFCMToken();
-        }
-    }
+
+
 }
