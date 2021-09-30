@@ -175,3 +175,13 @@ fun requestSearchAPI(positon: MovingPosition) {
 ```
 
 Modify the body, subtitle and attachment of the content handler to show the informations from APIs.
+
+### Radius of POI
+When you create a geofence around a POI, manually define the radius value: 
+```java
+WoosmapSettings.poiRadius = 500;
+```
+or choose the user_properties subfield that corresponds to radius value of the geofence:
+```java
+WoosmapSettings.poiRadiusNameFromResponse = "radiusPOI";
+```
