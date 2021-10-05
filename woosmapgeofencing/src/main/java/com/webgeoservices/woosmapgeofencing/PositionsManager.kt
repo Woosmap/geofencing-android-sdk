@@ -16,6 +16,7 @@ import com.google.android.gms.location.GeofencingRequest
 import com.google.android.gms.maps.model.LatLng
 import com.google.gson.Gson
 import com.webgeoservices.woosmapgeofencing.DistanceAPIDataModel.DistanceAPI
+import com.webgeoservices.woosmapgeofencing.SFMCAPI.SFMCAPI
 import com.webgeoservices.woosmapgeofencing.SearchAPIDataModel.SearchAPIResponseItem
 import com.webgeoservices.woosmapgeofencing.WoosmapSettings.*
 import com.webgeoservices.woosmapgeofencing.WoosmapSettings.Tags.WoosmapSdkTag
@@ -34,9 +35,9 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
     private var temporaryFinishedVisits: MutableList<Visit> = mutableListOf<Visit>()
     private var requestQueue: RequestQueue? = null
 
-    var displayDateFormatAirship = SimpleDateFormat("dd-MM-yyyy HH:mm:ss")
+    var tz = TimeZone.getTimeZone("UTC")
+    var displayDateFormatAirship = SimpleDateFormat("dd-MM-yyyy HH:mm:ss'Z'")
     var displayDateFormatISO8601 = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
-
 
     private fun visitsDetectionAlgo(lastVisit: Visit, location: Location) {
         Log.d(WoosmapVisitsTag, "get New Location")
@@ -189,6 +190,8 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
                     if (Woosmap.getInstance().marketingCloudRegionLogReadyListener != null) {
                         Woosmap.getInstance().marketingCloudRegionLogReadyListener.MarketingCloudRegionLogReadyCallback(setDataAirshipRegionLog(regionLog,true))
                     }
+                    //SFMC connector API
+                    sendDataToSFMC(regionLog)
                 } else if(it.didEnter != isInside) {
                     if (Woosmap.getInstance().regionLogReadyListener != null) {
                         Woosmap.getInstance().regionLogReadyListener.RegionLogReadyCallback(regionLog)
@@ -199,7 +202,57 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
                     if (Woosmap.getInstance().marketingCloudRegionLogReadyListener != null) {
                         Woosmap.getInstance().marketingCloudRegionLogReadyListener.MarketingCloudRegionLogReadyCallback(setDataAirshipRegionLog(regionLog,true))
                     }
+                    //SFMC connector API
+                    sendDataToSFMC(regionLog)
                 }
+            }
+        }
+
+    }
+
+    private fun sendDataToSFMC(regionLog: RegionLog) {
+        var eventName = ""
+
+        eventName =
+            if (regionLog.identifier.contains("HOME") || regionLog.identifier.contains("WORK")) {
+                "woos_zoi_classified_"
+            } else {
+                "woos_geofence_"
+            }
+
+        // Create and name an event
+        if (regionLog.isCurrentPositionInside)
+            eventName += "entered_event"
+        else
+            eventName += "exited_event"
+
+        if(eventName == "woos_zoi_classified_entered_event") {
+            if (SFMCCredentials.get("zoiClassifiedEnteredEventDefinitionKey") != null) {
+                val SFMC = SFMCAPI(context)
+                SFMC.pushDatatoMC(setDataAirshipRegionLog(regionLog, true),
+                    SFMCCredentials.get("zoiClassifiedEnteredEventDefinitionKey").toString()
+                )
+            }
+        } else if (eventName == "woos_zoi_classified_exited_event") {
+            if (SFMCCredentials.get("zoiClassifiedExitedEventDefinitionKey") != null) {
+                val SFMC = SFMCAPI(context)
+                SFMC.pushDatatoMC(setDataAirshipRegionLog(regionLog, true),
+                    SFMCCredentials.get("zoiClassifiedExitedEventDefinitionKey").toString()
+                )
+            }
+        } else if (eventName == "woos_geofence_entered_event") {
+            if (SFMCCredentials.get("regionEnteredEventDefinitionKey") != null) {
+                val SFMC = SFMCAPI(context)
+                SFMC.pushDatatoMC(setDataAirshipRegionLog(regionLog, true),
+                    SFMCCredentials.get("regionEnteredEventDefinitionKey").toString()
+                )
+            }
+        } else if (eventName == "woos_geofence_exited_event") {
+            if (SFMCCredentials.get("regionExitedEventDefinitionKey") != null) {
+                val SFMC = SFMCAPI(context)
+                SFMC.pushDatatoMC(setDataAirshipRegionLog(regionLog, true),
+                    SFMCCredentials.get("regionExitedEventDefinitionKey").toString()
+                )
             }
         }
 
@@ -207,8 +260,9 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
 
     private fun setDataAirshipRegionLog(regionLog: RegionLog, formatDateISO8601: Boolean = false): HashMap<String, Any>? {
         var data = HashMap<String, Any>()
-
         var eventName = ""
+        displayDateFormatISO8601.timeZone = tz
+        displayDateFormatAirship.timeZone = tz
 
         eventName =
             if (regionLog.identifier.contains("HOME") || regionLog.identifier.contains("WORK")) {
@@ -238,6 +292,11 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
         } else {
             val poi = this.db.poIsDAO.getPOIbyStoreId(regionLog.idStore)
             setDataAirshipPOI(poi,formatDateISO8601)?.let { data.putAll(it) }
+            if(formatDateISO8601) {
+                data.put("date", displayDateFormatISO8601.format(regionLog.dateTime))
+            } else {
+                data.put("date", displayDateFormatAirship.format(regionLog.dateTime))
+            }
             data.put("event", eventName)
             data.put("id", regionLog.id)
         }
@@ -390,6 +449,8 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
                 if (Woosmap.getInstance().marketingCloudRegionLogReadyListener != null) {
                     Woosmap.getInstance().marketingCloudRegionLogReadyListener.MarketingCloudRegionLogReadyCallback(setDataAirshipRegionLog(regionLog,true))
                 }
+                //SFMC connector API
+                sendDataToSFMC(regionLog)
             }
         }
 
@@ -468,6 +529,12 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
                                                     setDataAirshipPOI(POIaround,true)
                                                 )
                                             }
+                                            if (SFMCCredentials.get("poiEventDefinitionKey") != null) {
+                                                val SFMC = SFMCAPI(context)
+                                                SFMC.pushDatatoMC(setDataAirshipPOI(POIaround, true),
+                                                    SFMCCredentials.get("poiEventDefinitionKey").toString()
+                                                )
+                                            }
                                         }
                                     }
                                 }
@@ -490,6 +557,8 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
 
     private fun setDataAirshipPOI(POIaround: POI, formatDateISO8601: Boolean = false): HashMap<String, Any>? {
         var data = HashMap<String, Any>()
+        displayDateFormatISO8601.timeZone = tz
+        displayDateFormatAirship.timeZone = tz
         data.put("event", "woos_poi_event")
         data.put("city", POIaround.city)
         data.put("zipCode", POIaround.zipCode)
@@ -518,7 +587,7 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
                 SearchAPIResponseItem.getUserProperties(json, POIaround.idStore)
             if(userPropertiesFiltered != null) {
                 for ((key, value) in userPropertiesFiltered) {
-                    data.put("user_properties." + key, value)
+                    data.put("user_properties_" + key, value)
                 }
             }
         } catch (e: JSONException) {
@@ -602,6 +671,12 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
                     if (Woosmap.getInstance().marketingCloudSearchAPIReadyListener != null) {
                         Woosmap.getInstance().marketingCloudSearchAPIReadyListener.MarketingCloudSearchAPIReadyCallback(setDataAirshipPOI(POIaround, true))
                     }
+                    if (SFMCCredentials.get("poiEventDefinitionKey") != null) {
+                        val SFMC = SFMCAPI(context)
+                        SFMC.pushDatatoMC(setDataAirshipPOI(POIaround, true),
+                            SFMCCredentials.get("poiEventDefinitionKey").toString()
+                        )
+                    }
 
                 }.start()
             },
@@ -670,6 +745,12 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
                                     if (Woosmap.getInstance().marketingCloudSearchAPIReadyListener != null) {
                                         Woosmap.getInstance().marketingCloudSearchAPIReadyListener.MarketingCloudSearchAPIReadyCallback(
                                             setDataAirshipPOI(POIaround,true)
+                                        )
+                                    }
+                                    if (SFMCCredentials.get("poiEventDefinitionKey") != null) {
+                                        val SFMC = SFMCAPI(context)
+                                        SFMC.pushDatatoMC(setDataAirshipPOI(POIaround, true),
+                                            SFMCCredentials["poiEventDefinitionKey"].toString()
                                         )
                                     }
                                 }
@@ -768,6 +849,13 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
                 Woosmap.getInstance().marketingCloudVisitReadyListener.MarketingCloudVisitReadyCallback(setDataAirshipVisit(visit,true))
             }
 
+            if (SFMCCredentials.get("visitEventDefinitionKey") != null) {
+                val SFMC = SFMCAPI(context)
+                SFMC.pushDatatoMC(setDataAirshipVisit(visit, true),
+                    SFMCCredentials.get("visitEventDefinitionKey").toString()
+                )
+            }
+
         }
 
 
@@ -775,6 +863,8 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
 
     private fun setDataAirshipVisit(visit: Visit, formatDateISO8601: Boolean = false): HashMap<String, Any>? {
         var data = HashMap<String, Any>()
+        displayDateFormatISO8601.timeZone = tz
+        displayDateFormatAirship.timeZone = tz
         data.put("event", "woos_visit_event")
         if (formatDateISO8601) {
             data.put("arrivalDate", displayDateFormatISO8601.format(visit.startTime))
@@ -868,6 +958,8 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
                 if (Woosmap.getInstance().marketingCloudRegionLogReadyListener != null) {
                     Woosmap.getInstance().marketingCloudRegionLogReadyListener.MarketingCloudRegionLogReadyCallback(setDataAirshipRegionLog(regionLog,true))
                 }
+                //SFMC connector API
+                sendDataToSFMC(regionLog)
             }
         }.start()
     }
