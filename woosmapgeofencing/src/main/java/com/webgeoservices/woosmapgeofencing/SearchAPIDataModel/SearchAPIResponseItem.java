@@ -184,7 +184,8 @@ public class SearchAPIResponseItem implements Parcelable {
                 addressLineArray=properties.getJSONObject("address").getJSONArray("lines");
                 StringBuilder formattedAddress=new StringBuilder();
                 for(int i=0;i<addressLineArray.length();i++){
-                    formattedAddress.append(addressLineArray.getString(i));
+                    if(addressLineArray.getString(i) != "null")
+                        formattedAddress.append(addressLineArray.getString(i));
                 }
                 detailsResponseItem.formattedAddress=formattedAddress.toString().trim();
                 detailsResponseItem.city = properties.getJSONObject("address").getString("city");

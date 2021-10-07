@@ -60,12 +60,17 @@ public class WoosmapSettings {
         prefsEditor.putString( "WoosmapNotificationChannelName",WoosmapNotificationChannelName );
         prefsEditor.putString( "WoosmapNotificationDescriptionChannel",WoosmapNotificationDescriptionChannel );
         prefsEditor.putBoolean( "WoosmapNotificationActive",WoosmapNotificationActive );
+        prefsEditor.putString( "SFMCAccessToken",SFMCAccessToken );
+
         //convert to string using gson
         Gson gson = new Gson();
         String searchAPIHashMapString = gson.toJson(searchAPIParameters);
         prefsEditor.putString("searchAPIParameters", searchAPIHashMapString).apply();
         String userPropertiesHashMapString = gson.toJson(userPropertiesFilter);
         prefsEditor.putString("userPropertiesFilter", userPropertiesHashMapString).apply();
+        String SFMCCredentialsHashMapString = gson.toJson(SFMCCredentials);
+        prefsEditor.putString("SFMCCredentials", SFMCCredentialsHashMapString).apply();
+
 
         prefsEditor.commit();
 
@@ -111,18 +116,28 @@ public class WoosmapSettings {
         WoosmapSettings.WoosmapNotificationChannelName  = mPrefs.getString( "WoosmapNotificationChannelName",WoosmapSettings.WoosmapNotificationChannelID );
         WoosmapSettings.WoosmapNotificationDescriptionChannel  = mPrefs.getString( "WoosmapNotificationDescriptionChannel",WoosmapSettings.WoosmapNotificationDescriptionChannel );
         WoosmapSettings.WoosmapNotificationActive = mPrefs.getBoolean( "WoosmapNotificationActive", WoosmapSettings.WoosmapNotificationActive );
+        WoosmapSettings.SFMCAccessToken  = mPrefs.getString( "SFMCAccessToken",WoosmapSettings.SFMCAccessToken );
 
         //convert to string using gson
         java.lang.reflect.Type type = new TypeToken<HashMap<String, String>>(){}.getType();
         Gson gson = new Gson();
         SharedPreferences.Editor prefsEditor = mPrefs.edit();
+
         String searchAPIHashMapString = gson.toJson(searchAPIParameters);
         prefsEditor.putString("searchAPIParameters", searchAPIHashMapString).apply();
+
         String userPropertiesHashMapString = gson.toJson(userPropertiesFilter);
         prefsEditor.putString("userPropertiesFilter", userPropertiesHashMapString).apply();
 
+        String SFMCCredentialsHashMapString = gson.toJson(SFMCCredentials);
+        prefsEditor.putString("SFMCCredentials", SFMCCredentialsHashMapString).apply();
+
         String searchAPIParametersString = mPrefs.getString("searchAPIParameters", searchAPIHashMapString);
         WoosmapSettings.searchAPIParameters = gson.fromJson(searchAPIParametersString, type);
+
+        String SFMCCredentialsString = mPrefs.getString("SFMCCredentials", SFMCCredentialsHashMapString);
+        WoosmapSettings.SFMCCredentials = gson.fromJson(SFMCCredentialsString, type);
+
 
         String userPropertiesFilterString = mPrefs.getString("userPropertiesFilter", userPropertiesHashMapString);
         Type typeArray = new TypeToken<List<String>>() {}.getType();
@@ -220,6 +235,12 @@ public class WoosmapSettings {
 
     static public HashMap<String, String> searchAPIParameters = new HashMap<String, String>();
     static public ArrayList<String> userPropertiesFilter = new ArrayList<String>();
+
+    //SFMCCredentials
+    static public HashMap<String, String> SFMCCredentials = new HashMap<String, String>();
+
+    //Token SFMC
+    static public String SFMCAccessToken = "";
 
 
 
