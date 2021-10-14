@@ -133,7 +133,7 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
         val id = this.db.movingPositionsDao.createMovingPosition(movingPosition)
         movingPosition.id = id.toInt()
 
-        if (filterTimeBetweenRequestSearAPI(movingPosition))
+        if (filterTimeBetweenRequestSearchAPI(movingPosition))
             return movingPosition
 
         if (distance > 0.0) {
@@ -308,7 +308,7 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
         return true
     }
 
-    private fun filterTimeBetweenRequestSearAPI(movingPosition: MovingPosition): Boolean {
+    private fun filterTimeBetweenRequestSearchAPI(movingPosition: MovingPosition): Boolean {
         if (WoosmapSettings.searchAPITimeFilter == 0)
             return false
         // No data in db, No filter
@@ -934,6 +934,7 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
             this.db.regionLogsDAO.createRegionLog(regionLog)
 
             if(regionDetected.didEnter != regionDetected.isCurrentPositionInside) {
+                regionDetected.isCurrentPositionInside = regionDetected.didEnter
                 if (Woosmap.getInstance().regionLogReadyListener != null) {
                     Woosmap.getInstance().regionLogReadyListener.RegionLogReadyCallback(regionLog)
                 }
@@ -945,6 +946,7 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
                 }
                 //SFMC connector API
                 sendDataToSFMC(regionLog)
+
             }
         }.start()
     }
