@@ -133,7 +133,7 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
         val id = this.db.movingPositionsDao.createMovingPosition(movingPosition)
         movingPosition.id = id.toInt()
 
-        if (filterTimeBetweenRequestSearAPI(movingPosition))
+        if (filterTimeBetweenRequestSearchAPI(movingPosition))
             return movingPosition
 
         if (distance > 0.0) {
@@ -152,6 +152,7 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
     }
 
     private fun checkIfPositionIsInsideGeofencingRegions(movingPosition: MovingPosition) {
+
         var regions = this.db.regionsDAO.allRegions
 
         regions.forEach {
@@ -261,7 +262,6 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
         else
             eventName += "exited_event"
 
-
         if(regionLog.idStore.isEmpty()) {
             data.put("event", eventName)
             data.put("id", regionLog.id)
@@ -308,7 +308,7 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
         return true
     }
 
-    private fun filterTimeBetweenRequestSearAPI(movingPosition: MovingPosition): Boolean {
+    private fun filterTimeBetweenRequestSearchAPI(movingPosition: MovingPosition): Boolean {
         if (WoosmapSettings.searchAPITimeFilter == 0)
             return false
         // No data in db, No filter
@@ -919,9 +919,6 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
                 regionDetected.didEnter = false
             }
 
-            regionDetected.dateTime = System.currentTimeMillis()
-            this.db.regionsDAO.updateRegion(regionDetected)
-
             var regionLog = RegionLog()
             regionLog.identifier = regionDetected.identifier
             regionLog.dateTime = regionDetected.dateTime
@@ -931,9 +928,18 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
             regionLog.idStore = regionDetected.idStore
             regionLog.radius = regionDetected.radius
             regionLog.isCurrentPositionInside = regionDetected.isCurrentPositionInside
-            this.db.regionLogsDAO.createRegionLog(regionLog)
+
 
             if(regionDetected.didEnter != regionDetected.isCurrentPositionInside) {
+
+                regionLog.isCurrentPositionInside = regionDetected.didEnter
+                regionDetected.isCurrentPositionInside = regionDetected.didEnter
+
+                this.db.regionLogsDAO.createRegionLog(regionLog)
+
+                regionDetected.dateTime = System.currentTimeMillis()
+                this.db.regionsDAO.updateRegion(regionDetected)
+
                 if (Woosmap.getInstance().regionLogReadyListener != null) {
                     Woosmap.getInstance().regionLogReadyListener.RegionLogReadyCallback(regionLog)
                 }
@@ -945,7 +951,12 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
                 }
                 //SFMC connector API
                 sendDataToSFMC(regionLog)
+            } else {
+                this.db.regionLogsDAO.createRegionLog(regionLog)
+                regionDetected.dateTime = System.currentTimeMillis()
+                this.db.regionsDAO.updateRegion(regionDetected)
             }
+
         }.start()
     }
 

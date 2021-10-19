@@ -18,6 +18,8 @@ class SFMCAPI(val context: Context) {
     private var eventDefinitionKey: String = ""
 
     fun pushDatatoMC(data: HashMap<String, Any>?, event: String) {
+
+
         eventDefinitionKey = event
         if (requestQueue == null) {
             requestQueue = Volley.newRequestQueue(this.context)
@@ -91,6 +93,7 @@ class SFMCAPI(val context: Context) {
                 try {
                     WoosmapSettings.SFMCAccessToken = response.getString("access_token")
                     pushDatatoMC(data,eventDefinitionKey)
+                    WoosmapSettings.saveSettings(context)
                 } catch (e: JSONException) {
                     Log.d(WoosmapSettings.Tags.WoosmapSdkTag,"Error SFMC:" + e)
                 }

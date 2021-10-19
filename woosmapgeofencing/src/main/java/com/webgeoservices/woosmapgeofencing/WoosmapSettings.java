@@ -23,6 +23,7 @@ public class WoosmapSettings {
     public static void saveSettings(Context context){
         SharedPreferences mPrefs = context.getSharedPreferences("WGSGeofencingPref",MODE_PRIVATE);
         SharedPreferences.Editor prefsEditor = mPrefs.edit();
+        prefsEditor.clear();
         prefsEditor.putBoolean( "modeHighFrequencyLocationEnable", modeHighFrequencyLocation );
         prefsEditor.putBoolean( "trackingEnable",trackingEnable );
         prefsEditor.putInt( "currentLocationTimeFilter",currentLocationTimeFilter );
@@ -124,13 +125,8 @@ public class WoosmapSettings {
         SharedPreferences.Editor prefsEditor = mPrefs.edit();
 
         String searchAPIHashMapString = gson.toJson(searchAPIParameters);
-        prefsEditor.putString("searchAPIParameters", searchAPIHashMapString).apply();
-
         String userPropertiesHashMapString = gson.toJson(userPropertiesFilter);
-        prefsEditor.putString("userPropertiesFilter", userPropertiesHashMapString).apply();
-
-        String SFMCCredentialsHashMapString = gson.toJson(SFMCCredentials);
-        prefsEditor.putString("SFMCCredentials", SFMCCredentialsHashMapString).apply();
+        String SFMCCredentialsHashMapString = gson.toJson(WoosmapSettings.SFMCCredentials);
 
         String searchAPIParametersString = mPrefs.getString("searchAPIParameters", searchAPIHashMapString);
         WoosmapSettings.searchAPIParameters = gson.fromJson(searchAPIParametersString, type);
