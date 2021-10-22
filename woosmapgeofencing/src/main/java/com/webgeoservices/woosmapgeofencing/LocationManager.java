@@ -140,7 +140,9 @@ class LocationManager {
     }
 
     void updateLocationForeground() {
-        this.setmLocationRequest();
+        if(mLocationRequest == null) {
+            this.setmLocationRequest();
+        }
         if(WoosmapSettings.modeHighFrequencyLocation) {
             mLocationRequest.setInterval( 1000 );
             mLocationRequest.setFastestInterval( 1000 );
@@ -200,9 +202,11 @@ class LocationManager {
     }
 
     boolean checkPermissions() {
-        int permissionState = ActivityCompat.checkSelfPermission(this.context,
+        int finePermissionState = ActivityCompat.checkSelfPermission(this.context,
                 android.Manifest.permission.ACCESS_FINE_LOCATION);
-        return permissionState == PackageManager.PERMISSION_GRANTED;
+        int coarsePermissionState = ActivityCompat.checkSelfPermission(this.context,
+                android.Manifest.permission.ACCESS_COARSE_LOCATION);
+        return finePermissionState == PackageManager.PERMISSION_GRANTED || coarsePermissionState == PackageManager.PERMISSION_GRANTED;
     }
 
     @SuppressLint("MissingPermission")

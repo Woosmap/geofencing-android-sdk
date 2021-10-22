@@ -1,5 +1,6 @@
 package com.webgeoservices.sample;
 
+import android.Manifest;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -420,7 +421,9 @@ public class MainActivity extends AppCompatActivity {
         //WoosmapSettings.poiRadiusNameFromResponse = "creation_year";
         //WoosmapSettings.poiRadius = 500;
 
-        this.woosmap.startTracking( Woosmap.ConfigurationProfile.liveTracking );
+        this.woosmap.startTracking( Woosmap.ConfigurationProfile.passiveTracking );
+
+        //WoosmapSettings.foregroundLocationServiceEnable = true;
 
         // For android version >= 8 you have to create a channel or use the woosmap's channel
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -603,6 +606,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onChanged(POI[] pois) {
                 POIData = pois;
+                loadData();
             }
         });
     }
@@ -802,9 +806,11 @@ public class MainActivity extends AppCompatActivity {
      * Return the current state of the permissions needed.
      */
     private boolean checkPermissions() {
-        int permissionState = ActivityCompat.checkSelfPermission(this,
+        int finePermissionState = ActivityCompat.checkSelfPermission(this,
                 android.Manifest.permission.ACCESS_FINE_LOCATION);
-        return permissionState == PackageManager.PERMISSION_GRANTED;
+        int coarsePermissionState = ActivityCompat.checkSelfPermission(this,
+                android.Manifest.permission.ACCESS_COARSE_LOCATION);
+        return finePermissionState == PackageManager.PERMISSION_GRANTED || coarsePermissionState == PackageManager.PERMISSION_GRANTED;
     }
 
     private void requestPermissions() {
@@ -819,7 +825,7 @@ public class MainActivity extends AppCompatActivity {
         if (shouldProvideRationale) {
             Log.i("WoosmapGeofencing", "Displaying permission rationale to provide additional context.");
             ActivityCompat.requestPermissions(MainActivity.this,
-                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.ACCESS_BACKGROUND_LOCATION},
+                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION,android.Manifest.permission.ACCESS_BACKGROUND_LOCATION},
                     REQUEST_PERMISSIONS_REQUEST_CODE);
         } else {
             Log.i("WoosmapGeofencing", "Requesting permission");
@@ -827,22 +833,24 @@ public class MainActivity extends AppCompatActivity {
             // sets the permission in a given state or the user denied the permission
             // previously and checked "Never ask again".
             ActivityCompat.requestPermissions(MainActivity.this,
-                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.ACCESS_BACKGROUND_LOCATION},
+                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION,android.Manifest.permission.ACCESS_BACKGROUND_LOCATION},
                     REQUEST_PERMISSIONS_REQUEST_CODE);
         }
+
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
-        Log.i("WoosmapGeofencing", "onRequestPermissionResult");
+        super.onRequestPermissionsResult( requestCode, permissions, grantResults );
+        Log.i( "WoosmapGeofencing", "onRequestPermissionResult" );
         if (requestCode == REQUEST_PERMISSIONS_REQUEST_CODE) {
             if (grantResults.length <= 0) {
                 // If user interaction was interrupted, the permission request is cancelled and you
                 // receive empty arrays.
-                Log.i("WoosmapGeofencing", "User interaction was cancelled.");
+                Log.i( "WoosmapGeofencing", "User interaction was cancelled." );
             } else if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Log.i("WoosmapGeofencing", "Permission granted, updates requested, starting location updates");
+                Log.i( "WoosmapGeofencing", "Permission granted, updates requested, starting location updates" );
             } else {
                 // Permission denied.
 
@@ -855,20 +863,20 @@ public class MainActivity extends AppCompatActivity {
                 // again" prompts). Therefore, a user interface affordance is typically implemented
                 // when permissions are denied. Otherwise, your app could appear unresponsive to
                 // touches or interactions which have required permissions.
-                showSnackbar(R.string.permission_denied_explanation, R.string.settings,
+                showSnackbar( R.string.permission_denied_explanation, R.string.settings,
                         new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
                                 // Build intent that displays the App settings screen.
                                 Intent intent = new Intent();
                                 intent.setAction(
-                                        Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-                                Uri uri =  Uri.fromParts("package", getPackageName(), null);
-                                intent.setData(uri);
-                                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                startActivity(intent);
+                                        Settings.ACTION_APPLICATION_DETAILS_SETTINGS );
+                                Uri uri = Uri.fromParts( "package", getPackageName(), null );
+                                intent.setData( uri );
+                                intent.setFlags( Intent.FLAG_ACTIVITY_NEW_TASK );
+                                startActivity( intent );
                             }
-                        });
+                        } );
             }
         }
     }
