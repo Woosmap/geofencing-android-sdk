@@ -18,8 +18,6 @@ class SFMCAPI(val context: Context) {
     private var eventDefinitionKey: String = ""
 
     fun pushDatatoMC(data: HashMap<String, Any>?, event: String) {
-
-
         eventDefinitionKey = event
         if (requestQueue == null) {
             requestQueue = Volley.newRequestQueue(this.context)
@@ -99,15 +97,19 @@ class SFMCAPI(val context: Context) {
                 }
             })
             { error -> // show error to user. refresh failed.
-                if (!error.networkResponse.data.isEmpty()) {
-                    Log.d(
-                        WoosmapSettings.Tags.WoosmapSdkTag,
-                        "Error on token refresh SFMC:" + String(error.networkResponse.data)
-                    )
-                } else {
-                    Log.d(
-                        WoosmapSettings.Tags.WoosmapSdkTag,
-                        "Error on token refresh SFMC")
+                 try {
+                    if (error.networkResponse != null && !error.networkResponse.data.isEmpty()) {
+                        Log.d(
+                            WoosmapSettings.Tags.WoosmapSdkTag,
+                            "Error on token refresh SFMC:" + String(error.networkResponse.data)
+                        )
+                    } else {
+                        Log.d(
+                            WoosmapSettings.Tags.WoosmapSdkTag,
+                            "Error on token refresh SFMC " + error.message)
+                    }
+                } catch (e: JSONException) {
+                    Log.d(WoosmapSettings.Tags.WoosmapSdkTag,"Error SFMC:" + e)
                 }
             }
         requestQueue?.add(refreshTokenRequest)

@@ -236,7 +236,7 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
             "woos_geofence_exited_event"-> key = SFMCCredentials.get("regionExitedEventDefinitionKey").toString()
         }
 
-        if(key != "") {
+        if(key != "" && key != "null") {
             val SFMC = SFMCAPI(context)
             SFMC.pushDatatoMC(setDataConnectorRegionLog(regionLog, true), key);
         }
