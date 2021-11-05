@@ -10,4 +10,4 @@ The SDK simplifies the integration of the location context in your mobile applic
 
 All feature descriptions and guides to implement the Woosmap Geofencing Android SDK are available on the [Woosmap developers documentation](https://developers.woosmap.com/products/geofencing-sdk/get-started/).
 
-If you are looking for the previous documentation (before October 2021), it is still available in the [doc folder of the repository](https://github.com/woosmap/woosmap-geofencing-android-sdk/tree/master/doc).
+If you are looking for the former documentation (before October 2021), it is still available in the [doc folder of the repository](https://github.com/woosmap/woosmap-geofencing-android-sdk/tree/master/doc).
