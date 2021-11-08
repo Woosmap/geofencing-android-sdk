@@ -37,8 +37,11 @@ public class WoosmapSettings {
         prefsEditor.putInt( "searchAPITimeFilter",searchAPITimeFilter );
         prefsEditor.putInt( "searchAPIDistanceFilter",searchAPIDistanceFilter );
         prefsEditor.putBoolean( "distanceAPIEnable",distanceAPIEnable );
-        prefsEditor.putString( "drivingMode",drivingMode );
         prefsEditor.putString( "modeDistance",modeDistance );
+        prefsEditor.putString( "trafficDistanceRouting",trafficDistanceRouting );
+        prefsEditor.putString( "distanceProvider",distanceProvider );
+        prefsEditor.putString( "distanceUnits",distanceUnits );
+        prefsEditor.putString( "distanceLanguage",distanceLanguage );
         prefsEditor.putInt( "accuracyFilter",accuracyFilter );
         prefsEditor.putInt( "outOfTimeDelay",outOfTimeDelay );
         prefsEditor.putFloat( "distanceDetectionThresholdVisits", (float) distanceDetectionThresholdVisits );
@@ -51,6 +54,7 @@ public class WoosmapSettings {
         prefsEditor.putString( "WoosmapURL",Urls.WoosmapURL);
         prefsEditor.putString( "SearchAPIUrl",Urls.SearchAPIUrl);
         prefsEditor.putString( "DistanceAPIUrl",Urls.DistanceAPIUrl);
+        prefsEditor.putString( "TrafficDistanceAPIUrl",Urls.TrafficDistanceAPIUrl);
         prefsEditor.putString( "GoogleMapStaticUrl",Urls.GoogleMapStaticUrl);
         prefsEditor.putString( "GoogleMapStaticUrl1POI",Urls.GoogleMapStaticUrl1POI);
         prefsEditor.putBoolean( "checkIfPositionIsInsideGeofencingRegionsEnable",checkIfPositionIsInsideGeofencingRegionsEnable );
@@ -93,7 +97,10 @@ public class WoosmapSettings {
         WoosmapSettings.searchAPITimeFilter  = mPrefs.getInt( "searchAPITimeFilter",WoosmapSettings.searchAPITimeFilter );
         WoosmapSettings.searchAPIDistanceFilter  = mPrefs.getInt( "searchAPIDistanceFilter",WoosmapSettings.searchAPIDistanceFilter );
         WoosmapSettings.distanceAPIEnable  = mPrefs.getBoolean( "distanceAPIEnable",WoosmapSettings.distanceAPIEnable );
-        WoosmapSettings.drivingMode  = mPrefs.getString( "drivingMode",WoosmapSettings.drivingMode );
+        WoosmapSettings.trafficDistanceRouting  = mPrefs.getString( "trafficDistanceRouting",WoosmapSettings.trafficDistanceRouting );
+        WoosmapSettings.distanceProvider  = mPrefs.getString( "distanceProvider",WoosmapSettings.distanceProvider );
+        WoosmapSettings.distanceUnits  = mPrefs.getString( "distanceUnits",WoosmapSettings.distanceUnits );
+        WoosmapSettings.distanceLanguage  = mPrefs.getString( "distanceLanguage",WoosmapSettings.distanceLanguage );
         WoosmapSettings.modeDistance  = mPrefs.getString( "modeDistance",WoosmapSettings.modeDistance );
         WoosmapSettings.accuracyFilter  = mPrefs.getInt( "accuracyFilter",WoosmapSettings.accuracyFilter );
         WoosmapSettings.outOfTimeDelay  = mPrefs.getInt( "outOfTimeDelay",WoosmapSettings.outOfTimeDelay );
@@ -107,6 +114,7 @@ public class WoosmapSettings {
         WoosmapSettings.Urls.WoosmapURL  = mPrefs.getString( "WoosmapURL",WoosmapSettings.Urls.WoosmapURL);
         WoosmapSettings.Urls.SearchAPIUrl = mPrefs.getString( "SearchAPIUrl",WoosmapSettings.Urls.SearchAPIUrl);
         WoosmapSettings.Urls.DistanceAPIUrl  = mPrefs.getString( "DistanceAPIUrl",WoosmapSettings.Urls.DistanceAPIUrl);
+        WoosmapSettings.Urls.TrafficDistanceAPIUrl  = mPrefs.getString( "TrafficDistanceAPIUrl",WoosmapSettings.Urls.TrafficDistanceAPIUrl);
         WoosmapSettings.Urls.GoogleMapStaticUrl  = mPrefs.getString( "GoogleMapStaticUrl",WoosmapSettings.Urls.GoogleMapStaticUrl);
         WoosmapSettings.Urls.GoogleMapStaticUrl1POI  = mPrefs.getString( "GoogleMapStaticUrl1POI",WoosmapSettings.Urls.GoogleMapStaticUrl1POI);
         WoosmapSettings.checkIfPositionIsInsideGeofencingRegionsEnable = mPrefs.getBoolean( "checkIfPositionIsInsideGeofencingRegionsEnable", WoosmapSettings.checkIfPositionIsInsideGeofencingRegionsEnable );
@@ -140,7 +148,6 @@ public class WoosmapSettings {
         WoosmapSettings.userPropertiesFilter = gson.fromJson(userPropertiesFilterString, typeArray);
 
     }
-
     static String AndroidDeviceModel = "android";
     static String PositionDateFormat = "yyyy-MM-dd'T'HH:mm:ss Z";
     static final String WoosmapNotification = "woosmapNotification";
@@ -189,10 +196,69 @@ public class WoosmapSettings {
     static public boolean distanceAPIEnable = true;
 
     //Mode transportation DistanceAPI
-    private static String drivingMode  = "driving";
+    private static final String drivingMode  = "driving";
     private static final String walkingMode  = "walking";
     private static final String cyclingMode  = "cycling";
+    private static final String truckMode  = "truck";
     static public String modeDistance = drivingMode;
+
+    //Distance Provider
+    public static final String woosmapDistance = "WoosmapDistance";
+    public static final String woosmapTraffic = "WoosmapTraffic";
+    static public String distanceProvider = woosmapDistance;
+
+    //Distance Routing
+    private static final String fastest = "fastest";
+    private static final String balanced = "balanced";
+    static public String trafficDistanceRouting = fastest;
+
+    //Distance Language
+    static public String distanceLanguage = "en";
+
+    //Distance Units
+    private static final String metric = "metric";
+    private static final String imperial = "imperial";
+    static public String distanceUnits = metric;
+
+    public static void setModeDistance(String modeDistance) {
+        WoosmapSettings.modeDistance = modeDistance;
+    }
+
+    public static void setDistanceProvider(String distanceProvider) {
+        WoosmapSettings.distanceProvider = distanceProvider;
+    }
+
+    public static void setTrafficDistanceRouting(String trafficDistanceRouting) {
+        WoosmapSettings.trafficDistanceRouting = trafficDistanceRouting;
+    }
+
+    public static void setDistanceLanguage(String distanceLanguage) {
+        WoosmapSettings.distanceLanguage = distanceLanguage;
+    }
+
+    public static void setDistanceUnits(String distanceUnits) {
+        WoosmapSettings.distanceUnits = distanceUnits;
+    }
+
+    public static String getModeDistance() {
+        return modeDistance;
+    }
+
+    public static String getDistanceProvider() {
+        return distanceProvider;
+    }
+
+    public static String getTrafficDistanceRouting() {
+        return trafficDistanceRouting;
+    }
+
+    public static String getDistanceLanguage() {
+        return distanceLanguage;
+    }
+
+    public static String getDistanceUnits() {
+        return distanceUnits;
+    }
 
     //Filter Accuracy of the location
     static public int accuracyFilter = 100;
@@ -253,7 +319,8 @@ public class WoosmapSettings {
     static class Urls {
         static String WoosmapURL = "https://api.woosmap.com";
         static String SearchAPIUrl = "%s/stores/search/?private_key=%s&lat=%s&lng=%s&stores_by_page=1";
-        static String DistanceAPIUrl ="%s/distance/distancematrix/json?mode=%s&units=metric&origins=%s,%s&destinations=%s&private_key=%s&elements=duration_distance";
+        static String DistanceAPIUrl ="%s/distance/distancematrix/json?mode=%s&units=%s&language=%s&origins=%s,%s&destinations=%s&private_key=%s&elements=duration_distance";
+        static String TrafficDistanceAPIUrl ="%s/traffic/distancematrix/json?mode=%s&units=%s&language=%s&routing=%s&origins=%s,%s&destinations=%s&private_key=%s";
         static String GoogleMapStaticUrl = "https://maps.google.com/maps/api/staticmap?markers=color:red%%7C%s,%s&markers=color:blue%%7C%s,%s&zoom=14&size=400x400&sensor=true&key=%s";
         static String GoogleMapStaticUrl1POI = "https://maps.google.com/maps/api/staticmap?markers=color:red%%7C%s,%s&zoom=14&size=400x400&sensor=true&key=%s";
     }
