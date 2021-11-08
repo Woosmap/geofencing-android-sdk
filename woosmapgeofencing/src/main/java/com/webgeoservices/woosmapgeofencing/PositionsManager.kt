@@ -766,6 +766,10 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
         }.start()
     }
 
+    fun calculateETA(latOrigin: Double, lngOrigin: Double, listPosition: MutableList<Pair<Double, Double>>) {
+        calculateETA(latOrigin, lngOrigin, listPosition, 0)
+    }
+
     fun calculateETA(latOrigin: Double, lngOrigin: Double, listPosition: MutableList<Pair<Double, Double>>, locationId: Int = 0) {
         if(distanceProvider == woosmapDistance) {
             distanceAPI(latOrigin,lngOrigin,listPosition,locationId)
