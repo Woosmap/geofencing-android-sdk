@@ -62,7 +62,7 @@ public class LocationFragment extends Fragment {
                     listDestinationPoint.add(new Pair(49.987,0.223));*/
                     Double latOrigin = place.getLatitude();
                     Double lngOrigin = place.getLongitude();
-                    mPositionsManager.calculateETA(latOrigin,lngOrigin,listDestinationPoint,place.getLocationId());
+                    mPositionsManager.calculateDistance(latOrigin, lngOrigin, listDestinationPoint, place.getLocationId());
                 }
             }
         });

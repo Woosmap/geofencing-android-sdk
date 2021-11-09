@@ -221,15 +221,28 @@ public class WoosmapSettings {
     static public String distanceUnits = metric;
 
     public static void setModeDistance(String modeDistance) {
-        WoosmapSettings.modeDistance = modeDistance;
+        if(modeDistance != drivingMode || modeDistance != walkingMode || modeDistance != cyclingMode || modeDistance != truckMode) {
+            WoosmapSettings.modeDistance = drivingMode;
+        } else {
+            WoosmapSettings.modeDistance = modeDistance;
+        }
+
     }
 
     public static void setDistanceProvider(String distanceProvider) {
-        WoosmapSettings.distanceProvider = distanceProvider;
+        if(distanceProvider != woosmapDistance || distanceProvider != woosmapTraffic ) {
+            WoosmapSettings.distanceProvider = woosmapDistance;
+        } else {
+            WoosmapSettings.distanceProvider = distanceProvider;
+        }
     }
 
     public static void setTrafficDistanceRouting(String trafficDistanceRouting) {
-        WoosmapSettings.trafficDistanceRouting = trafficDistanceRouting;
+        if(trafficDistanceRouting != fastest || trafficDistanceRouting != balanced ) {
+            WoosmapSettings.trafficDistanceRouting = fastest;
+        } else {
+            WoosmapSettings.trafficDistanceRouting = trafficDistanceRouting;
+        }
     }
 
     public static void setDistanceLanguage(String distanceLanguage) {
@@ -237,7 +250,12 @@ public class WoosmapSettings {
     }
 
     public static void setDistanceUnits(String distanceUnits) {
-        WoosmapSettings.distanceUnits = distanceUnits;
+        if(distanceUnits != imperial || distanceUnits != metric ) {
+            WoosmapSettings.distanceUnits = metric;
+        } else {
+            WoosmapSettings.distanceUnits = distanceUnits;
+        }
+
     }
 
     public static String getModeDistance() {
