@@ -221,27 +221,27 @@ public class WoosmapSettings {
     static public String distanceUnits = metric;
 
     public static void setModeDistance(String modeDistance) {
-        if(modeDistance != drivingMode || modeDistance != walkingMode || modeDistance != cyclingMode || modeDistance != truckMode) {
-            WoosmapSettings.modeDistance = drivingMode;
-        } else {
+        if(modeDistance.equals(drivingMode) || modeDistance.equals(walkingMode) || modeDistance.equals(cyclingMode) || modeDistance.equals(truckMode)) {
             WoosmapSettings.modeDistance = modeDistance;
+        } else {
+            WoosmapSettings.modeDistance = drivingMode;
         }
 
     }
 
     public static void setDistanceProvider(String distanceProvider) {
-        if(distanceProvider != woosmapDistance || distanceProvider != woosmapTraffic ) {
-            WoosmapSettings.distanceProvider = woosmapDistance;
-        } else {
+        if(distanceProvider.equals(woosmapDistance) || distanceProvider.equals(woosmapTraffic)) {
             WoosmapSettings.distanceProvider = distanceProvider;
+        } else {
+            WoosmapSettings.distanceProvider = woosmapDistance;
         }
     }
 
     public static void setTrafficDistanceRouting(String trafficDistanceRouting) {
-        if(trafficDistanceRouting != fastest || trafficDistanceRouting != balanced ) {
-            WoosmapSettings.trafficDistanceRouting = fastest;
-        } else {
+        if(trafficDistanceRouting.equals(fastest) || trafficDistanceRouting.equals(balanced) ) {
             WoosmapSettings.trafficDistanceRouting = trafficDistanceRouting;
+        } else {
+            WoosmapSettings.trafficDistanceRouting = fastest;
         }
     }
 
@@ -250,10 +250,10 @@ public class WoosmapSettings {
     }
 
     public static void setDistanceUnits(String distanceUnits) {
-        if(distanceUnits != imperial || distanceUnits != metric ) {
-            WoosmapSettings.distanceUnits = metric;
-        } else {
+        if(distanceUnits.equals(imperial) || distanceUnits.equals(metric) ) {
             WoosmapSettings.distanceUnits = distanceUnits;
+        } else {
+            WoosmapSettings.distanceUnits = metric;
         }
 
     }
