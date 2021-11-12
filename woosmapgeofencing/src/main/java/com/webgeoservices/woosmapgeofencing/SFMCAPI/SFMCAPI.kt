@@ -29,6 +29,7 @@ class SFMCAPI(val context: Context) {
             val params = JSONObject()
             try {
                 params.put("ContactKey", WoosmapSettings.SFMCCredentials.get("contactKey"))
+                data?.put("ContactKey", WoosmapSettings.SFMCCredentials.get("contactKey")!!)
                 params.put("EventDefinitionKey", eventDefinitionKey)
 
                 //convert to string using gson
