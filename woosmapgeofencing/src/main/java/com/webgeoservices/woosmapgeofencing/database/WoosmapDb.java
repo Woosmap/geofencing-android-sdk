@@ -64,6 +64,8 @@ public abstract class WoosmapDb extends RoomDatabase {
                 getMovingPositionsDao().deleteMovingOlderThan(dateNow - WoosmapSettings.dataDurationDelay);
                 getPOIsDAO().deletePOIOlderThan(dateNow - WoosmapSettings.dataDurationDelay);
                 getDistanceDAO().deleteDistanceOlderThan(dateNow - WoosmapSettings.dataDurationDelay);
+                getRegionLogsDAO().deleteRegionLogsOlderThan(dateNow - WoosmapSettings.dataDurationDelay);
+                getRegionsDAO().deleteRegionsOlderThan(dateNow - WoosmapSettings.dataDurationDelay);
                 //Update date
                 mPrefs.edit().putLong("lastUpdate", System.currentTimeMillis()).apply();
             }
