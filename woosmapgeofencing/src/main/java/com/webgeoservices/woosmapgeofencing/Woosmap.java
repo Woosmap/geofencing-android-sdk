@@ -679,6 +679,8 @@ public class Woosmap {
 
             enableTracking(WoosmapSettings.trackingEnable);
 
+            WoosmapSettings.saveSettings(context);
+
         } catch (JSONException e) {
             e.printStackTrace();
         }
