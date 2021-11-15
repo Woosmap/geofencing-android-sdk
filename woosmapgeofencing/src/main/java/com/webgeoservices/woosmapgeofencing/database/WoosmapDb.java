@@ -13,7 +13,7 @@ import com.webgeoservices.woosmapgeofencing.WoosmapSettings;
 
 import static android.content.Context.MODE_PRIVATE;
 
-@Database(entities = {Visit.class, MovingPosition.class, POI.class, ZOI.class, Region.class, RegionLog.class}, version = 16, exportSchema = false)
+@Database(entities = {Visit.class, MovingPosition.class, POI.class, ZOI.class, Region.class, RegionLog.class, Distance.class}, version = 20, exportSchema = false)
 @TypeConverters({Converters.class})
 public abstract class WoosmapDb extends RoomDatabase {
 
@@ -28,6 +28,8 @@ public abstract class WoosmapDb extends RoomDatabase {
     public abstract RegionsPAO getRegionsDAO();
 
     public abstract RegionLogsPAO getRegionLogsDAO();
+
+    public abstract DistancesDAO getDistanceDAO();
 
     private static volatile WoosmapDb instance;
 
@@ -61,6 +63,7 @@ public abstract class WoosmapDb extends RoomDatabase {
                 getVisitsDao().deleteVisitOlderThan(dateNow - WoosmapSettings.dataDurationDelay);
                 getMovingPositionsDao().deleteMovingOlderThan(dateNow - WoosmapSettings.dataDurationDelay);
                 getPOIsDAO().deletePOIOlderThan(dateNow - WoosmapSettings.dataDurationDelay);
+                getDistanceDAO().deleteDistanceOlderThan(dateNow - WoosmapSettings.dataDurationDelay);
                 getRegionLogsDAO().deleteRegionLogsOlderThan(dateNow - WoosmapSettings.dataDurationDelay);
                 getRegionsDAO().deleteRegionsOlderThan(dateNow - WoosmapSettings.dataDurationDelay);
                 //Update date

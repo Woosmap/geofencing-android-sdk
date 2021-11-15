@@ -45,6 +45,7 @@ import com.webgeoservices.woosmapgeofencing.FigmmForVisitsCreator;
 import com.webgeoservices.woosmapgeofencing.PositionsManager;
 import com.webgeoservices.woosmapgeofencing.Woosmap;
 import com.webgeoservices.woosmapgeofencing.WoosmapSettings;
+import com.webgeoservices.woosmapgeofencing.database.Distance;
 import com.webgeoservices.woosmapgeofencing.database.MovingPosition;
 import com.webgeoservices.woosmapgeofencing.database.POI;
 import com.webgeoservices.woosmapgeofencing.database.Region;
@@ -165,15 +166,13 @@ public class MainActivity extends AppCompatActivity {
     private void onPOICallback(POI poi) {
     }
 
-
-
-    public class WoosDistanceAPIReadyListener implements Woosmap.DistanceAPIReadyListener {
-        public void DistanceAPIReadyCallback(DistanceAPI distanceAPIData) {
-            onDistanceAPICallback(distanceAPIData);
+    public class WoosDistanceReadyListener implements Woosmap.DistanceReadyListener {
+        public void DistanceReadyCallback(Distance[] distances) {
+            onDistanceCallback(distances);
         }
     }
 
-    private void onDistanceAPICallback(DistanceAPI distanceAPIData) {
+    private void onDistanceCallback(Distance[] distances) {
     }
 
     public class WoosVisitReadyListener implements Woosmap.VisitReadyListener {
@@ -394,7 +393,7 @@ public class MainActivity extends AppCompatActivity {
 
         this.woosmap.setLocationReadyListener(new WoosLocationReadyListener());
         this.woosmap.setSearchAPIReadyListener(new WoosSearchAPIReadyListener());
-        this.woosmap.setDistanceAPIReadyListener(new WoosDistanceAPIReadyListener());
+        this.woosmap.setDistanceReadyListener(new WoosDistanceReadyListener());
         this.woosmap.setVisitReadyListener(new WoosVisitReadyListener());
         this.woosmap.setRegionReadyListener( new WoosRegionReadyListener() );
         this.woosmap.setRegionLogReadyListener( new WoosRegionLogReadyListener() );
@@ -417,10 +416,10 @@ public class MainActivity extends AppCompatActivity {
         //WoosmapSettings.userPropertiesFilter.add( "creation_year" );
 
         // Fix the radius of geofence POI
-        //WoosmapSettings.poiRadiusNameFromResponse = "creation_year";
+        //WoosmapSettings.poiRadiusNameFromResponse = "near_radius";
         //WoosmapSettings.poiRadius = 500;
 
-        this.woosmap.startTracking( Woosmap.ConfigurationProfile.liveTracking );
+       this.woosmap.startTracking( Woosmap.ConfigurationProfile.passiveTracking );
 
         // For android version >= 8 you have to create a channel or use the woosmap's channel
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

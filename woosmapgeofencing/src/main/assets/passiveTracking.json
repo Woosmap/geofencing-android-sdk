@@ -21,9 +21,16 @@
     "searchAPIDistanceFilter": 0,
 
     "distanceAPIEnable": false,
-    "modeDistance": "driving",
     "outOfTimeDelay": 300,
     "dataDurationDelay": 30,
+
+    "distance": {
+        "distanceProvider": "WoosmapTraffic",
+        "distanceMode": "driving",
+        "distanceRouting": "fastest",
+        "distanceUnits": "metric",
+        "distanceLanguage": "fr"
+    },
 
     "FCMEnable":false
 }

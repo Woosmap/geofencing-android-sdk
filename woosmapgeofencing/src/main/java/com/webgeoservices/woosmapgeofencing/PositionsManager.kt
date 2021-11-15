@@ -766,6 +766,18 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
         }.start()
     }
 
+    fun calculateDistance(latOrigin: Double, lngOrigin: Double, listPosition: MutableList<Pair<Double, Double>>) {
+        calculateDistance(latOrigin, lngOrigin, listPosition, 0)
+    }
+
+    fun calculateDistance(latOrigin: Double, lngOrigin: Double, listPosition: MutableList<Pair<Double, Double>>, locationId: Int = 0) {
+        if(distanceProvider == woosmapDistance) {
+            distanceAPI(latOrigin,lngOrigin,listPosition,locationId)
+        } else {
+            trafficDistanceAPI(latOrigin,lngOrigin,listPosition,locationId)
+        }
+    }
+
     fun distanceAPI(latOrigin: Double, lngOrigin: Double, listPosition: MutableList<Pair<Double, Double>>, locationId: Int = 0) {
         if (requestQueue == null) {
             requestQueue = Volley.newRequestQueue(this.context)
@@ -780,13 +792,47 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
             destination += it.first.toString() + "," + it.second.toString() + "|"
         }
 
-        val url = String.format(WoosmapSettings.Urls.DistanceAPIUrl, WoosmapSettings.Urls.WoosmapURL, WoosmapSettings.modeDistance, latOrigin, lngOrigin, destination, WoosmapSettings.privateKeyWoosmapAPI)
+        val url = String.format(WoosmapSettings.Urls.DistanceAPIUrl, WoosmapSettings.Urls.WoosmapURL, WoosmapSettings.modeDistance, WoosmapSettings.getDistanceUnits(), WoosmapSettings.getDistanceLanguage(), latOrigin, lngOrigin, destination, WoosmapSettings.privateKeyWoosmapAPI)
         val req = StringRequest(Request.Method.GET, url,
             { response ->
                 Thread {
                     val gson = Gson()
                     val data = gson.fromJson(response, DistanceAPI::class.java)
                     val status = data.status
+                    if(status.contains("OK")) {
+                        var distancesList: MutableList<Distance> = mutableListOf<Distance>()
+                        for (row in data.rows) {
+                            for (element in row.elements) {
+                                if (element.status.contains("OK")) {
+                                    val distance = Distance()
+                                    distance.locationId = locationId
+                                    distance.dateTime = System.currentTimeMillis()
+                                    distance.originLatitude = latOrigin
+                                    distance.originLongitude = lngOrigin
+                                    distance.distance = element.distance.value
+                                    distance.distanceText = element.distance.text
+                                    distance.duration = element.duration.value
+                                    distance.durationText = element.duration.text
+                                    distance.routing = trafficDistanceRouting
+                                    distance.mode = modeDistance
+                                    distance.units = distanceUnits
+                                    distance.language = distanceLanguage
+                                    val dest = listPosition.get(row.elements.indexOf(element))
+                                    distance.destinationLatitude = dest.first
+                                    distance.destinationLongitude = dest.second
+                                    this.db.distanceDAO.createDistance(distance)
+                                    distancesList.add(distance)
+                                }
+                            }
+                        }
+                        if (Woosmap.getInstance().distanceReadyListener != null) {
+                            Woosmap.getInstance().distanceReadyListener.DistanceReadyCallback(
+                                distancesList.toTypedArray()
+                            )
+                        }
+                    } else {
+                        Log.d(WoosmapSdkTag,"Distance API "+ status)
+                    }
                     if(locationId != 0 && status.contains("OK") && data.rows.get(0).elements.get(0).status.contains("OK")) {
                         var poiToUpdate = this.db.poIsDAO.getPOIbyLocationID(locationId)
                         poiToUpdate.travelingDistance = data.rows.get(0).elements.get(0).distance.text
@@ -794,8 +840,77 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
                         this.db.poIsDAO.updatePOI(poiToUpdate)
                     }
 
-                    if (Woosmap.getInstance().distanceAPIReadyListener != null) {
-                        Woosmap.getInstance().distanceAPIReadyListener.DistanceAPIReadyCallback(data)
+                }.start()
+            },
+            { error ->
+                Log.e(WoosmapSdkTag, error.toString() + " Distance API")
+            })
+        requestQueue?.add(req)
+    }
+
+    fun trafficDistanceAPI(latOrigin: Double, lngOrigin: Double, listPosition: MutableList<Pair<Double, Double>>, locationId: Int = 0) {
+        if (requestQueue == null) {
+            requestQueue = Volley.newRequestQueue(this.context)
+        }
+
+        if(WoosmapSettings.privateKeyWoosmapAPI.isEmpty()){
+            return
+        }
+
+        var destination = ""
+        listPosition.forEach {
+            destination += it.first.toString() + "," + it.second.toString()
+            if(listPosition.last() != it) {
+                destination += "|"
+            }
+        }
+
+        val url = String.format(WoosmapSettings.Urls.TrafficDistanceAPIUrl, WoosmapSettings.Urls.WoosmapURL, WoosmapSettings.modeDistance, WoosmapSettings.getDistanceUnits(), WoosmapSettings.getDistanceLanguage(),WoosmapSettings.trafficDistanceRouting, latOrigin, lngOrigin, destination, WoosmapSettings.privateKeyWoosmapAPI)
+        val req = StringRequest(Request.Method.GET, url,
+            { response ->
+                Thread {
+                    val gson = Gson()
+                    val data = gson.fromJson(response, DistanceAPI::class.java)
+                    val status = data.status
+                    if(status.contains("OK")) {
+                        var distancesList: MutableList<Distance> = mutableListOf<Distance>()
+                        for (row in data.rows) {
+                            for (element in row.elements) {
+                                if (element.status.contains("OK")) {
+                                    val distance = Distance()
+                                    distance.locationId = locationId
+                                    distance.dateTime = System.currentTimeMillis()
+                                    distance.originLatitude = latOrigin
+                                    distance.originLongitude = lngOrigin
+                                    distance.distance = element.distance.value
+                                    distance.distanceText = element.distance.text
+                                    distance.duration = element.duration_with_traffic.value
+                                    distance.durationText = element.duration_with_traffic.text
+                                    distance.routing = trafficDistanceRouting
+                                    distance.mode = modeDistance
+                                    distance.units = distanceUnits
+                                    distance.language = distanceLanguage
+                                    val dest = listPosition.get(row.elements.indexOf(element))
+                                    distance.destinationLatitude = dest.first
+                                    distance.destinationLongitude = dest.second
+                                    this.db.distanceDAO.createDistance(distance)
+                                    distancesList.add(distance)
+                                }
+                            }
+                        }
+                        if (Woosmap.getInstance().distanceReadyListener != null) {
+                            Woosmap.getInstance().distanceReadyListener.DistanceReadyCallback(
+                                distancesList.toTypedArray()
+                            )
+                        }
+                    } else {
+                        Log.d(WoosmapSdkTag,"Distance API "+ status)
+                    }
+                    if(locationId != 0 && status.contains("OK") && data.rows.get(0).elements.get(0).status.contains("OK")) {
+                        var poiToUpdate = this.db.poIsDAO.getPOIbyLocationID(locationId)
+                        poiToUpdate.travelingDistance = data.rows.get(0).elements.get(0).distance.text
+                        poiToUpdate.duration = data.rows.get(0).elements.get(0).duration_with_traffic.text
+                        this.db.poIsDAO.updatePOI(poiToUpdate)
                     }
 
                 }.start()
