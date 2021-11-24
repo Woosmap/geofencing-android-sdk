@@ -8,13 +8,9 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
 
-import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
-
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -35,6 +31,8 @@ public class WoosmapSettings {
         prefsEditor.putInt( "poiRadius",poiRadius );
         prefsEditor.putString( "poiRadiusNameFromResponse",poiRadiusNameFromResponse );
         prefsEditor.putInt( "searchAPITimeFilter",searchAPITimeFilter );
+        prefsEditor.putInt( "distanceTimeFilter",distanceTimeFilter );
+        prefsEditor.putInt( "distanceMaxAirDistanceFilter",distanceMaxAirDistanceFilter );
         prefsEditor.putInt( "searchAPIDistanceFilter",searchAPIDistanceFilter );
         prefsEditor.putBoolean( "distanceAPIEnable",distanceAPIEnable );
         prefsEditor.putString( "modeDistance",modeDistance );
@@ -95,6 +93,7 @@ public class WoosmapSettings {
         WoosmapSettings.poiRadius =  mPrefs.getInt( "poiRadius",WoosmapSettings.poiRadius );
         WoosmapSettings.poiRadiusNameFromResponse  = mPrefs.getString( "poiRadiusNameFromResponse",WoosmapSettings.poiRadiusNameFromResponse );
         WoosmapSettings.searchAPITimeFilter  = mPrefs.getInt( "searchAPITimeFilter",WoosmapSettings.searchAPITimeFilter );
+        WoosmapSettings.distanceMaxAirDistanceFilter = mPrefs.getInt( "distanceMaxAirDistanceFilter",WoosmapSettings.distanceMaxAirDistanceFilter );
         WoosmapSettings.searchAPIDistanceFilter  = mPrefs.getInt( "searchAPIDistanceFilter",WoosmapSettings.searchAPIDistanceFilter );
         WoosmapSettings.distanceAPIEnable  = mPrefs.getBoolean( "distanceAPIEnable",WoosmapSettings.distanceAPIEnable );
         WoosmapSettings.trafficDistanceRouting  = mPrefs.getString( "trafficDistanceRouting",WoosmapSettings.trafficDistanceRouting );
@@ -128,7 +127,6 @@ public class WoosmapSettings {
         WoosmapSettings.SFMCAccessToken  = mPrefs.getString( "SFMCAccessToken",WoosmapSettings.SFMCAccessToken );
 
         //convert to string using gson
-        java.lang.reflect.Type type = new TypeToken<HashMap<String, String>>(){}.getType();
         Gson gson = new Gson();
         SharedPreferences.Editor prefsEditor = mPrefs.edit();
 
@@ -137,15 +135,13 @@ public class WoosmapSettings {
         String SFMCCredentialsHashMapString = gson.toJson(WoosmapSettings.SFMCCredentials);
 
         String searchAPIParametersString = mPrefs.getString("searchAPIParameters", searchAPIHashMapString);
-        WoosmapSettings.searchAPIParameters = gson.fromJson(searchAPIParametersString, type);
+        WoosmapSettings.searchAPIParameters = gson.fromJson(searchAPIParametersString, searchAPIParameters.getClass());
 
         String SFMCCredentialsString = mPrefs.getString("SFMCCredentials", SFMCCredentialsHashMapString);
-        WoosmapSettings.SFMCCredentials = gson.fromJson(SFMCCredentialsString, type);
-
+        WoosmapSettings.SFMCCredentials = gson.fromJson(SFMCCredentialsString, SFMCCredentials.getClass());
 
         String userPropertiesFilterString = mPrefs.getString("userPropertiesFilter", userPropertiesHashMapString);
-        Type typeArray = new TypeToken<List<String>>() {}.getType();
-        WoosmapSettings.userPropertiesFilter = gson.fromJson(userPropertiesFilterString, typeArray);
+        WoosmapSettings.userPropertiesFilter = gson.fromJson(userPropertiesFilterString, userPropertiesFilter.getClass());
 
     }
     static String AndroidDeviceModel = "android";
@@ -185,6 +181,28 @@ public class WoosmapSettings {
 
     //POI radius parameters name
     static public String poiRadiusNameFromResponse = "";
+
+    public static int getDistanceMaxAirDistanceFilter() {
+        return distanceMaxAirDistanceFilter;
+    }
+
+    public static void setDistanceMaxAirDistanceFilter(int distanceMaxAirDistanceFilter) {
+        WoosmapSettings.distanceMaxAirDistanceFilter = distanceMaxAirDistanceFilter;
+    }
+
+    //filter distance to request Distance API
+    static public int distanceMaxAirDistanceFilter = 1000000;
+
+    public static int getDistanceTimeFilter() {
+        return distanceTimeFilter;
+    }
+
+    public static void setDistanceTimeFilter(int distanceTimeFilter) {
+        WoosmapSettings.distanceTimeFilter = distanceTimeFilter;
+    }
+
+    //the minimum time to wait between 2 requests to the distance provider.
+    static public int distanceTimeFilter = 0;
 
     //filter time to request Search API
     static public int searchAPITimeFilter = 0;

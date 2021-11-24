@@ -17,4 +17,9 @@ public class Region {
     public String idStore = "";
     public long dateTime;
     public boolean isCurrentPositionInside = false;
+    public int distance = 0;
+    public String distanceText = "";
+    public int duration = 0;
+    public String durationText = "";
+    public Boolean circle = true;
 }

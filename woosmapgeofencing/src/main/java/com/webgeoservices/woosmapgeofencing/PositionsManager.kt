@@ -144,12 +144,48 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
             if (WoosmapSettings.checkIfPositionIsInsideGeofencingRegionsEnable == true) {
                 checkIfPositionIsInsideGeofencingRegions(movingPosition)
             }
+
+            detectRegionIsochrone(movingPosition)
         }
 
 
 
         return movingPosition
     }
+
+    private fun detectRegionIsochrone(movingPosition: MovingPosition) {
+        var regions = this.db.regionsDAO.regionIsochrone
+        var regionsBeUpdated = false
+        for (it in regions) {
+            val locationFromRegion = Location("woosmap")
+            locationFromRegion.latitude = it.lat
+            locationFromRegion.longitude = it.lng
+            var distance = this.distanceBetweenLocationAndPosition(movingPosition, locationFromRegion)
+            if (distance < WoosmapSettings.distanceMaxAirDistanceFilter) {
+                var spendtime = System.currentTimeMillis() - it.dateTime
+                var timeLimit = it.duration - 2 * it.radius
+                if (spendtime/1000 > timeLimit) {
+                    if(spendtime > WoosmapSettings.distanceTimeFilter) {
+                        regionsBeUpdated = true
+                        continue
+                    }
+                }
+            }
+        }
+
+        if(regionsBeUpdated)
+            calculateDistanceWithRegion(movingPosition,regions)
+
+    }
+
+    private fun calculateDistanceWithRegion(movingPosition: MovingPosition, regionIsochroneToUpdate: Array<Region>) {
+        var destination :MutableList<Pair<Double, Double>> = mutableListOf()
+        regionIsochroneToUpdate.forEach {
+            destination.add(Pair(it.lat,it.lng))
+        }
+        calculateDistance(movingPosition.lat,movingPosition.lng,destination,regionIsochroneToUpdate)
+    }
+
 
     private fun checkIfPositionIsInsideGeofencingRegions(movingPosition: MovingPosition) {
 
@@ -761,9 +797,17 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
 
             if (!regionExist) {
                 Woosmap.getInstance().addGeofence(POIid + "_" + POIradius, LatLng(latitudePOI, longitudePOI),
-                    POIradius.toFloat(), POIidStore)
+                    POIradius.toFloat(), POIidStore, true)
             }
         }.start()
+    }
+
+    private fun calculateDistance(latOrigin: Double, lngOrigin: Double, listPosition: MutableList<Pair<Double, Double>>, regionIsochroneToUpdate:  Array<Region>) {
+        if(distanceProvider == woosmapDistance) {
+            distanceAPI(latOrigin,lngOrigin,listPosition,0,regionIsochroneToUpdate)
+        } else {
+            trafficDistanceAPI(latOrigin,lngOrigin,listPosition,0,regionIsochroneToUpdate)
+        }
     }
 
     fun calculateDistance(latOrigin: Double, lngOrigin: Double, listPosition: MutableList<Pair<Double, Double>>) {
@@ -772,13 +816,24 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
 
     fun calculateDistance(latOrigin: Double, lngOrigin: Double, listPosition: MutableList<Pair<Double, Double>>, locationId: Int = 0) {
         if(distanceProvider == woosmapDistance) {
-            distanceAPI(latOrigin,lngOrigin,listPosition,locationId)
+            distanceAPI(latOrigin, lngOrigin, listPosition, locationId)
         } else {
-            trafficDistanceAPI(latOrigin,lngOrigin,listPosition,locationId)
+            trafficDistanceAPI(
+                latOrigin,
+                lngOrigin,
+                listPosition,
+                locationId,
+            )
         }
     }
 
-    fun distanceAPI(latOrigin: Double, lngOrigin: Double, listPosition: MutableList<Pair<Double, Double>>, locationId: Int = 0) {
+    fun distanceAPI(
+        latOrigin: Double,
+        lngOrigin: Double,
+        listPosition: MutableList<Pair<Double, Double>>,
+        locationId: Int = 0,
+        regionIsochroneToUpdate: Array<Region> = emptyArray()
+    ) {
         if (requestQueue == null) {
             requestQueue = Volley.newRequestQueue(this.context)
         }
@@ -830,6 +885,11 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
                                 distancesList.toTypedArray()
                             )
                         }
+
+                        if(!regionIsochroneToUpdate.isEmpty()) {
+                            updateRegionWithDistance(regionIsochroneToUpdate,distancesList)
+                        }
+
                     } else {
                         Log.d(WoosmapSdkTag,"Distance API "+ status)
                     }
@@ -848,7 +908,42 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
         requestQueue?.add(req)
     }
 
-    fun trafficDistanceAPI(latOrigin: Double, lngOrigin: Double, listPosition: MutableList<Pair<Double, Double>>, locationId: Int = 0) {
+    private fun updateRegionWithDistance(
+        regionIsochroneToUpdate: Array<Region>,
+        distancesList: MutableList<Distance>
+    ) {
+        for (region in regionIsochroneToUpdate) {
+            for (distance in distancesList) {
+                if(distance.destinationLatitude == region.lat && distance.destinationLongitude == region.lng){
+                    region.distance = distance.distance
+                    region.distanceText = distance.distanceText
+                    region.duration = distance.duration
+                    region.durationText = distance.durationText
+                    if(distance.duration <= region.radius) {
+                        if(region.isCurrentPositionInside == false) {
+                            region.isCurrentPositionInside = true
+                            didEventRegionIsochrone(region)
+                        }
+                    } else {
+                        if(region.isCurrentPositionInside == true) {
+                            region.isCurrentPositionInside = false
+                            didEventRegionIsochrone(region)
+                        }
+                    }
+                    this.db.regionsDAO.updateRegion(region)
+                }
+            }
+        }
+
+    }
+
+    fun trafficDistanceAPI(
+        latOrigin: Double,
+        lngOrigin: Double,
+        listPosition: MutableList<Pair<Double, Double>>,
+        locationId: Int = 0,
+        regionIsochroneToUpdate: Array<Region> = emptyArray()
+    ) {
         if (requestQueue == null) {
             requestQueue = Volley.newRequestQueue(this.context)
         }
@@ -902,6 +997,9 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
                             Woosmap.getInstance().distanceReadyListener.DistanceReadyCallback(
                                 distancesList.toTypedArray()
                             )
+                        }
+                        if(!regionIsochroneToUpdate.isEmpty()) {
+                            updateRegionWithDistance(regionIsochroneToUpdate,distancesList)
                         }
                     } else {
                         Log.d(WoosmapSdkTag,"Distance API "+ status)
@@ -1005,7 +1103,7 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
     }
 
 
-    fun createRegion(identifier: String, radius: Double, lat: Double, lng: Double, idStore: String )  {
+    fun createRegion(identifier: String, radius: Double, lat: Double, lng: Double, idStore: String, isCircle: Boolean = true )  {
         var region = Region()
         region.lat = lat
         region.lng = lng
@@ -1013,6 +1111,7 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
         region.idStore = idStore
         region.radius = radius
         region.dateTime = System.currentTimeMillis()
+        region.circle = isCircle
 
         Thread {
             this.db.regionsDAO.createRegion(region)
@@ -1022,6 +1121,33 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
             }
         }.start()
 
+    }
+
+    fun didEventRegionIsochrone(regionDetected: Region) {
+        var regionLog = RegionLog()
+        regionLog.identifier = regionDetected.identifier
+        regionLog.dateTime = System.currentTimeMillis()
+        regionLog.didEnter = regionDetected.didEnter
+        regionLog.lat = regionDetected.lat
+        regionLog.lng = regionDetected.lng
+        regionLog.idStore = regionDetected.idStore
+        regionLog.radius = regionDetected.radius
+        regionLog.duration =  regionDetected.duration
+        regionLog.distanceText = regionDetected.distanceText
+        regionLog.isCurrentPositionInside = regionDetected.isCurrentPositionInside
+        this.db.regionLogsDAO.createRegionLog(regionLog)
+
+        if (Woosmap.getInstance().regionLogReadyListener != null) {
+            Woosmap.getInstance().regionLogReadyListener.RegionLogReadyCallback(regionLog)
+        }
+        if (Woosmap.getInstance().airshipRegionLogReadyListener != null) {
+            Woosmap.getInstance().airshipRegionLogReadyListener.AirshipRegionLogReadyCallback(setDataConnectorRegionLog(regionLog))
+        }
+        if (Woosmap.getInstance().marketingCloudRegionLogReadyListener != null) {
+            Woosmap.getInstance().marketingCloudRegionLogReadyListener.MarketingCloudRegionLogReadyCallback(setDataConnectorRegionLog(regionLog,true))
+        }
+        //SFMC connector API
+        sendDataToSFMC(regionLog)
     }
 
     fun didEventRegion(geofenceIdentifier: String, transition: Int) {
@@ -1103,6 +1229,17 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
                 Log.d(WoosmapSdkTag,"onFailure "+errorMessage)
             }
         }
+    }
+
+    fun addIsochroneGeofence(id: String, radius: Float, latitude: Double, longitude: Double, idStore: String)  {
+        Thread {
+            val region = this.db.regionsDAO.getRegionFromId(id)
+            if(region != null) {
+                Log.d(WoosmapSdkTag, "Region already exist")
+            } else {
+                createRegion(id, radius.toDouble(),latitude,longitude,idStore, false)
+            }
+        }.start()
     }
 
 }

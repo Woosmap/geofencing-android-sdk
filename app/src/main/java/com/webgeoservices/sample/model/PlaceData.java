@@ -268,6 +268,8 @@ public class PlaceData {
         this.setRegionIdentifier( regionLog.identifier );
         this.setDate( regionLog.dateTime );
         this.setRadius( regionLog.radius );
+        this.setDuration( regionLog.duration );
+        this.setTravelingDistance( regionLog.distanceText );
     }
 
 }

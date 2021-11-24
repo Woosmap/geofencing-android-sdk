@@ -94,10 +94,20 @@ public class PlaceDataAdapter extends ArrayAdapter<PlaceData> {
             }
 
             if(place.isCurrentPositionInside()) {
-                regionDetails += "Current Position Inside : Enter \n";
+                regionDetails += "Current Position Inside : Enter ";
             } else {
-                regionDetails += "Current Position Inside :  Exit \n";
+                regionDetails += "Current Position Inside :  Exit ";
             }
+
+            if(place.getDuration() != 0){
+                regionDetails += "\n" + "Duration = " + place.getDuration() + "\n";
+            }
+
+            if(!place.getTravelingDistance().isEmpty()){
+                regionDetails += "Distance = " + place.getTravelingDistance();
+            }
+
+
 
             TextView tvdetails = (TextView) convertView.findViewById( R.id.details );
             tvdetails.setText( regionDetails );

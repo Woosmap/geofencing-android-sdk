@@ -74,10 +74,14 @@ class LocationManager {
     }
 
 
-    public void addGeofence(final String id, final LatLng latLng, final float radius, final String idStore) {
-        Geofence geofence = geofenceHelper.getGeofence(id, latLng, radius, Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_DWELL | Geofence.GEOFENCE_TRANSITION_EXIT);
-        GeofencingRequest geofencingRequest = geofenceHelper.getGeofencingRequest(geofence);
-        positionsManager.addGeofence(geofenceHelper, geofencingRequest, getGeofencePendingIntent(),mGeofencingClient,id,radius,latLng.latitude,latLng.longitude,idStore);
+    public void addGeofence(final String id, final LatLng latLng, final float radius, final String idStore, Boolean isCircle) {
+        if(isCircle) {
+            Geofence geofence = geofenceHelper.getGeofence( id, latLng, radius, Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_DWELL | Geofence.GEOFENCE_TRANSITION_EXIT );
+            GeofencingRequest geofencingRequest = geofenceHelper.getGeofencingRequest( geofence );
+            positionsManager.addGeofence( geofenceHelper, geofencingRequest, getGeofencePendingIntent(), mGeofencingClient, id, radius, latLng.latitude, latLng.longitude, idStore );
+        } else {
+            positionsManager.createRegion( id,radius,latLng.latitude,latLng.longitude,idStore,false );
+        }
     }
 
 
