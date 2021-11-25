@@ -165,7 +165,7 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
                 var spendtime = System.currentTimeMillis() - it.dateTime
                 var timeLimit = it.duration - 2 * it.radius
                 if (spendtime/1000 > timeLimit) {
-                    if(spendtime > WoosmapSettings.distanceTimeFilter) {
+                    if(spendtime/1000 > WoosmapSettings.distanceTimeFilter) {
                         regionsBeUpdated = true
                         continue
                     }
@@ -192,55 +192,69 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
         var regions = this.db.regionsDAO.allRegions
 
         regions.forEach {
-            val regionCenter = Location("woosmap")
-            regionCenter.latitude = it.lat
-            regionCenter.longitude = it.lng
+            if(it.circle) {
+                val regionCenter = Location("woosmap")
+                regionCenter.latitude = it.lat
+                regionCenter.longitude = it.lng
 
-            val locationPosition = Location("woosmap")
-            locationPosition.latitude = movingPosition.lat
-            locationPosition.longitude = movingPosition.lng
+                val locationPosition = Location("woosmap")
+                locationPosition.latitude = movingPosition.lat
+                locationPosition.longitude = movingPosition.lng
 
-            val isInside = locationPosition.distanceTo(regionCenter) < it.radius
+                val isInside = locationPosition.distanceTo(regionCenter) < it.radius
 
-            if(isInside != it.isCurrentPositionInside) {
-                it.isCurrentPositionInside = isInside
-                it.dateTime = System.currentTimeMillis()
-                this.db.regionsDAO.updateRegion(it)
+                if (isInside != it.isCurrentPositionInside) {
+                    it.isCurrentPositionInside = isInside
+                    it.dateTime = System.currentTimeMillis()
+                    this.db.regionsDAO.updateRegion(it)
 
-                var regionLog = RegionLog()
-                regionLog.identifier = it.identifier
-                regionLog.dateTime = it.dateTime
-                regionLog.didEnter = it.didEnter
-                regionLog.lat = it.lat
-                regionLog.lng = it.lng
-                regionLog.idStore = it.idStore
-                regionLog.radius = it.radius
-                regionLog.isCurrentPositionInside = isInside
-                this.db.regionLogsDAO.createRegionLog(regionLog)
-                if (WoosmapSettings.modeHighFrequencyLocation) {
-                    if (Woosmap.getInstance().regionLogReadyListener != null) {
-                        Woosmap.getInstance().regionLogReadyListener.RegionLogReadyCallback(regionLog)
+                    var regionLog = RegionLog()
+                    regionLog.identifier = it.identifier
+                    regionLog.dateTime = it.dateTime
+                    regionLog.didEnter = it.didEnter
+                    regionLog.lat = it.lat
+                    regionLog.lng = it.lng
+                    regionLog.idStore = it.idStore
+                    regionLog.radius = it.radius
+                    regionLog.isCurrentPositionInside = isInside
+                    this.db.regionLogsDAO.createRegionLog(regionLog)
+                    if (WoosmapSettings.modeHighFrequencyLocation) {
+                        if (Woosmap.getInstance().regionLogReadyListener != null) {
+                            Woosmap.getInstance().regionLogReadyListener.RegionLogReadyCallback(
+                                regionLog
+                            )
+                        }
+                        if (Woosmap.getInstance().airshipRegionLogReadyListener != null) {
+                            Woosmap.getInstance().airshipRegionLogReadyListener.AirshipRegionLogReadyCallback(
+                                setDataConnectorRegionLog(regionLog)
+                            )
+                        }
+                        if (Woosmap.getInstance().marketingCloudRegionLogReadyListener != null) {
+                            Woosmap.getInstance().marketingCloudRegionLogReadyListener.MarketingCloudRegionLogReadyCallback(
+                                setDataConnectorRegionLog(regionLog, true)
+                            )
+                        }
+                        //SFMC connector API
+                        sendDataToSFMC(regionLog)
+                    } else if (it.didEnter != isInside) {
+                        if (Woosmap.getInstance().regionLogReadyListener != null) {
+                            Woosmap.getInstance().regionLogReadyListener.RegionLogReadyCallback(
+                                regionLog
+                            )
+                        }
+                        if (Woosmap.getInstance().airshipRegionLogReadyListener != null) {
+                            Woosmap.getInstance().airshipRegionLogReadyListener.AirshipRegionLogReadyCallback(
+                                setDataConnectorRegionLog(regionLog)
+                            )
+                        }
+                        if (Woosmap.getInstance().marketingCloudRegionLogReadyListener != null) {
+                            Woosmap.getInstance().marketingCloudRegionLogReadyListener.MarketingCloudRegionLogReadyCallback(
+                                setDataConnectorRegionLog(regionLog, true)
+                            )
+                        }
+                        //SFMC connector API
+                        sendDataToSFMC(regionLog)
                     }
-                    if (Woosmap.getInstance().airshipRegionLogReadyListener != null) {
-                        Woosmap.getInstance().airshipRegionLogReadyListener.AirshipRegionLogReadyCallback(setDataConnectorRegionLog(regionLog))
-                    }
-                    if (Woosmap.getInstance().marketingCloudRegionLogReadyListener != null) {
-                        Woosmap.getInstance().marketingCloudRegionLogReadyListener.MarketingCloudRegionLogReadyCallback(setDataConnectorRegionLog(regionLog,true))
-                    }
-                    //SFMC connector API
-                    sendDataToSFMC(regionLog)
-                } else if(it.didEnter != isInside) {
-                    if (Woosmap.getInstance().regionLogReadyListener != null) {
-                        Woosmap.getInstance().regionLogReadyListener.RegionLogReadyCallback(regionLog)
-                    }
-                    if (Woosmap.getInstance().airshipRegionLogReadyListener != null) {
-                        Woosmap.getInstance().airshipRegionLogReadyListener.AirshipRegionLogReadyCallback(setDataConnectorRegionLog(regionLog))
-                    }
-                    if (Woosmap.getInstance().marketingCloudRegionLogReadyListener != null) {
-                        Woosmap.getInstance().marketingCloudRegionLogReadyListener.MarketingCloudRegionLogReadyCallback(setDataConnectorRegionLog(regionLog,true))
-                    }
-                    //SFMC connector API
-                    sendDataToSFMC(regionLog)
                 }
             }
         }
