@@ -929,6 +929,7 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
         for (region in regionIsochroneToUpdate) {
             for (distance in distancesList) {
                 if(distance.destinationLatitude == region.lat && distance.destinationLongitude == region.lng){
+                    region.dateTime = System.currentTimeMillis()
                     region.distance = distance.distance
                     region.distanceText = distance.distanceText
                     region.duration = distance.duration
