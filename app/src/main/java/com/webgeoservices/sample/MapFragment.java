@@ -348,7 +348,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
                 }else if (name.contains( "s" )){
                     String id = UUID.randomUUID().toString();
                     name = name.replace( "s","" );
-                    Woosmap.getInstance().addGeofence( id, latLng, Float.parseFloat( name ),false);
+                    Woosmap.getInstance().addGeofence( id, latLng, Float.parseFloat( name ),"isochrone");
                 }
                 else{
                     String id = UUID.randomUUID().toString();
@@ -398,7 +398,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
 
     public void drawCircleGeofence() {
         for (Region region : regions) {
-            if(region.circle) {
+            if(region.type.equals( "circle" )) {
                 addCircle( region.identifier, new LatLng( region.lat, region.lng ), (float) region.radius, (region.didEnter || region.isCurrentPositionInside) );
             } else {
                 LatLng latLng = new LatLng( region.lat, region.lng );

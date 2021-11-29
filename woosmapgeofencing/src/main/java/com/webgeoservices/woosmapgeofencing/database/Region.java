@@ -21,5 +21,5 @@ public class Region {
     public String distanceText = "";
     public int duration = 0;
     public String durationText = "";
-    public Boolean circle = true;
+    public String type = "circle";
 }

@@ -24,8 +24,11 @@ public interface RegionsPAO {
     @Query("DELETE FROM regions WHERE identifier = :id")
     void deleteRegionFromId(String id);
 
-    @Query("SELECT * FROM regions WHERE circle=0")
+    @Query("SELECT * FROM regions WHERE type='isochrone'")
     Region [] getRegionIsochrone();
+
+    @Query("SELECT * FROM regions WHERE type='circle'")
+    Region [] getRegionCircle();
 
     @Query("SELECT * FROM regions WHERE identifier LIKE '%POI_%'")
     Region [] getRegionPOI();
