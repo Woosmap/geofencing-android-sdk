@@ -39,6 +39,7 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
     var displayDateFormatAirship = SimpleDateFormat("dd-MM-yyyy HH:mm:ss'Z'")
     var displayDateFormatISO8601 = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
 
+
     private fun visitsDetectionAlgo(lastVisit: Visit, location: Location) {
         Log.d(WoosmapVisitsTag, "get New Location")
         val lastVisitLocation = Location("Woosmap")
@@ -839,12 +840,34 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
         }
     }
 
+    fun calculateDistance(latOrigin: Double, lngOrigin: Double, listPosition: MutableList<Pair<Double, Double>>, parameters: Map<String, String>, locationId: Int = 0) {
+        var provider = distanceProvider
+        if (parameters.containsKey("provider")) {
+            provider = parameters["provider"]
+        }
+
+        if(provider == woosmapDistance) {
+            distanceAPI(latOrigin, lngOrigin, listPosition, locationId, emptyArray(),parameters)
+        } else {
+            trafficDistanceAPI(
+                latOrigin,
+                lngOrigin,
+                listPosition,
+                locationId,
+                emptyArray(),
+                parameters
+            )
+        }
+    }
+
+
     fun distanceAPI(
         latOrigin: Double,
         lngOrigin: Double,
         listPosition: MutableList<Pair<Double, Double>>,
         locationId: Int = 0,
-        regionIsochroneToUpdate: Array<Region> = emptyArray()
+        regionIsochroneToUpdate: Array<Region> = emptyArray(),
+        parameters: Map<String, String> = emptyMap()
     ) {
         if (requestQueue == null) {
             requestQueue = Volley.newRequestQueue(this.context)
@@ -859,7 +882,44 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
             destination += it.first.toString() + "," + it.second.toString() + "|"
         }
 
-        val url = String.format(WoosmapSettings.Urls.DistanceAPIUrl, WoosmapSettings.Urls.WoosmapURL, WoosmapSettings.modeDistance, WoosmapSettings.getDistanceUnits(), WoosmapSettings.getDistanceLanguage(), latOrigin, lngOrigin, destination, WoosmapSettings.privateKeyWoosmapAPI)
+        var url = ""
+        var mode = modeDistance
+        var units = distanceUnits
+        var language = distanceLanguage
+        if(parameters.isEmpty()) {
+            url = String.format(
+                WoosmapSettings.Urls.DistanceAPIUrl,
+                WoosmapSettings.Urls.WoosmapURL,
+                WoosmapSettings.modeDistance,
+                WoosmapSettings.getDistanceUnits(),
+                WoosmapSettings.getDistanceLanguage(),
+                latOrigin,
+                lngOrigin,
+                destination,
+                WoosmapSettings.privateKeyWoosmapAPI
+            )
+        } else {
+            if (parameters.containsKey("modeDistance")) {
+                mode = parameters["modeDistance"]
+            }
+            if (parameters.containsKey("distanceUnits")) {
+                units = parameters["distanceUnits"]
+            }
+            if (parameters.containsKey("distanceLanguage")) {
+                language = parameters["distanceLanguage"]
+            }
+            url = String.format(
+                WoosmapSettings.Urls.DistanceAPIUrl,
+                WoosmapSettings.Urls.WoosmapURL,
+                mode,
+                units,
+                language,
+                latOrigin,
+                lngOrigin,
+                destination,
+                WoosmapSettings.privateKeyWoosmapAPI
+            )
+        }
         val req = StringRequest(Request.Method.GET, url,
             { response ->
                 Thread {
@@ -881,9 +941,9 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
                                     distance.duration = element.duration.value
                                     distance.durationText = element.duration.text
                                     distance.routing = trafficDistanceRouting
-                                    distance.mode = modeDistance
-                                    distance.units = distanceUnits
-                                    distance.language = distanceLanguage
+                                    distance.mode = mode
+                                    distance.units = units
+                                    distance.language = language
                                     val dest = listPosition.get(row.elements.indexOf(element))
                                     distance.destinationLatitude = dest.first
                                     distance.destinationLongitude = dest.second
@@ -957,7 +1017,8 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
         lngOrigin: Double,
         listPosition: MutableList<Pair<Double, Double>>,
         locationId: Int = 0,
-        regionIsochroneToUpdate: Array<Region> = emptyArray()
+        regionIsochroneToUpdate: Array<Region> = emptyArray(),
+        parameters: Map<String, String> = emptyMap()
     ) {
         if (requestQueue == null) {
             requestQueue = Volley.newRequestQueue(this.context)
@@ -974,8 +1035,47 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
                 destination += "|"
             }
         }
+        var url = ""
+        var mode = modeDistance
+        var units = distanceUnits
+        var language = distanceLanguage
+        var routing = trafficDistanceRouting
+        if(parameters.isEmpty()) {
+            url = String.format(WoosmapSettings.Urls.TrafficDistanceAPIUrl,
+                WoosmapSettings.Urls.WoosmapURL,
+                WoosmapSettings.modeDistance,
+                WoosmapSettings.getDistanceUnits(),
+                WoosmapSettings.getDistanceLanguage(),
+                WoosmapSettings.trafficDistanceRouting,
+                latOrigin,
+                lngOrigin,
+                destination,
+                WoosmapSettings.privateKeyWoosmapAPI)
+        } else {
+            if (parameters.containsKey("modeDistance")) {
+                mode = parameters["modeDistance"]
+            }
+            if (parameters.containsKey("distanceUnits")) {
+                units = parameters["distanceUnits"]
+            }
+            if (parameters.containsKey("distanceLanguage")) {
+                language = parameters["distanceLanguage"]
+            }
+            if (parameters.containsKey("trafficDistanceRouting")) {
+                routing = parameters["trafficDistanceRouting"]
+            }
+            url = String.format(WoosmapSettings.Urls.TrafficDistanceAPIUrl,
+                WoosmapSettings.Urls.WoosmapURL,
+                mode,
+                units,
+                language,
+                routing,
+                latOrigin,
+                lngOrigin,
+                destination,
+                WoosmapSettings.privateKeyWoosmapAPI)
+        }
 
-        val url = String.format(WoosmapSettings.Urls.TrafficDistanceAPIUrl, WoosmapSettings.Urls.WoosmapURL, WoosmapSettings.modeDistance, WoosmapSettings.getDistanceUnits(), WoosmapSettings.getDistanceLanguage(),WoosmapSettings.trafficDistanceRouting, latOrigin, lngOrigin, destination, WoosmapSettings.privateKeyWoosmapAPI)
         val req = StringRequest(Request.Method.GET, url,
             { response ->
                 Thread {
