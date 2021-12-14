@@ -582,8 +582,16 @@ public class Woosmap {
         Woosmap.getInstance().fcmToken = messageToken;
     }
 
-    public void addGeofence(String id, LatLng latLng, float radius, String idStore) {
-        locationManager.addGeofence( id,latLng,radius, idStore );
+    public void addGeofence(String id, LatLng latLng, float radius, String type) {
+        addGeofence( id,latLng,radius, "", type);
+    }
+
+    public void addGeofence(String id, LatLng latLng, float radius) {
+        addGeofence( id,latLng,radius, "", "circle" );
+    }
+
+    public void addGeofence(String id, LatLng latLng, float radius, String idStore, String type) {
+        locationManager.addGeofence( id,latLng,radius, idStore, type );
     }
 
     public void removeGeofence(String id) {
@@ -681,6 +689,8 @@ public class Woosmap {
             WoosmapSettings.setDistanceUnits( obj.getJSONObject( "distance" ).getString( "distanceUnits" ) );
             WoosmapSettings.setTrafficDistanceRouting( obj.getJSONObject( "distance" ).getString( "distanceRouting" ) );
             WoosmapSettings.setDistanceLanguage( obj.getJSONObject( "distance" ).getString( "distanceLanguage" ) );
+            WoosmapSettings.setDistanceMaxAirDistanceFilter( obj.getJSONObject( "distance" ).getInt( "distanceMaxAirDistanceFilter" ) );
+            WoosmapSettings.setDistanceTimeFilter( obj.getJSONObject( "distance" ).getInt( "distanceTimeFilter" ) );
 
             enableTracking(WoosmapSettings.trackingEnable);
 

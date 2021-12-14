@@ -21,7 +21,9 @@ import com.webgeoservices.woosmapgeofencing.database.WoosmapDb;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 public class LocationFragment extends Fragment {
@@ -63,6 +65,17 @@ public class LocationFragment extends Fragment {
                     Double latOrigin = place.getLatitude();
                     Double lngOrigin = place.getLongitude();
                     mPositionsManager.calculateDistance(latOrigin, lngOrigin, listDestinationPoint, place.getLocationId());
+                    Map<String, String> param = new HashMap<String, String>();
+                    param.put( "modeDistance","walking" );
+                    param.put( "distanceUnits","imperial" );
+                    param.put( "distanceLanguage","en" );
+                    mPositionsManager.calculateDistance(latOrigin, lngOrigin, listDestinationPoint, param, place.getLocationId() );
+                    param.put( "provider","WoosmapTraffic" );
+                    param.put( "trafficDistanceRouting","balanced" );
+                    param.put( "modeDistance","driving" );
+                    param.put( "distanceUnits","metric" );
+                    param.put( "distanceLanguage","fr" );
+                    mPositionsManager.calculateDistance(latOrigin, lngOrigin, listDestinationPoint, param, place.getLocationId() );
                 }
             }
         });

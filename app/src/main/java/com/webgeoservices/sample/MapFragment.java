@@ -345,11 +345,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
                 String name=editText.getText().toString();
                 if (name.trim().compareTo("")==0) {
                     Toast.makeText(getContext(), "Enter the radius !", Toast.LENGTH_SHORT).show();
+                }else if (name.contains( "s" )){
+                    String id = UUID.randomUUID().toString();
+                    name = name.replace( "s","" );
+                    Woosmap.getInstance().addGeofence( id, latLng, Float.parseFloat( name ),"isochrone");
                 }
-
                 else{
                     String id = UUID.randomUUID().toString();
-                    Woosmap.getInstance().addGeofence( id, latLng, Float.parseFloat( name ), "");
+                    Woosmap.getInstance().addGeofence( id, latLng, Float.parseFloat( name ));
                 }
             }
         });
@@ -395,7 +398,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
 
     public void drawCircleGeofence() {
         for (Region region : regions) {
-            addCircle(region.identifier,new LatLng(region.lat,region.lng), (float) region.radius, (region.didEnter || region.isCurrentPositionInside)) ;
+            if(region.type.equals( "circle" )) {
+                addCircle( region.identifier, new LatLng( region.lat, region.lng ), (float) region.radius, (region.didEnter || region.isCurrentPositionInside) );
+            } else {
+                LatLng latLng = new LatLng( region.lat, region.lng );
+                MarkerOptions markerOptions = new MarkerOptions().position(latLng).title( String.valueOf( region.radius ) ).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE));
+                mGoolgeMap.addMarker(markerOptions);
+            }
+
         }
     }
 
