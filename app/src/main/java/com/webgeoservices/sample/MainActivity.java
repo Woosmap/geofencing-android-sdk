@@ -734,6 +734,7 @@ public class MainActivity extends AppCompatActivity {
                             place.setTravelingDistance( poi.travelingDistance );
                             place.setType( PlaceData.dataType.POI );
                             place.setMovingDuration( poi.duration );
+                            break;
                         }
                     }
                     arrayOfPlaceData.add( place );
@@ -764,22 +765,34 @@ public class MainActivity extends AppCompatActivity {
                     if (MainActivity.this.mapFragment.mGoolgeMap != null && MainActivity.this.mapFragment.isVisible()) {
 
                         if(place.getType() == PlaceData.dataType.POI) {
-                            LatLng latLng = new LatLng( place.getPOILatitude(), place.getPOILongitude() );
-                            boolean markerToAdd = true;
-                            MarkerOptions markerOptions = new MarkerOptions().position(latLng).title(place.getCity()).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
-                            if (!MainActivity.this.mapFragment.markersPOI.isEmpty()) {
-                                for (MarkerOptions marker : MainActivity.this.mapFragment.markersPOI) {
-                                    if (marker.getPosition().equals(markerOptions.getPosition())) {
-                                        markerToAdd =false;
+                            for (POI poi : POIData) {
+                                if (poi.locationId == locationToShow.id) {
+                                    place.setPOILatitude( poi.lat );
+                                    place.setPOILongitude( poi.lng );
+                                    place.setZipCode( poi.zipCode );
+                                    place.setCity( poi.city );
+                                    place.setDistance( poi.distance );
+                                    place.setTravelingDistance( poi.travelingDistance );
+                                    place.setType( PlaceData.dataType.POI );
+                                    place.setMovingDuration( poi.duration );
+                                    LatLng latLng = new LatLng( place.getPOILatitude(), place.getPOILongitude() );
+                                    boolean markerToAdd = true;
+                                    MarkerOptions markerOptions = new MarkerOptions().position(latLng).title(place.getCity()).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
+                                    if (!MainActivity.this.mapFragment.markersPOI.isEmpty()) {
+                                        for (MarkerOptions marker : MainActivity.this.mapFragment.markersPOI) {
+                                            if (marker.getPosition().equals(markerOptions.getPosition())) {
+                                                markerToAdd =false;
+                                            }
+                                        }
                                     }
-                                }
-                            }
-                            if(markerToAdd) {
-                                MainActivity.this.mapFragment.markersPOI.add(markerOptions);
-                                MainActivity.this.mapFragment.poiMarkerList.add(MainActivity.this.mapFragment.mGoolgeMap.addMarker(markerOptions));
-                                if(!MainActivity.this.mapFragment.POIEnableCheckbox.isChecked()){
-                                    for (Marker marker : MainActivity.this.mapFragment.poiMarkerList) {
-                                        marker.setVisible(false);
+                                    if(markerToAdd) {
+                                        MainActivity.this.mapFragment.markersPOI.add(markerOptions);
+                                        MainActivity.this.mapFragment.poiMarkerList.add(MainActivity.this.mapFragment.mGoolgeMap.addMarker(markerOptions));
+                                        if(!MainActivity.this.mapFragment.POIEnableCheckbox.isChecked()){
+                                            for (Marker marker : MainActivity.this.mapFragment.poiMarkerList) {
+                                                marker.setVisible(false);
+                                            }
+                                        }
                                     }
                                 }
                             }

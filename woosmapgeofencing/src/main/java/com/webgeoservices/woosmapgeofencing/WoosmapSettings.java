@@ -34,6 +34,8 @@ public class WoosmapSettings {
         prefsEditor.putInt( "distanceTimeFilter",distanceTimeFilter );
         prefsEditor.putInt( "distanceMaxAirDistanceFilter",distanceMaxAirDistanceFilter );
         prefsEditor.putInt( "searchAPIDistanceFilter",searchAPIDistanceFilter );
+        prefsEditor.putInt( "searchAPIRefreshDelayDay",searchAPIRefreshDelayDay );
+        prefsEditor.putLong( "searchAPILastRequestTimeStamp",searchAPILastRequestTimeStamp );
         prefsEditor.putBoolean( "distanceAPIEnable",distanceAPIEnable );
         prefsEditor.putString( "modeDistance",modeDistance );
         prefsEditor.putString( "trafficDistanceRouting",trafficDistanceRouting );
@@ -95,6 +97,8 @@ public class WoosmapSettings {
         WoosmapSettings.searchAPITimeFilter  = mPrefs.getInt( "searchAPITimeFilter",WoosmapSettings.searchAPITimeFilter );
         WoosmapSettings.distanceMaxAirDistanceFilter = mPrefs.getInt( "distanceMaxAirDistanceFilter",WoosmapSettings.distanceMaxAirDistanceFilter );
         WoosmapSettings.searchAPIDistanceFilter  = mPrefs.getInt( "searchAPIDistanceFilter",WoosmapSettings.searchAPIDistanceFilter );
+        WoosmapSettings.searchAPIRefreshDelayDay = mPrefs.getInt( "searchAPIRefreshDelayDay",WoosmapSettings.searchAPIRefreshDelayDay );
+        WoosmapSettings.searchAPILastRequestTimeStamp = mPrefs.getLong( "searchAPILastRequestTimeStamp",WoosmapSettings.searchAPILastRequestTimeStamp );
         WoosmapSettings.distanceAPIEnable  = mPrefs.getBoolean( "distanceAPIEnable",WoosmapSettings.distanceAPIEnable );
         WoosmapSettings.trafficDistanceRouting  = mPrefs.getString( "trafficDistanceRouting",WoosmapSettings.trafficDistanceRouting );
         WoosmapSettings.distanceProvider  = mPrefs.getString( "distanceProvider",WoosmapSettings.distanceProvider );
@@ -209,6 +213,27 @@ public class WoosmapSettings {
 
     //filter distance to request Search API
     static public int searchAPIDistanceFilter = 0;
+
+    //filter refresh delay searhAPI
+    public static int getSearchAPIRefreshDelayDay() {
+        return searchAPIRefreshDelayDay;
+    }
+
+    public static void setSearchAPIRefreshDelayDay(int searchAPIRefreshDelayDay) {
+        WoosmapSettings.searchAPIRefreshDelayDay = searchAPIRefreshDelayDay;
+    }
+
+    static public int searchAPIRefreshDelayDay = 1;
+
+    public static long getSearchAPILastRequestTimeStamp() {
+        return searchAPILastRequestTimeStamp;
+    }
+
+    public static void setSearchAPILastRequestTimeStamp(long searchAPILastRequestTimeStamp) {
+        WoosmapSettings.searchAPILastRequestTimeStamp = searchAPILastRequestTimeStamp;
+    }
+
+    static public long searchAPILastRequestTimeStamp = 0;
 
     //Enable/disable DistanceAPI
     static public boolean distanceAPIEnable = true;

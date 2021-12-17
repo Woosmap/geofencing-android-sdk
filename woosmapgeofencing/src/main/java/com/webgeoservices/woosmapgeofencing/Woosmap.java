@@ -653,6 +653,8 @@ public class Woosmap {
     public void startTracking(String profile) {
 
         try {
+            WoosmapSettings.loadSettings(context);
+
             JSONObject obj = new JSONObject(loadJSONFromAsset(profile));
             WoosmapSettings.trackingEnable = obj.getBoolean( "trackingEnable" );
             WoosmapSettings.foregroundLocationServiceEnable = obj.getBoolean( "foregroundLocationServiceEnable" );
@@ -679,6 +681,8 @@ public class Woosmap {
             WoosmapSettings.searchAPICreationRegionEnable = obj.getBoolean( "searchAPICreationRegionEnable" );
             WoosmapSettings.searchAPITimeFilter = obj.getInt( "searchAPITimeFilter" );
             WoosmapSettings.searchAPIDistanceFilter = obj.getInt( "searchAPIDistanceFilter" );
+            WoosmapSettings.searchAPIRefreshDelayDay = obj.getInt( "searchAPIRefreshDelayDay" );
+
 
             WoosmapSettings.distanceAPIEnable = obj.getBoolean( "distanceAPIEnable" );
             WoosmapSettings.outOfTimeDelay = obj.getInt( "outOfTimeDelay" );
