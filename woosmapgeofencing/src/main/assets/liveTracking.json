@@ -25,7 +25,7 @@
   "dataDurationDelay": 30,
 
   "distance": {
-    "distanceProvider": "WoosmapTraffic",
+    "distanceProvider": "WoosmapDistance",
     "distanceMode": "driving",
     "distanceRouting": "fastest",
     "distanceUnits": "metric",
