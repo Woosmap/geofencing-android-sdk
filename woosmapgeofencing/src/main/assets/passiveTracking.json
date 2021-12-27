@@ -17,6 +17,7 @@
 
     "searchAPIEnable": true,
     "searchAPICreationRegionEnable": true,
+    "searchAPITimeFilter": 0,
     "searchAPITimeFilter": 20,
     "searchAPIDistanceFilter": 100,
 

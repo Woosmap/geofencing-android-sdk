@@ -17,6 +17,7 @@
 
     "searchAPIEnable": false,
     "searchAPICreationRegionEnable": false,
+    "searchAPIRefreshDelayDay": 1,
     "searchAPITimeFilter": 20,
     "searchAPIDistanceFilter": 100,
 

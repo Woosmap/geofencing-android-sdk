@@ -22,6 +22,9 @@ public interface POIsDAO {
     @Query("SELECT * FROM POI ORDER BY dateTime DESC LIMIT 1")
     POI getLastPOI();
 
+    @Query("SELECT * FROM POI WHERE distance = (SELECT MAX(distance) FROM POI WHERE distance = (SELECT MAX(dateTime) FROM POI)) ")
+    POI getLastfurthestPOI();
+
     @Query("SELECT * FROM POI WHERE locationId = :locId")
     POI getPOIbyLocationID(int locId);
 
