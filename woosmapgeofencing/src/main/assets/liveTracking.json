@@ -33,7 +33,5 @@
     "distanceLanguage": "fr",
     "distanceMaxAirDistanceFilter": 1000000,
     "distanceTimeFilter": 0
-  },
-
-  "FCMEnable":false
+  }
 }

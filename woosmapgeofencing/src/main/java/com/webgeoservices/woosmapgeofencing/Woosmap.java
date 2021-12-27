@@ -653,7 +653,6 @@ public class Woosmap {
     public void startTracking(String profile) {
 
         try {
-            WoosmapSettings.loadSettings(context);
 
             JSONObject obj = new JSONObject(loadJSONFromAsset(profile));
             WoosmapSettings.trackingEnable = obj.getBoolean( "trackingEnable" );
