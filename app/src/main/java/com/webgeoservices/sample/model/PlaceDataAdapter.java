@@ -82,7 +82,8 @@ public class PlaceDataAdapter extends ArrayAdapter<PlaceData> {
             TextView tvDate = (TextView) convertView.findViewById( R.id.date );
             tvDate.setText( displayDateFormat.format( place.getDate() ) );
 
-            String regionDetails = "Identifier = " + place.getRegionIdentifier() + "\n";
+            String regionDetails = "Type  = " + place.getTypeRegion() + "\n";
+            regionDetails += "Identifier = " + place.getRegionIdentifier() + "\n";
             if(!place.getIdStore().isEmpty()) {
                 regionDetails += "Id store = " + place.getIdStore() + "\n";
             }

@@ -1271,6 +1271,7 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
         regionLog.duration =  regionDetected.duration
         regionLog.distanceText = regionDetected.distanceText
         regionLog.isCurrentPositionInside = regionDetected.isCurrentPositionInside
+        regionLog.type = "isochrone"
         this.db.regionLogsDAO.createRegionLog(regionLog)
 
         if (Woosmap.getInstance().regionLogReadyListener != null) {

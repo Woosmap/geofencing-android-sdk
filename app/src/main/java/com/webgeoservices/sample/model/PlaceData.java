@@ -36,6 +36,16 @@ public class PlaceData {
     private String idStore;
     private double radius;
 
+    public String getTypeRegion() {
+        return TypeRegion;
+    }
+
+    public void setTypeRegion(String typeRegion) {
+        TypeRegion = typeRegion;
+    }
+
+    private String TypeRegion;
+
     public Double getLatitude() {
         return latitude;
     }
@@ -270,6 +280,7 @@ public class PlaceData {
         this.setRadius( regionLog.radius );
         this.setDuration( regionLog.duration );
         this.setTravelingDistance( regionLog.distanceText );
+        this.setTypeRegion( regionLog.type );
     }
 
 }
