@@ -15,18 +15,18 @@
     "currentLocationDistanceFilter": 0,
     "accuracyFilter": 100,
 
-    "searchAPIEnable": false,
-    "searchAPICreationRegionEnable": false,
-    "searchAPIRefreshDelayDay": 1,
-    "searchAPITimeFilter": 20,
-    "searchAPIDistanceFilter": 100,
+    "searchAPI": {
+        "searchAPIEnable": false,
+        "searchAPICreationRegionEnable": false,
+        "searchAPITimeFilter": 20,
+        "searchAPIDistanceFilter": 100,
+        "searchAPIRefreshDelayDay": 1
+    },
 
     "distanceAPIEnable": false,
-    "outOfTimeDelay": 300,
-    "dataDurationDelay": 30,
 
     "distance": {
-        "distanceProvider": "WoosmapDistance",
+        "distanceProvider": "woosmapDistance",
         "distanceMode": "driving",
         "distanceRouting": "fastest",
         "distanceUnits": "metric",
@@ -35,5 +35,6 @@
         "distanceTimeFilter": 30
     },
 
-    "FCMEnable":false
+    "outOfTimeDelay": 300,
+    "dataDurationDelay": 30
 }

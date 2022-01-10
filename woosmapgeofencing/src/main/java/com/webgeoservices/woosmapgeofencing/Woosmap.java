@@ -17,7 +17,17 @@ import android.os.IBinder;
 import android.util.Log;
 
 
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.gms.maps.model.LatLng;
+import org.everit.json.schema.Schema;
+import org.everit.json.schema.ValidationException;
+import org.everit.json.schema.loader.SchemaLoader;
+import org.json.JSONObject;
+import org.json.JSONTokener;
 import com.webgeoservices.woosmapgeofencing.database.Distance;
 import com.webgeoservices.woosmapgeofencing.database.POI;
 import com.webgeoservices.woosmapgeofencing.database.Region;
@@ -27,11 +37,11 @@ import com.webgeoservices.woosmapgeofencing.database.WoosmapDb;
 
 
 import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Executors;
 
@@ -66,6 +76,8 @@ public class Woosmap {
     DistanceReadyListener distanceReadyListener = null;
     RegionReadyListener regionReadyListener = null;
     RegionLogReadyListener regionLogReadyListener = null;
+
+    ProfileReadyListener profileReadyListener = null;
 
     // A reference to the service used to get location updates.
     private LocationUpdatesService mLocationUpdateService = null;
@@ -142,7 +154,7 @@ public class Woosmap {
 
         public static final String liveTracking = "liveTracking";
         public static final String passiveTracking = "passiveTracking";
-        public static final String stopsTracking = "visitsTracking";
+        public static final String visitsTracking = "visitsTracking";
 
         private ConfigurationProfile() { }
     }
@@ -220,6 +232,21 @@ public class Woosmap {
          */
         void RegionLogReadyCallback(RegionLog regionLog);
     }
+
+    /**
+     * An interface to add callback on ProfileReadyListener to get Status
+     */
+    public interface ProfileReadyListener {
+        /**
+         * When Woosmap get a Status and error when Profile is loading
+         *
+         * @param status of the Loading profile
+         * @param errors List of errors for the profile
+         */
+        void ProfileReadyCallback(Boolean status, ArrayList<String> errors);
+    }
+
+
 
     private Woosmap() {
         // Prevent form the reflection api
@@ -400,6 +427,17 @@ public class Woosmap {
         if(sendCurrentState) {
             getLastRegionState();
         }
+    }
+
+    /**
+     * Add a listener to get callback on status profile
+     *
+     * @param profileReadyListener
+     * @see ProfileReadyListener
+     */
+    public void setProfileReadyListener(ProfileReadyListener profileReadyListener) {
+        this.profileReadyListener = profileReadyListener;
+
     }
 
     private void setupWoosmap(Context context) {
@@ -650,10 +688,120 @@ public class Woosmap {
         return json;
     }
 
+    public void startCustomTracking(String url) {
+        final ArrayList<String> errors = new ArrayList<String>();
+        String s = url.trim().toLowerCase();
+        boolean isWeb = s.startsWith("http://") || s.startsWith("https://");
+        String json = null;
+        if(isWeb) {
+            StringRequest request = new StringRequest(url, new Response.Listener<String>() {
+                @Override
+                public void onResponse(String response) {
+                    List<String> validateErrors = validate(response,loadJSONFromAsset("TrackingSchema") );
+                    for (int i=0; i<validateErrors.size(); i++) {
+                        errors.add( "Geofencing SDK - Custom profil: " + validateErrors.get(i));
+                    }
+                    if( errors.size() != 0) {
+                        Woosmap.getInstance().profileReadyListener.ProfileReadyCallback( false,errors );
+                    }else {
+                        Woosmap.getInstance().profileReadyListener.ProfileReadyCallback( true,errors );
+                        startTrackingFromCustom(response);
+                    }
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    errors.add( "Geofencing SDK - Custom profil: " + error );
+                    Woosmap.getInstance().profileReadyListener.ProfileReadyCallback( false,errors );
+                }
+            });
+
+            RequestQueue queue = Volley.newRequestQueue(context);
+            queue.add(request);
+
+        } else {
+            try {
+                InputStream is = this.context.getAssets().open(url);
+                int size = is.available();
+                byte[] buffer = new byte[size];
+                is.read(buffer);
+                is.close();
+                json = new String(buffer, "UTF-8");
+            } catch (IOException ex) {
+                errors.add( "Geofencing SDK - Custom profil: " + ex.toString() );
+                Woosmap.getInstance().profileReadyListener.ProfileReadyCallback( false,errors );
+            }
+            List<String> validateErrors = validate(json,loadJSONFromAsset("TrackingSchema") );
+            for (int i=0; i<validateErrors.size(); i++) {
+                errors.add( "Geofencing SDK - Custom profil: " + validateErrors.get(i));
+            }
+            if( errors.size() != 0) {
+                Woosmap.getInstance().profileReadyListener.ProfileReadyCallback( false,errors );
+            }else {
+                Woosmap.getInstance().profileReadyListener.ProfileReadyCallback( true,errors );
+                startTrackingFromCustom(json);
+            }
+        }
+
+    }
+
+    private void startTrackingFromCustom(String json) {
+        try {
+            JSONObject obj = new JSONObject( json );
+            WoosmapSettings.trackingEnable = obj.getBoolean( "trackingEnable" );
+            WoosmapSettings.foregroundLocationServiceEnable = obj.getBoolean( "foregroundLocationServiceEnable" );
+            WoosmapSettings.modeHighFrequencyLocation = obj.getBoolean( "modeHighFrequencyLocation" );
+
+            WoosmapSettings.visitEnable = obj.getBoolean( "visitEnable" );
+            WoosmapSettings.classificationEnable = obj.getBoolean( "classificationEnable" );
+            if (!obj.isNull( "minDurationVisitDisplay" )) {
+                WoosmapSettings.minDurationVisitDisplay = obj.getLong( "minDurationVisitDisplay" );
+            }
+            if (!obj.isNull( "radiusDetectionClassifiedZOI" )) {
+                WoosmapSettings.radiusDetectionClassifiedZOI = obj.getInt( "radiusDetectionClassifiedZOI" );
+            }
+            if (!obj.isNull( "distanceDetectionThresholdVisits" )) {
+                WoosmapSettings.distanceDetectionThresholdVisits = obj.getDouble( "distanceDetectionThresholdVisits" );
+            }
+            WoosmapSettings.creationOfZOIEnable = obj.getBoolean( "creationOfZOIEnable" );
+
+            WoosmapSettings.currentLocationTimeFilter = obj.getInt( "currentLocationTimeFilter" );
+            WoosmapSettings.currentLocationDistanceFilter = obj.getInt( "currentLocationTimeFilter" );
+            WoosmapSettings.accuracyFilter = obj.getInt( "accuracyFilter" );
+
+            WoosmapSettings.searchAPIEnable = obj.getBoolean( "searchAPIEnable" );
+            WoosmapSettings.searchAPICreationRegionEnable = obj.getBoolean( "searchAPICreationRegionEnable" );
+            WoosmapSettings.searchAPITimeFilter = obj.getInt( "searchAPITimeFilter" );
+            WoosmapSettings.searchAPIDistanceFilter = obj.getInt( "searchAPIDistanceFilter" );
+            WoosmapSettings.searchAPIRefreshDelayDay = obj.getInt( "searchAPIRefreshDelayDay" );
+
+
+            WoosmapSettings.distanceAPIEnable = obj.getBoolean( "distanceAPIEnable" );
+            WoosmapSettings.outOfTimeDelay = obj.getInt( "outOfTimeDelay" );
+            WoosmapSettings.numberOfDayDataDuration = obj.getLong( "dataDurationDelay" );
+
+            WoosmapSettings.setDistanceProvider( obj.getJSONObject( "distance" ).getString( "distanceProvider" ) );
+            WoosmapSettings.setModeDistance( obj.getJSONObject( "distance" ).getString( "distanceMode" ) );
+            WoosmapSettings.setDistanceUnits( obj.getJSONObject( "distance" ).getString( "distanceUnits" ) );
+            WoosmapSettings.setTrafficDistanceRouting( obj.getJSONObject( "distance" ).getString( "distanceRouting" ) );
+            WoosmapSettings.setDistanceLanguage( obj.getJSONObject( "distance" ).getString( "distanceLanguage" ) );
+            WoosmapSettings.setDistanceMaxAirDistanceFilter( obj.getJSONObject( "distance" ).getInt( "distanceMaxAirDistanceFilter" ) );
+            WoosmapSettings.setDistanceTimeFilter( obj.getJSONObject( "distance" ).getInt( "distanceTimeFilter" ) );
+
+            enableTracking( WoosmapSettings.trackingEnable );
+
+            WoosmapSettings.saveSettings( context );
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+
     public void startTracking(String profile) {
 
         try {
-
+            validate(loadJSONFromAsset(profile),loadJSONFromAsset("TrackingSchema") );
             JSONObject obj = new JSONObject(loadJSONFromAsset(profile));
             WoosmapSettings.trackingEnable = obj.getBoolean( "trackingEnable" );
             WoosmapSettings.foregroundLocationServiceEnable = obj.getBoolean( "foregroundLocationServiceEnable" );
@@ -703,6 +851,34 @@ public class Woosmap {
             e.printStackTrace();
         }
     }
+
+
+    private List<String> validate(String loadJSONFromAsset, String trackingSchema) {
+        JSONObject rawSchema = null;
+        JSONObject testSchema = null;
+        try {
+            rawSchema = new JSONObject(new JSONTokener(trackingSchema));
+            testSchema = new JSONObject(new JSONTokener(loadJSONFromAsset));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        SchemaLoader loader = SchemaLoader.builder()
+                .schemaJson(rawSchema)
+                .draftV7Support()
+                .build();
+        Schema schema = loader.load().build();
+
+        try {
+            schema.validate(testSchema); // throws a ValidationException if this object is invalid
+        } catch (ValidationException  e) {
+            return e.getAllMessages();
+
+        }
+
+        return new ArrayList<String>();
+    }
+
+
 
 
 

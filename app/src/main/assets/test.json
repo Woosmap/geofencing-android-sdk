@@ -1,11 +1,15 @@
 {
   "trackingEnable": true,
-  "foregroundLocationServiceEnable": true,
-  "modeHighFrequencyLocation": true,
+  "foregroundLocationServiceEnable": false,
+  "modeHighFrequencyLocation": false,
 
-  "visitEnable": false,
-  "classificationEnable": false,
-  "creationOfZOIEnable": false,
+  "visitEnable": true,
+  "classificationEnable": true,
+  "minDurationVisitDisplay": 300,
+  "radiusDetectionClassifiedZOI": 50,
+  "distanceDetectionThresholdVisits": 25,
+  "creationOfZOIEnable": true,
+  "accuracyVisitFilter": 50,
 
   "currentLocationTimeFilter": 0,
   "currentLocationDistanceFilter": 0,

@@ -5,28 +5,25 @@
 
     "visitEnable": false,
     "classificationEnable": false,
-    "minDurationVisitDisplay": null,
-    "radiusDetectionClassifiedZOI": null,
-    "distanceDetectionThresholdVisits": null,
     "creationOfZOIEnable": false,
-    "accuracyVisitFilter": null,
+
 
     "currentLocationTimeFilter": 0,
     "currentLocationDistanceFilter": 0,
     "accuracyFilter": 100,
 
-    "searchAPIEnable": true,
-    "searchAPICreationRegionEnable": true,
-    "searchAPIRefreshDelayDay": 1,
-    "searchAPITimeFilter": 20,
-    "searchAPIDistanceFilter": 100,
+    "searchAPI": {
+        "searchAPIEnable": true,
+        "searchAPICreationRegionEnable": true,
+        "searchAPITimeFilter": 20,
+        "searchAPIDistanceFilter": 100,
+        "searchAPIRefreshDelayDay": 1
+    },
 
     "distanceAPIEnable": false,
-    "outOfTimeDelay": 300,
-    "dataDurationDelay": 30,
 
     "distance": {
-        "distanceProvider": "WoosmapDistance",
+        "distanceProvider": "woosmapTraffic",
         "distanceMode": "driving",
         "distanceRouting": "fastest",
         "distanceUnits": "metric",
@@ -35,5 +32,6 @@
         "distanceTimeFilter": 30
     },
 
-    "FCMEnable":false
+    "outOfTimeDelay": 300,
+    "dataDurationDelay": 30
 }
