@@ -856,11 +856,12 @@ public class Woosmap {
     private List<String> validate(String loadJSONFromAsset, String trackingSchema) {
         JSONObject rawSchema = null;
         JSONObject testSchema = null;
+        List<String> errors = new ArrayList<String>();
         try {
             rawSchema = new JSONObject(new JSONTokener(trackingSchema));
             testSchema = new JSONObject(new JSONTokener(loadJSONFromAsset));
         } catch (JSONException e) {
-            e.printStackTrace();
+             errors.add(e.getMessage());
         }
         SchemaLoader loader = SchemaLoader.builder()
                 .schemaJson(rawSchema)
@@ -875,7 +876,7 @@ public class Woosmap {
 
         }
 
-        return new ArrayList<String>();
+        return errors;
     }
 
 
