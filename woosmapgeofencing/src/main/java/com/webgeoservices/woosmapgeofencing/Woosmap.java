@@ -769,11 +769,11 @@ public class Woosmap {
             WoosmapSettings.currentLocationDistanceFilter = obj.getInt( "currentLocationTimeFilter" );
             WoosmapSettings.accuracyFilter = obj.getInt( "accuracyFilter" );
 
-            WoosmapSettings.searchAPIEnable = obj.getBoolean( "searchAPIEnable" );
-            WoosmapSettings.searchAPICreationRegionEnable = obj.getBoolean( "searchAPICreationRegionEnable" );
-            WoosmapSettings.searchAPITimeFilter = obj.getInt( "searchAPITimeFilter" );
-            WoosmapSettings.searchAPIDistanceFilter = obj.getInt( "searchAPIDistanceFilter" );
-            WoosmapSettings.searchAPIRefreshDelayDay = obj.getInt( "searchAPIRefreshDelayDay" );
+            WoosmapSettings.searchAPIEnable = obj.getJSONObject( "searchAPI" ).getBoolean( "searchAPIEnable" );
+            WoosmapSettings.searchAPICreationRegionEnable = obj.getJSONObject( "searchAPI" ).getBoolean( "searchAPICreationRegionEnable" );
+            WoosmapSettings.searchAPITimeFilter = obj.getJSONObject( "searchAPI" ).getInt( "searchAPITimeFilter" );
+            WoosmapSettings.searchAPIDistanceFilter = obj.getJSONObject( "searchAPI" ).getInt( "searchAPIDistanceFilter" );
+            WoosmapSettings.searchAPIRefreshDelayDay = obj.getJSONObject( "searchAPI" ).getInt( "searchAPIRefreshDelayDay" );
 
 
             WoosmapSettings.distanceAPIEnable = obj.getBoolean( "distanceAPIEnable" );
@@ -824,11 +824,11 @@ public class Woosmap {
             WoosmapSettings.currentLocationDistanceFilter = obj.getInt( "currentLocationTimeFilter" );
             WoosmapSettings.accuracyFilter = obj.getInt( "accuracyFilter" );
 
-            WoosmapSettings.searchAPIEnable = obj.getBoolean( "searchAPIEnable" );
-            WoosmapSettings.searchAPICreationRegionEnable = obj.getBoolean( "searchAPICreationRegionEnable" );
-            WoosmapSettings.searchAPITimeFilter = obj.getInt( "searchAPITimeFilter" );
-            WoosmapSettings.searchAPIDistanceFilter = obj.getInt( "searchAPIDistanceFilter" );
-            WoosmapSettings.searchAPIRefreshDelayDay = obj.getInt( "searchAPIRefreshDelayDay" );
+            WoosmapSettings.searchAPIEnable = obj.getJSONObject( "searchAPI" ).getBoolean( "searchAPIEnable" );
+            WoosmapSettings.searchAPICreationRegionEnable = obj.getJSONObject( "searchAPI" ).getBoolean( "searchAPICreationRegionEnable" );
+            WoosmapSettings.searchAPITimeFilter = obj.getJSONObject( "searchAPI" ).getInt( "searchAPITimeFilter" );
+            WoosmapSettings.searchAPIDistanceFilter = obj.getJSONObject( "searchAPI" ).getInt( "searchAPIDistanceFilter" );
+            WoosmapSettings.searchAPIRefreshDelayDay = obj.getJSONObject( "searchAPI" ).getInt( "searchAPIRefreshDelayDay" );
 
 
             WoosmapSettings.distanceAPIEnable = obj.getBoolean( "distanceAPIEnable" );
