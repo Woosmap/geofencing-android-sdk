@@ -3,6 +3,11 @@
     "title": "Woosmap Geofencing SDK - Tracking profile Json schema",
     "description": "Configuration file ",
     "properties": {
+        "woosmapKey": {
+            "description": "Define the Woosmap private key use to perform request to Woosmap API.",
+            "type": "string",
+            "minimum": 0
+        },
         "trackingProfileRefreshDelay": {
             "description": "Minimum number of day to wait before refresh the custom profile. A value of 0 indicates that no refresh is performed by the SDK.",
             "type": "integer",
@@ -93,14 +98,18 @@
                     "description": "Number of day to wait before force to send a new request to the Woosmap Search API.",
                     "type": "integer",
                     "minimum": 1
+                },
+                "searchAPIParameters": {
+                    "description": "Set parameter to narrow your results or filters it with the query parameter. More details in the Woosmap Search API documentation.",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             },
             "required": [
                 "searchAPIEnable",
-                "searchAPICreationRegionEnable",
-                "searchAPITimeFilter",
-                "searchAPIDistanceFilter",
-                "searchAPIRefreshDelayDay"
+                "searchAPICreationRegionEnable"
             ]
         },
         "distanceAPIEnable": {
@@ -155,8 +164,7 @@
                     "type": "integer"
                 }
             },
-            "required": [
-            ]
+            "required": ["distanceProvider"]
         }
     },
     "required": [
