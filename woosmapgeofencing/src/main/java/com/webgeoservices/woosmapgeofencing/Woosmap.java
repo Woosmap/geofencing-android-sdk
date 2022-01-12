@@ -26,6 +26,7 @@ import com.google.android.gms.maps.model.LatLng;
 import org.everit.json.schema.Schema;
 import org.everit.json.schema.ValidationException;
 import org.everit.json.schema.loader.SchemaLoader;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 import com.webgeoservices.woosmapgeofencing.database.Distance;
@@ -746,51 +747,140 @@ public class Woosmap {
     }
 
     private void startTrackingFromCustom(String json) {
+
         try {
-            JSONObject obj = new JSONObject( json );
+            JSONObject obj = new JSONObject(json);
             WoosmapSettings.trackingEnable = obj.getBoolean( "trackingEnable" );
             WoosmapSettings.foregroundLocationServiceEnable = obj.getBoolean( "foregroundLocationServiceEnable" );
             WoosmapSettings.modeHighFrequencyLocation = obj.getBoolean( "modeHighFrequencyLocation" );
-
             WoosmapSettings.visitEnable = obj.getBoolean( "visitEnable" );
-            WoosmapSettings.classificationEnable = obj.getBoolean( "classificationEnable" );
-            if (!obj.isNull( "minDurationVisitDisplay" )) {
+
+            if(!obj.isNull( "woosmapKey" )) {
+                WoosmapSettings.privateKeyWoosmapAPI = obj.optString( "woosmapKey" );
+            }
+
+            if(!obj.isNull( "classificationEnable" )) {
+                WoosmapSettings.classificationEnable = obj.optBoolean( "classificationEnable" );
+            }
+
+            if(!obj.isNull( "minDurationVisitDisplay" )) {
                 WoosmapSettings.minDurationVisitDisplay = obj.getLong( "minDurationVisitDisplay" );
             }
-            if (!obj.isNull( "radiusDetectionClassifiedZOI" )) {
+
+            if(!obj.isNull( "radiusDetectionClassifiedZOI" )) {
                 WoosmapSettings.radiusDetectionClassifiedZOI = obj.getInt( "radiusDetectionClassifiedZOI" );
             }
-            if (!obj.isNull( "distanceDetectionThresholdVisits" )) {
+
+            if(!obj.isNull( "distanceDetectionThresholdVisits" )) {
                 WoosmapSettings.distanceDetectionThresholdVisits = obj.getDouble( "distanceDetectionThresholdVisits" );
             }
-            WoosmapSettings.creationOfZOIEnable = obj.getBoolean( "creationOfZOIEnable" );
 
-            WoosmapSettings.currentLocationTimeFilter = obj.getInt( "currentLocationTimeFilter" );
-            WoosmapSettings.currentLocationDistanceFilter = obj.getInt( "currentLocationTimeFilter" );
-            WoosmapSettings.accuracyFilter = obj.getInt( "accuracyFilter" );
+            if(!obj.isNull( "creationOfZOIEnable" )) {
+                WoosmapSettings.creationOfZOIEnable = obj.optBoolean( "creationOfZOIEnable" );
+            }
 
-            WoosmapSettings.searchAPIEnable = obj.getJSONObject( "searchAPI" ).getBoolean( "searchAPIEnable" );
-            WoosmapSettings.searchAPICreationRegionEnable = obj.getJSONObject( "searchAPI" ).getBoolean( "searchAPICreationRegionEnable" );
-            WoosmapSettings.searchAPITimeFilter = obj.getJSONObject( "searchAPI" ).getInt( "searchAPITimeFilter" );
-            WoosmapSettings.searchAPIDistanceFilter = obj.getJSONObject( "searchAPI" ).getInt( "searchAPIDistanceFilter" );
-            WoosmapSettings.searchAPIRefreshDelayDay = obj.getJSONObject( "searchAPI" ).getInt( "searchAPIRefreshDelayDay" );
+            if(!obj.isNull( "currentLocationTimeFilter" )) {
+                WoosmapSettings.currentLocationTimeFilter = obj.optInt( "currentLocationTimeFilter" );
+            }
 
+            if(!obj.isNull( "currentLocationDistanceFilter" )) {
+                WoosmapSettings.currentLocationDistanceFilter = obj.optInt( "currentLocationDistanceFilter" );
+            }
 
-            WoosmapSettings.distanceAPIEnable = obj.getBoolean( "distanceAPIEnable" );
-            WoosmapSettings.outOfTimeDelay = obj.getInt( "outOfTimeDelay" );
-            WoosmapSettings.numberOfDayDataDuration = obj.getLong( "dataDurationDelay" );
+            if(!obj.isNull( "accuracyFilter" )) {
+                WoosmapSettings.accuracyFilter = obj.optInt( "accuracyFilter" );
+            }
 
-            WoosmapSettings.setDistanceProvider( obj.getJSONObject( "distance" ).getString( "distanceProvider" ) );
-            WoosmapSettings.setModeDistance( obj.getJSONObject( "distance" ).getString( "distanceMode" ) );
-            WoosmapSettings.setDistanceUnits( obj.getJSONObject( "distance" ).getString( "distanceUnits" ) );
-            WoosmapSettings.setTrafficDistanceRouting( obj.getJSONObject( "distance" ).getString( "distanceRouting" ) );
-            WoosmapSettings.setDistanceLanguage( obj.getJSONObject( "distance" ).getString( "distanceLanguage" ) );
-            WoosmapSettings.setDistanceMaxAirDistanceFilter( obj.getJSONObject( "distance" ).getInt( "distanceMaxAirDistanceFilter" ) );
-            WoosmapSettings.setDistanceTimeFilter( obj.getJSONObject( "distance" ).getInt( "distanceTimeFilter" ) );
+            if(!obj.isNull( "searchAPI" )) {
+                WoosmapSettings.searchAPIEnable = obj.getJSONObject( "searchAPI" ).getBoolean( "searchAPIEnable" );
+                WoosmapSettings.searchAPICreationRegionEnable = obj.getJSONObject( "searchAPI" ).getBoolean( "searchAPICreationRegionEnable" );
 
-            enableTracking( WoosmapSettings.trackingEnable );
+                if (!obj.getJSONObject( "searchAPI" ).isNull( "searchAPITimeFilter" )) {
+                    WoosmapSettings.searchAPITimeFilter = obj.getJSONObject( "searchAPI" ).optInt( "searchAPITimeFilter" );
+                }
+                if (!obj.getJSONObject( "searchAPI" ).isNull( "searchAPIDistanceFilter" )) {
+                    WoosmapSettings.searchAPIDistanceFilter = obj.getJSONObject( "searchAPI" ).optInt( "searchAPIDistanceFilter" );
+                }
+                if (!obj.getJSONObject( "searchAPI" ).isNull( "searchAPIRefreshDelayDay" )) {
+                    WoosmapSettings.searchAPIRefreshDelayDay = obj.getJSONObject( "searchAPI" ).optInt( "searchAPIRefreshDelayDay" );
+                }
 
-            WoosmapSettings.saveSettings( context );
+                JSONArray jsonArray = (JSONArray) obj.getJSONObject( "searchAPI" ).opt( "searchAPIParameters" );
+                if (jsonArray != null) {
+                    for (int i = 0; i < jsonArray.length(); ++i) {
+                        JSONObject item = jsonArray.getJSONObject( i );
+                        WoosmapSettings.searchAPIParameters.put( item.getString( "key" ), item.getString( "value" ) );
+                    }
+                }
+
+                if (!obj.isNull( "distanceAPIEnable" )) {
+                    WoosmapSettings.distanceAPIEnable = obj.optBoolean( "distanceAPIEnable" );
+                }
+                if (!obj.isNull( "outOfTimeDelay" )) {
+                    WoosmapSettings.outOfTimeDelay = obj.optInt( "outOfTimeDelay" );
+                }
+                if (!obj.isNull( "dataDurationDelay" )) {
+                    WoosmapSettings.numberOfDayDataDuration = obj.optLong( "dataDurationDelay" );
+                }
+            }
+
+            if(!obj.isNull( "distance" )) {
+                WoosmapSettings.setDistanceProvider( obj.getJSONObject( "distance" ).getString( "distanceProvider" ) );
+
+                if (!obj.getJSONObject( "distance" ).isNull( "distanceMode" )) {
+                    WoosmapSettings.setModeDistance( obj.getJSONObject( "distance" ).optString( "distanceMode" ) );
+                }
+                if (!obj.getJSONObject( "distance" ).isNull( "distanceUnits" )) {
+                    WoosmapSettings.setDistanceUnits( obj.getJSONObject( "distance" ).optString( "distanceUnits" ) );
+                }
+                if (!obj.getJSONObject( "distance" ).isNull( "distanceRouting" )) {
+                    WoosmapSettings.setTrafficDistanceRouting( obj.getJSONObject( "distance" ).optString( "distanceRouting" ) );
+                }
+                if (!obj.getJSONObject( "distance" ).isNull( "distanceLanguage" )) {
+                    WoosmapSettings.setDistanceLanguage( obj.getJSONObject( "distance" ).optString( "distanceLanguage" ) );
+                }
+                if (!obj.getJSONObject( "distance" ).isNull( "distanceMaxAirDistanceFilter" )) {
+                    WoosmapSettings.setDistanceMaxAirDistanceFilter( obj.getJSONObject( "distance" ).optInt( "distanceMaxAirDistanceFilter" ) );
+                }
+                if (!obj.getJSONObject( "distance" ).isNull( "distanceTimeFilter" )) {
+                    WoosmapSettings.setDistanceTimeFilter( obj.getJSONObject( "distance" ).optInt( "distanceTimeFilter" ) );
+                }
+
+            }
+
+            if(!obj.isNull( "sfmcCredentials"  )) {
+                HashMap<String, String> SFMCInfo = new HashMap<String, String>();
+
+                SFMCInfo.put( "authenticationBaseURI", obj.getJSONObject( "sfmcCredentials" ).getString( "authenticationBaseURI" ) );
+                SFMCInfo.put( "restBaseURI", obj.getJSONObject( "sfmcCredentials" ).getString( "restBaseURI" ) );
+                SFMCInfo.put( "client_id", obj.getJSONObject( "sfmcCredentials" ).getString( "client_id" ) );
+                SFMCInfo.put( "client_secret", obj.getJSONObject( "sfmcCredentials" ).getString( "client_secret" ) );
+
+                if (!obj.getJSONObject( "sfmcCredentials" ).isNull( "regionEnteredEventDefinitionKey" )) {
+                    SFMCInfo.put( "regionEnteredEventDefinitionKey", obj.getJSONObject( "sfmcCredentials" ).getString( "regionEnteredEventDefinitionKey" ) );
+                }
+                if (!obj.getJSONObject( "sfmcCredentials" ).isNull( "regionExitedEventDefinitionKey" )) {
+                    SFMCInfo.put( "regionExitedEventDefinitionKey", obj.getJSONObject( "sfmcCredentials" ).getString( "regionExitedEventDefinitionKey" ) );
+                }
+                if (!obj.getJSONObject( "sfmcCredentials" ).isNull( "visitEventDefinitionKey" )) {
+                    SFMCInfo.put( "visitEventDefinitionKey", obj.getJSONObject( "sfmcCredentials" ).getString( "visitEventDefinitionKey" ) );
+                }
+                if (!obj.getJSONObject( "sfmcCredentials" ).isNull( "zoiClassifiedEnteredEventDefinitionKey" )) {
+                    SFMCInfo.put( "zoiClassifiedEnteredEventDefinitionKey", obj.getJSONObject( "sfmcCredentials" ).getString( "zoiClassifiedEnteredEventDefinitionKey" ) );
+                }
+                if (!obj.getJSONObject( "sfmcCredentials" ).isNull( "zoiClassifiedExitedEventDefinitionKey" )) {
+                    SFMCInfo.put( "zoiClassifiedExitedEventDefinitionKey", obj.getJSONObject( "sfmcCredentials" ).getString( "zoiClassifiedExitedEventDefinitionKey" ) );
+                }
+                if (!obj.getJSONObject( "sfmcCredentials" ).isNull( "poiEventDefinitionKey" )) {
+                    SFMCInfo.put( "poiEventDefinitionKey", obj.getJSONObject( "sfmcCredentials" ).getString( "poiEventDefinitionKey" ) );
+                }
+
+                WoosmapSettings.SFMCCredentials = SFMCInfo;
+            }
+
+            enableTracking(WoosmapSettings.trackingEnable);
+
+            WoosmapSettings.saveSettings(context);
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -806,42 +896,130 @@ public class Woosmap {
             WoosmapSettings.trackingEnable = obj.getBoolean( "trackingEnable" );
             WoosmapSettings.foregroundLocationServiceEnable = obj.getBoolean( "foregroundLocationServiceEnable" );
             WoosmapSettings.modeHighFrequencyLocation = obj.getBoolean( "modeHighFrequencyLocation" );
-
             WoosmapSettings.visitEnable = obj.getBoolean( "visitEnable" );
-            WoosmapSettings.classificationEnable = obj.getBoolean( "classificationEnable" );
+
+            if(!obj.isNull( "woosmapKey" )) {
+                WoosmapSettings.privateKeyWoosmapAPI = obj.optString( "woosmapKey" );
+            }
+
+            if(!obj.isNull( "classificationEnable" )) {
+                WoosmapSettings.classificationEnable = obj.optBoolean( "classificationEnable" );
+            }
+
             if(!obj.isNull( "minDurationVisitDisplay" )) {
                 WoosmapSettings.minDurationVisitDisplay = obj.getLong( "minDurationVisitDisplay" );
             }
+
             if(!obj.isNull( "radiusDetectionClassifiedZOI" )) {
                 WoosmapSettings.radiusDetectionClassifiedZOI = obj.getInt( "radiusDetectionClassifiedZOI" );
             }
+
             if(!obj.isNull( "distanceDetectionThresholdVisits" )) {
                 WoosmapSettings.distanceDetectionThresholdVisits = obj.getDouble( "distanceDetectionThresholdVisits" );
             }
-            WoosmapSettings.creationOfZOIEnable = obj.getBoolean( "creationOfZOIEnable" );
 
-            WoosmapSettings.currentLocationTimeFilter = obj.getInt( "currentLocationTimeFilter" );
-            WoosmapSettings.currentLocationDistanceFilter = obj.getInt( "currentLocationTimeFilter" );
-            WoosmapSettings.accuracyFilter = obj.getInt( "accuracyFilter" );
+            if(!obj.isNull( "creationOfZOIEnable" )) {
+                WoosmapSettings.creationOfZOIEnable = obj.optBoolean( "creationOfZOIEnable" );
+            }
 
-            WoosmapSettings.searchAPIEnable = obj.getJSONObject( "searchAPI" ).getBoolean( "searchAPIEnable" );
-            WoosmapSettings.searchAPICreationRegionEnable = obj.getJSONObject( "searchAPI" ).getBoolean( "searchAPICreationRegionEnable" );
-            WoosmapSettings.searchAPITimeFilter = obj.getJSONObject( "searchAPI" ).getInt( "searchAPITimeFilter" );
-            WoosmapSettings.searchAPIDistanceFilter = obj.getJSONObject( "searchAPI" ).getInt( "searchAPIDistanceFilter" );
-            WoosmapSettings.searchAPIRefreshDelayDay = obj.getJSONObject( "searchAPI" ).getInt( "searchAPIRefreshDelayDay" );
+            if(!obj.isNull( "currentLocationTimeFilter" )) {
+                WoosmapSettings.currentLocationTimeFilter = obj.optInt( "currentLocationTimeFilter" );
+            }
 
+            if(!obj.isNull( "currentLocationDistanceFilter" )) {
+                WoosmapSettings.currentLocationDistanceFilter = obj.optInt( "currentLocationDistanceFilter" );
+            }
 
-            WoosmapSettings.distanceAPIEnable = obj.getBoolean( "distanceAPIEnable" );
-            WoosmapSettings.outOfTimeDelay = obj.getInt( "outOfTimeDelay" );
-            WoosmapSettings.numberOfDayDataDuration = obj.getLong( "dataDurationDelay" );
+            if(!obj.isNull( "accuracyFilter" )) {
+                WoosmapSettings.accuracyFilter = obj.optInt( "accuracyFilter" );
+            }
 
-            WoosmapSettings.setDistanceProvider( obj.getJSONObject( "distance" ).getString( "distanceProvider" ) );
-            WoosmapSettings.setModeDistance( obj.getJSONObject( "distance" ).getString( "distanceMode" ) );
-            WoosmapSettings.setDistanceUnits( obj.getJSONObject( "distance" ).getString( "distanceUnits" ) );
-            WoosmapSettings.setTrafficDistanceRouting( obj.getJSONObject( "distance" ).getString( "distanceRouting" ) );
-            WoosmapSettings.setDistanceLanguage( obj.getJSONObject( "distance" ).getString( "distanceLanguage" ) );
-            WoosmapSettings.setDistanceMaxAirDistanceFilter( obj.getJSONObject( "distance" ).getInt( "distanceMaxAirDistanceFilter" ) );
-            WoosmapSettings.setDistanceTimeFilter( obj.getJSONObject( "distance" ).getInt( "distanceTimeFilter" ) );
+            if(!obj.isNull( "searchAPI" )) {
+                WoosmapSettings.searchAPIEnable = obj.getJSONObject( "searchAPI" ).getBoolean( "searchAPIEnable" );
+                WoosmapSettings.searchAPICreationRegionEnable = obj.getJSONObject( "searchAPI" ).getBoolean( "searchAPICreationRegionEnable" );
+
+                if (!obj.getJSONObject( "searchAPI" ).isNull( "searchAPITimeFilter" )) {
+                    WoosmapSettings.searchAPITimeFilter = obj.getJSONObject( "searchAPI" ).optInt( "searchAPITimeFilter" );
+                }
+                if (!obj.getJSONObject( "searchAPI" ).isNull( "searchAPIDistanceFilter" )) {
+                    WoosmapSettings.searchAPIDistanceFilter = obj.getJSONObject( "searchAPI" ).optInt( "searchAPIDistanceFilter" );
+                }
+                if (!obj.getJSONObject( "searchAPI" ).isNull( "searchAPIRefreshDelayDay" )) {
+                    WoosmapSettings.searchAPIRefreshDelayDay = obj.getJSONObject( "searchAPI" ).optInt( "searchAPIRefreshDelayDay" );
+                }
+
+                JSONArray jsonArray = (JSONArray) obj.getJSONObject( "searchAPI" ).opt( "searchAPIParameters" );
+                if (jsonArray != null) {
+                    for (int i = 0; i < jsonArray.length(); ++i) {
+                        JSONObject item = jsonArray.getJSONObject( i );
+                        WoosmapSettings.searchAPIParameters.put( item.getString( "key" ), item.getString( "value" ) );
+                    }
+                }
+
+                if (!obj.isNull( "distanceAPIEnable" )) {
+                    WoosmapSettings.distanceAPIEnable = obj.optBoolean( "distanceAPIEnable" );
+                }
+                if (!obj.isNull( "outOfTimeDelay" )) {
+                    WoosmapSettings.outOfTimeDelay = obj.optInt( "outOfTimeDelay" );
+                }
+                if (!obj.isNull( "dataDurationDelay" )) {
+                    WoosmapSettings.numberOfDayDataDuration = obj.optLong( "dataDurationDelay" );
+                }
+            }
+
+            if(!obj.isNull( "distance" )) {
+                WoosmapSettings.setDistanceProvider( obj.getJSONObject( "distance" ).getString( "distanceProvider" ) );
+
+                if (!obj.getJSONObject( "distance" ).isNull( "distanceMode" )) {
+                    WoosmapSettings.setModeDistance( obj.getJSONObject( "distance" ).optString( "distanceMode" ) );
+                }
+                if (!obj.getJSONObject( "distance" ).isNull( "distanceUnits" )) {
+                    WoosmapSettings.setDistanceUnits( obj.getJSONObject( "distance" ).optString( "distanceUnits" ) );
+                }
+                if (!obj.getJSONObject( "distance" ).isNull( "distanceRouting" )) {
+                    WoosmapSettings.setTrafficDistanceRouting( obj.getJSONObject( "distance" ).optString( "distanceRouting" ) );
+                }
+                if (!obj.getJSONObject( "distance" ).isNull( "distanceLanguage" )) {
+                    WoosmapSettings.setDistanceLanguage( obj.getJSONObject( "distance" ).optString( "distanceLanguage" ) );
+                }
+                if (!obj.getJSONObject( "distance" ).isNull( "distanceMaxAirDistanceFilter" )) {
+                    WoosmapSettings.setDistanceMaxAirDistanceFilter( obj.getJSONObject( "distance" ).optInt( "distanceMaxAirDistanceFilter" ) );
+                }
+                if (!obj.getJSONObject( "distance" ).isNull( "distanceTimeFilter" )) {
+                    WoosmapSettings.setDistanceTimeFilter( obj.getJSONObject( "distance" ).optInt( "distanceTimeFilter" ) );
+                }
+
+            }
+
+            if(!obj.isNull( "sfmcCredentials"  )) {
+                HashMap<String, String> SFMCInfo = new HashMap<String, String>();
+
+                SFMCInfo.put( "authenticationBaseURI", obj.getJSONObject( "sfmcCredentials" ).getString( "authenticationBaseURI" ) );
+                SFMCInfo.put( "restBaseURI", obj.getJSONObject( "sfmcCredentials" ).getString( "restBaseURI" ) );
+                SFMCInfo.put( "client_id", obj.getJSONObject( "sfmcCredentials" ).getString( "client_id" ) );
+                SFMCInfo.put( "client_secret", obj.getJSONObject( "sfmcCredentials" ).getString( "client_secret" ) );
+
+                if (!obj.getJSONObject( "sfmcCredentials" ).isNull( "regionEnteredEventDefinitionKey" )) {
+                    SFMCInfo.put( "regionEnteredEventDefinitionKey", obj.getJSONObject( "sfmcCredentials" ).getString( "regionEnteredEventDefinitionKey" ) );
+                }
+                if (!obj.getJSONObject( "sfmcCredentials" ).isNull( "regionExitedEventDefinitionKey" )) {
+                    SFMCInfo.put( "regionExitedEventDefinitionKey", obj.getJSONObject( "sfmcCredentials" ).getString( "regionExitedEventDefinitionKey" ) );
+                }
+                if (!obj.getJSONObject( "sfmcCredentials" ).isNull( "visitEventDefinitionKey" )) {
+                    SFMCInfo.put( "visitEventDefinitionKey", obj.getJSONObject( "sfmcCredentials" ).getString( "visitEventDefinitionKey" ) );
+                }
+                if (!obj.getJSONObject( "sfmcCredentials" ).isNull( "zoiClassifiedEnteredEventDefinitionKey" )) {
+                    SFMCInfo.put( "zoiClassifiedEnteredEventDefinitionKey", obj.getJSONObject( "sfmcCredentials" ).getString( "zoiClassifiedEnteredEventDefinitionKey" ) );
+                }
+                if (!obj.getJSONObject( "sfmcCredentials" ).isNull( "zoiClassifiedExitedEventDefinitionKey" )) {
+                    SFMCInfo.put( "zoiClassifiedExitedEventDefinitionKey", obj.getJSONObject( "sfmcCredentials" ).getString( "zoiClassifiedExitedEventDefinitionKey" ) );
+                }
+                if (!obj.getJSONObject( "sfmcCredentials" ).isNull( "poiEventDefinitionKey" )) {
+                    SFMCInfo.put( "poiEventDefinitionKey", obj.getJSONObject( "sfmcCredentials" ).getString( "poiEventDefinitionKey" ) );
+                }
+
+                WoosmapSettings.SFMCCredentials = SFMCInfo;
+            }
 
             enableTracking(WoosmapSettings.trackingEnable);
 
