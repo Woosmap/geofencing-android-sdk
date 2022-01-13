@@ -215,8 +215,7 @@
                 "authenticationBaseURI",
                 "restBaseURI",
                 "client_id",
-                "client_secret",
-                "contactKey"
+                "client_secret"
             ]
         }
     },

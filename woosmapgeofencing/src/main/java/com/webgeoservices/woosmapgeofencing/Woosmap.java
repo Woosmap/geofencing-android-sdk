@@ -851,31 +851,30 @@ public class Woosmap {
             if(!obj.isNull( "sfmcCredentials"  )) {
                 HashMap<String, String> SFMCInfo = new HashMap<String, String>();
 
-                SFMCInfo.put( "authenticationBaseURI", obj.getJSONObject( "sfmcCredentials" ).getString( "authenticationBaseURI" ) );
-                SFMCInfo.put( "restBaseURI", obj.getJSONObject( "sfmcCredentials" ).getString( "restBaseURI" ) );
-                SFMCInfo.put( "client_id", obj.getJSONObject( "sfmcCredentials" ).getString( "client_id" ) );
-                SFMCInfo.put( "client_secret", obj.getJSONObject( "sfmcCredentials" ).getString( "client_secret" ) );
+                WoosmapSettings.SFMCCredentials.put( "authenticationBaseURI", obj.getJSONObject( "sfmcCredentials" ).getString( "authenticationBaseURI" ) );
+                WoosmapSettings.SFMCCredentials.put( "restBaseURI", obj.getJSONObject( "sfmcCredentials" ).getString( "restBaseURI" ) );
+                WoosmapSettings.SFMCCredentials.put( "client_id", obj.getJSONObject( "sfmcCredentials" ).getString( "client_id" ) );
+                WoosmapSettings.SFMCCredentials.put( "client_secret", obj.getJSONObject( "sfmcCredentials" ).getString( "client_secret" ) );
 
                 if (!obj.getJSONObject( "sfmcCredentials" ).isNull( "regionEnteredEventDefinitionKey" )) {
-                    SFMCInfo.put( "regionEnteredEventDefinitionKey", obj.getJSONObject( "sfmcCredentials" ).getString( "regionEnteredEventDefinitionKey" ) );
+                    WoosmapSettings.SFMCCredentials.put( "regionEnteredEventDefinitionKey", obj.getJSONObject( "sfmcCredentials" ).getString( "regionEnteredEventDefinitionKey" ) );
                 }
                 if (!obj.getJSONObject( "sfmcCredentials" ).isNull( "regionExitedEventDefinitionKey" )) {
-                    SFMCInfo.put( "regionExitedEventDefinitionKey", obj.getJSONObject( "sfmcCredentials" ).getString( "regionExitedEventDefinitionKey" ) );
+                    WoosmapSettings.SFMCCredentials.put( "regionExitedEventDefinitionKey", obj.getJSONObject( "sfmcCredentials" ).getString( "regionExitedEventDefinitionKey" ) );
                 }
                 if (!obj.getJSONObject( "sfmcCredentials" ).isNull( "visitEventDefinitionKey" )) {
-                    SFMCInfo.put( "visitEventDefinitionKey", obj.getJSONObject( "sfmcCredentials" ).getString( "visitEventDefinitionKey" ) );
+                    WoosmapSettings.SFMCCredentials.put( "visitEventDefinitionKey", obj.getJSONObject( "sfmcCredentials" ).getString( "visitEventDefinitionKey" ) );
                 }
                 if (!obj.getJSONObject( "sfmcCredentials" ).isNull( "zoiClassifiedEnteredEventDefinitionKey" )) {
-                    SFMCInfo.put( "zoiClassifiedEnteredEventDefinitionKey", obj.getJSONObject( "sfmcCredentials" ).getString( "zoiClassifiedEnteredEventDefinitionKey" ) );
+                    WoosmapSettings.SFMCCredentials.put( "zoiClassifiedEnteredEventDefinitionKey", obj.getJSONObject( "sfmcCredentials" ).getString( "zoiClassifiedEnteredEventDefinitionKey" ) );
                 }
                 if (!obj.getJSONObject( "sfmcCredentials" ).isNull( "zoiClassifiedExitedEventDefinitionKey" )) {
-                    SFMCInfo.put( "zoiClassifiedExitedEventDefinitionKey", obj.getJSONObject( "sfmcCredentials" ).getString( "zoiClassifiedExitedEventDefinitionKey" ) );
+                    WoosmapSettings.SFMCCredentials.put( "zoiClassifiedExitedEventDefinitionKey", obj.getJSONObject( "sfmcCredentials" ).getString( "zoiClassifiedExitedEventDefinitionKey" ) );
                 }
                 if (!obj.getJSONObject( "sfmcCredentials" ).isNull( "poiEventDefinitionKey" )) {
-                    SFMCInfo.put( "poiEventDefinitionKey", obj.getJSONObject( "sfmcCredentials" ).getString( "poiEventDefinitionKey" ) );
+                    WoosmapSettings.SFMCCredentials.put( "poiEventDefinitionKey", obj.getJSONObject( "sfmcCredentials" ).getString( "poiEventDefinitionKey" ) );
                 }
 
-                WoosmapSettings.SFMCCredentials = SFMCInfo;
             }
 
             enableTracking(WoosmapSettings.trackingEnable);
@@ -992,33 +991,31 @@ public class Woosmap {
             }
 
             if(!obj.isNull( "sfmcCredentials"  )) {
-                HashMap<String, String> SFMCInfo = new HashMap<String, String>();
 
-                SFMCInfo.put( "authenticationBaseURI", obj.getJSONObject( "sfmcCredentials" ).getString( "authenticationBaseURI" ) );
-                SFMCInfo.put( "restBaseURI", obj.getJSONObject( "sfmcCredentials" ).getString( "restBaseURI" ) );
-                SFMCInfo.put( "client_id", obj.getJSONObject( "sfmcCredentials" ).getString( "client_id" ) );
-                SFMCInfo.put( "client_secret", obj.getJSONObject( "sfmcCredentials" ).getString( "client_secret" ) );
+                WoosmapSettings.SFMCCredentials.put( "authenticationBaseURI", obj.getJSONObject( "sfmcCredentials" ).getString( "authenticationBaseURI" ) );
+                WoosmapSettings.SFMCCredentials.put( "restBaseURI", obj.getJSONObject( "sfmcCredentials" ).getString( "restBaseURI" ) );
+                WoosmapSettings.SFMCCredentials.put( "client_id", obj.getJSONObject( "sfmcCredentials" ).getString( "client_id" ) );
+                WoosmapSettings.SFMCCredentials.put( "client_secret", obj.getJSONObject( "sfmcCredentials" ).getString( "client_secret" ) );
 
                 if (!obj.getJSONObject( "sfmcCredentials" ).isNull( "regionEnteredEventDefinitionKey" )) {
-                    SFMCInfo.put( "regionEnteredEventDefinitionKey", obj.getJSONObject( "sfmcCredentials" ).getString( "regionEnteredEventDefinitionKey" ) );
+                    WoosmapSettings.SFMCCredentials.put( "regionEnteredEventDefinitionKey", obj.getJSONObject( "sfmcCredentials" ).getString( "regionEnteredEventDefinitionKey" ) );
                 }
                 if (!obj.getJSONObject( "sfmcCredentials" ).isNull( "regionExitedEventDefinitionKey" )) {
-                    SFMCInfo.put( "regionExitedEventDefinitionKey", obj.getJSONObject( "sfmcCredentials" ).getString( "regionExitedEventDefinitionKey" ) );
+                    WoosmapSettings.SFMCCredentials.put( "regionExitedEventDefinitionKey", obj.getJSONObject( "sfmcCredentials" ).getString( "regionExitedEventDefinitionKey" ) );
                 }
                 if (!obj.getJSONObject( "sfmcCredentials" ).isNull( "visitEventDefinitionKey" )) {
-                    SFMCInfo.put( "visitEventDefinitionKey", obj.getJSONObject( "sfmcCredentials" ).getString( "visitEventDefinitionKey" ) );
+                    WoosmapSettings.SFMCCredentials.put( "visitEventDefinitionKey", obj.getJSONObject( "sfmcCredentials" ).getString( "visitEventDefinitionKey" ) );
                 }
                 if (!obj.getJSONObject( "sfmcCredentials" ).isNull( "zoiClassifiedEnteredEventDefinitionKey" )) {
-                    SFMCInfo.put( "zoiClassifiedEnteredEventDefinitionKey", obj.getJSONObject( "sfmcCredentials" ).getString( "zoiClassifiedEnteredEventDefinitionKey" ) );
+                    WoosmapSettings.SFMCCredentials.put( "zoiClassifiedEnteredEventDefinitionKey", obj.getJSONObject( "sfmcCredentials" ).getString( "zoiClassifiedEnteredEventDefinitionKey" ) );
                 }
                 if (!obj.getJSONObject( "sfmcCredentials" ).isNull( "zoiClassifiedExitedEventDefinitionKey" )) {
-                    SFMCInfo.put( "zoiClassifiedExitedEventDefinitionKey", obj.getJSONObject( "sfmcCredentials" ).getString( "zoiClassifiedExitedEventDefinitionKey" ) );
+                    WoosmapSettings.SFMCCredentials.put( "zoiClassifiedExitedEventDefinitionKey", obj.getJSONObject( "sfmcCredentials" ).getString( "zoiClassifiedExitedEventDefinitionKey" ) );
                 }
                 if (!obj.getJSONObject( "sfmcCredentials" ).isNull( "poiEventDefinitionKey" )) {
-                    SFMCInfo.put( "poiEventDefinitionKey", obj.getJSONObject( "sfmcCredentials" ).getString( "poiEventDefinitionKey" ) );
+                    WoosmapSettings.SFMCCredentials.put( "poiEventDefinitionKey", obj.getJSONObject( "sfmcCredentials" ).getString( "poiEventDefinitionKey" ) );
                 }
 
-                WoosmapSettings.SFMCCredentials = SFMCInfo;
             }
 
             enableTracking(WoosmapSettings.trackingEnable);
