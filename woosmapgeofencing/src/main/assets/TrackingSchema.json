@@ -103,7 +103,21 @@
                     "description": "Set parameter to narrow your results or filters it with the query parameter. More details in the Woosmap Search API documentation.",
                     "type": "array",
                     "items": {
-                        "type": "object"
+                        "type": "object",
+                        "properties": {
+                            "key": {
+                                "description": "Search API parameter name",
+                                "type": "string"
+                            },
+                            "value": {
+                                "description": "Search API parameter value",
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "key",
+                            "value"
+                        ]
                     }
                 }
             },
