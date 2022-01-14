@@ -731,6 +731,7 @@ public class Woosmap {
             } catch (IOException ex) {
                 errors.add( "Geofencing SDK - Custom profil: " + ex.toString() );
                 Woosmap.getInstance().profileReadyListener.ProfileReadyCallback( false,errors );
+                return;
             }
             List<String> validateErrors = validate(json,loadJSONFromAsset("TrackingSchema") );
             for (int i=0; i<validateErrors.size(); i++) {
