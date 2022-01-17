@@ -466,7 +466,7 @@ public class Woosmap {
             }else {
                 // Bind to the service. If the service is in foreground mode, this signals to the service
                 // that since this activity is in the foreground, the service can exit foreground mode.
-                getInstance().context.bindService(new Intent(context, LocationUpdatesService.class), mServiceConnection,Context.BIND_AUTO_CREATE);
+                getInstance().context.getApplicationContext().bindService(new Intent(context.getApplicationContext(), LocationUpdatesService.class), mServiceConnection,Context.BIND_AUTO_CREATE);
             }
         }
 
