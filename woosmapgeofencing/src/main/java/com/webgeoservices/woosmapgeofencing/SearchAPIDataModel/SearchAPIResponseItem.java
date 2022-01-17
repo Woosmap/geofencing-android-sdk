@@ -170,7 +170,12 @@ public class SearchAPIResponseItem implements Parcelable {
             if(properties.has("user_properties")) {
                 detailsResponseItem.userProperties = new Gson().fromJson( properties.get( "user_properties" ).toString(), HashMap.class );
                 if ( detailsResponseItem.userProperties != null && detailsResponseItem.userProperties.get( WoosmapSettings.poiRadiusNameFromResponse ) != null) {
-                    detailsResponseItem.radius = (Double) detailsResponseItem.userProperties.get( WoosmapSettings.poiRadiusNameFromResponse );
+                    String poiRadius = String.valueOf(detailsResponseItem.userProperties.get(WoosmapSettings.poiRadiusNameFromResponse));
+                    if(!poiRadius.isEmpty()) {
+                        detailsResponseItem.radius = Double.parseDouble( poiRadius );
+                    } else {
+                        detailsResponseItem.radius = Double.valueOf( WoosmapSettings.poiRadius );
+                    }
                 } else {
                     detailsResponseItem.radius = Double.valueOf( WoosmapSettings.poiRadius );
                 }
@@ -230,7 +235,7 @@ public class SearchAPIResponseItem implements Parcelable {
             }
 
         }catch (Exception ex){
-            Log.e(TAG,ex.getMessage());
+            Log.e(TAG,ex.getMessage(),ex);
             return null;
         }
         return detailsResponseItem;
