@@ -548,7 +548,7 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
 
                                     POIList.add(POIaround)
                                     createPOIRegion(
-                                        "POI_" + POIaround.name,
+                                        "POI_<id>" +searchAPIResponseItem.idstore,
                                         POIaround.radius,
                                         POIaround.lat,
                                         POIaround.lng,
@@ -653,7 +653,7 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
             regionsPOI.forEach {
                 var regionExist = false
                 for(POIadded in poiList) {
-                    if (it.identifier.contains("POI_" + POIadded.name)) {
+                    if (it.identifier.contains("POI_<id>" + POIadded.idStore)) {
                         regionExist = true
                     }
                 }
@@ -821,7 +821,7 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
             }
 
             if (!regionExist) {
-                Woosmap.getInstance().addGeofence(POIid + "_" + POIradius, LatLng(latitudePOI, longitudePOI),
+                Woosmap.getInstance().addGeofence(POIid + "</id>", LatLng(latitudePOI, longitudePOI),
                     POIradius.toFloat(), POIidStore, "circle")
             }
         }.start()
