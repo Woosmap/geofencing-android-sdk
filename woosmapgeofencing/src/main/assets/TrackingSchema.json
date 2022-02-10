@@ -1,0 +1,242 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Woosmap Geofencing SDK - Tracking profile Json schema",
+    "description": "Configuration file ",
+    "properties": {
+        "woosmapKey": {
+            "description": "Define the Woosmap private key use to perform request to Woosmap API.",
+            "type": "string",
+            "minimum": 0
+        },
+        "trackingProfileRefreshDelay": {
+            "description": "Minimum number of day to wait before refresh the custom profile. A value of 0 indicates that no refresh is performed by the SDK.",
+            "type": "integer",
+            "minimum": 0
+        },
+        "trackingEnable": {
+            "description": "Enable this parameter to start collecting location",
+            "type": "boolean"
+        },
+        "foregroundLocationServiceEnable": {
+            "description": "ANDROID ONLY - Enable this parameter to use the foreground service to collect location when the app is in background.",
+            "type": "boolean"
+        },
+        "modeHighFrequencyLocation": {
+            "description": "Enable this parameter to have a higher frequency of location updates.",
+            "type": "boolean"
+        },
+        "visitEnable": {
+            "description": "Enable this parameter to detect user's stops",
+            "type": "boolean"
+        },
+        "classificationEnable": {
+            "description": "Enable this parameter to classify the all zone of interest",
+            "type": "boolean"
+        },
+        "minDurationVisitDisplay": {
+            "description": "",
+            "type": "integer",
+            "minimum": 0
+        },
+        "radiusDetectionClassifiedZOI": {
+            "description": "",
+            "type": "integer",
+            "minimum": 0
+        },
+        "distanceDetectionThresholdVisits": {
+            "description": "",
+            "type": "integer",
+            "minimum": 0
+        },
+        "creationOfZOIEnable": {
+            "description": "Enable this parameter to automically create zone of interest from collected visits",
+            "type": "boolean"
+        },
+        "accuracyVisitFilter": {
+            "description": "",
+            "type": "integer",
+            "minimum": 0
+        },
+        "currentLocationTimeFilter": {
+            "description": "",
+            "type": "integer",
+            "minimum": 0
+        },
+        "currentLocationDistanceFilter": {
+            "description": "",
+            "type": "integer",
+            "minimum": 0
+        },
+        "accuracyFilter": {
+            "description": "",
+            "type": "integer",
+            "minimum": 0
+        },
+        "searchAPI": {
+            "description": "In this object, find all parameters related to the Woosmap Search API.",
+            "type": "object",
+            "properties": {
+                "searchAPIEnable": {
+                    "description": "Enable this parameters to request the Woosmap Search API regularly to retrieve nearest POIs",
+                    "type": "boolean"
+                },
+                "searchAPICreationRegionEnable": {
+                    "description": "Enable this parameters to automatically create a circle geofence around each POIs retrieved from the request to the Woosmap Search API",
+                    "type": "boolean"
+                },
+                "searchAPITimeFilter": {
+                    "description": "Minimum number of seconds to wait before send a new request to the Woosmap Search API.",
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "searchAPIDistanceFilter": {
+                    "description": "Minimum number of meters to wait before send a new request to the Woosmap Search API.",
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "searchAPIRefreshDelayDay": {
+                    "description": "Number of day to wait before force to send a new request to the Woosmap Search API.",
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "searchAPIParameters": {
+                    "description": "Set parameter to narrow your results or filters it with the query parameter. More details in the Woosmap Search API documentation.",
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "key": {
+                                "description": "Search API parameter name",
+                                "type": "string"
+                            },
+                            "value": {
+                                "description": "Search API parameter value",
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "key",
+                            "value"
+                        ]
+                    }
+                }
+            },
+            "required": [
+                "searchAPIEnable",
+                "searchAPICreationRegionEnable"
+            ]
+        },
+        "distanceAPIEnable": {
+            "description": "DEPRECATED - Enable this parameter to automatically send a request to Woosmap Distance API after a request to the Search API.",
+            "type": "boolean"
+        },
+        "outOfTimeDelay": {
+            "description": "",
+            "type": "integer",
+            "minimum": 0
+        },
+        "dataDurationDelay": {
+            "description": "",
+            "type": "integer",
+            "minimum": 0
+        },
+        "distance": {
+            "description": "In this object, find all parameters related to the Distance provider.",
+            "type": "object",
+            "properties": {
+                "distanceProvider": {
+                    "description": "Use this parameter to define which Distance provider will be used to retrieve distance and duration data.",
+                    "type": "string",
+                    "enum": ["woosmapDistance", "woosmapTraffic"]
+                },
+                "distanceMode": {
+                    "description": "Use this parameter to define the travel mode related to the request to the Distance provider.",
+                    "type": "string",
+                    "enum": ["driving", "walking", "cycling"]
+                },
+                "distanceRouting": {
+                    "description": "Use this parameter to define the Woosmap Traffic API routing parameter",
+                    "type": "string"
+                },
+                "distanceUnits": {
+                    "description": "Use this parameter to define the distance unit related to the request to the Distance provider.",
+                    "type": "string",
+                    "enum": ["metric", "imperial"]
+                },
+                "distanceLanguage": {
+                    "description": "Use this parameter to define the language related to the request to the Distance provider.",
+                    "type": "string"
+                },
+                "distanceMaxAirDistanceFilter": {
+                    "description": "Maximum air distance between the user location and the isochrone geofence center to justify the ETA has to be calculated.",
+                    "type": "integer",
+                    "maximum": 1000000,
+                    "minimum": 0
+                },
+                "distanceTimeFilter": {
+                    "description": "Minimum number of seconds to wait before send a new request to the Distance provider.",
+                    "type": "integer"
+                }
+            },
+            "required": ["distanceProvider"]
+        },
+        "sfmcCredentials": {
+            "description": "Some input and credentials to perform the API call to Salesforce Marketing Cloud API.",
+            "type": "object",
+            "properties": {
+                "authenticationBaseURI": {
+                    "description": "Authentication Base URI.",
+                    "type": "string"
+                },
+                "restBaseURI": {
+                    "description": "REST Base URI.",
+                    "type": "string"
+                },
+                "client_id": {
+                    "description": "client_id (journey_read and list_and_subscribers_read rights are required).",
+                    "type": "string"
+                },
+                "client_secret": {
+                    "description": "client_secret (journey_read and list_and_subscribers_read rights are required).",
+                    "type": "string"
+                },
+                "regionEnteredEventDefinitionKey": {
+                    "description": "EventDefinitionKey for the Woosmap event woos_geofence_entered_event.",
+                    "type": "string"
+                },
+                "regionExitedEventDefinitionKey": {
+                    "description": "EventDefinitionKey for the Woosmap event woos_geofence_exited_event.",
+                    "type": "string"
+                },
+                "poiEventDefinitionKey": {
+                    "description": "EventDefinitionKey for the Woosmap event woos_POI_event.",
+                    "type": "string"
+                },
+                "zoiClassifiedEnteredEventDefinitionKey": {
+                    "description": "EventDefinitionKey for the Woosmap event woos_zoi_classified_entered_event.",
+                    "type": "string"
+                },
+                "zoiClassifiedExitedEventDefinitionKey": {
+                    "description": "EventDefinitionKey for the Woosmap event woos_zoi_classified_exited_event.",
+                    "type": "string"
+                },
+                "visitEventDefinitionKey": {
+                    "description": "EventDefinitionKey for the Woosmap event woos_Visit_event.",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "authenticationBaseURI",
+                "restBaseURI",
+                "client_id",
+                "client_secret"
+            ]
+        }
+    },
+    "required": [
+        "trackingEnable",
+        "foregroundLocationServiceEnable",
+        "modeHighFrequencyLocation",
+        "visitEnable"
+    ]
+}

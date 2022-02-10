@@ -199,6 +199,16 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public class WoosProfileReadyListener implements Woosmap.ProfileReadyListener {
+        @Override
+        public void ProfileReadyCallback(Boolean status, ArrayList<String> errors) {
+            System.out.println("Geofencing SDK - Custom profil Status = " + status);
+            for (int i=0; i<errors.size(); i++) {
+                System.out.println(errors.get(i));
+            }
+        }
+    }
+
     private void onRegionLogCallback(RegionLog regionLog) {
         createNotification("Region update from geofence detection","Region : " + regionLog.identifier + "\n" + "didenter : " + regionLog.didEnter +
                 "\n" + "isCurrentPositionInside : " + regionLog.isCurrentPositionInside +
@@ -397,6 +407,7 @@ public class MainActivity extends AppCompatActivity {
         this.woosmap.setVisitReadyListener(new WoosVisitReadyListener());
         this.woosmap.setRegionReadyListener( new WoosRegionReadyListener() );
         this.woosmap.setRegionLogReadyListener( new WoosRegionLogReadyListener() );
+        this.woosmap.setProfileReadyListener( new WoosProfileReadyListener() );
 
         // Airship Listener
         //this.woosmap.setAirshipSearchAPIReadyListener( new WoosAirshipSearchAPIReadyListener() );
@@ -419,7 +430,13 @@ public class MainActivity extends AppCompatActivity {
         //WoosmapSettings.poiRadiusNameFromResponse = "near_radius";
         //WoosmapSettings.poiRadius = 500;
 
-       this.woosmap.startTracking( Woosmap.ConfigurationProfile.passiveTracking );
+        // Launch Custom profil
+        //String path = "test.json";
+        //String path = "https://raw.githubusercontent.com/woosmap/woosmap-geofencing-ios-sdk/master/WoosmapGeofencing/Sources/WoosmapGeofencing/Config/passiveTracking.json";
+        //this.woosmap.startCustomTracking( path );
+
+
+        this.woosmap.startTracking( Woosmap.ConfigurationProfile.passiveTracking );
 
         // For android version >= 8 you have to create a channel or use the woosmap's channel
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
