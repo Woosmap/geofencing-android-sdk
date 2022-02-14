@@ -82,7 +82,8 @@ public class PlaceDataAdapter extends ArrayAdapter<PlaceData> {
             TextView tvDate = (TextView) convertView.findViewById( R.id.date );
             tvDate.setText( displayDateFormat.format( place.getDate() ) );
 
-            String regionDetails = "Identifier = " + place.getRegionIdentifier() + "\n";
+            String regionDetails = "Type  = " + place.getTypeRegion() + "\n";
+            regionDetails += "Identifier = " + place.getRegionIdentifier() + "\n";
             if(!place.getIdStore().isEmpty()) {
                 regionDetails += "Id store = " + place.getIdStore() + "\n";
             }
@@ -94,10 +95,20 @@ public class PlaceDataAdapter extends ArrayAdapter<PlaceData> {
             }
 
             if(place.isCurrentPositionInside()) {
-                regionDetails += "Current Position Inside : Enter \n";
+                regionDetails += "Current Position Inside : Enter ";
             } else {
-                regionDetails += "Current Position Inside :  Exit \n";
+                regionDetails += "Current Position Inside :  Exit ";
             }
+
+            if(place.getDuration() != 0){
+                regionDetails += "\n" + "Duration = " + place.getDuration() + "\n";
+            }
+
+            if(!place.getTravelingDistance().isEmpty()){
+                regionDetails += "Distance = " + place.getTravelingDistance();
+            }
+
+
 
             TextView tvdetails = (TextView) convertView.findViewById( R.id.details );
             tvdetails.setText( regionDetails );

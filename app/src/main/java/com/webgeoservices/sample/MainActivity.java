@@ -46,6 +46,7 @@ import com.webgeoservices.woosmapgeofencing.FigmmForVisitsCreator;
 import com.webgeoservices.woosmapgeofencing.PositionsManager;
 import com.webgeoservices.woosmapgeofencing.Woosmap;
 import com.webgeoservices.woosmapgeofencing.WoosmapSettings;
+import com.webgeoservices.woosmapgeofencing.database.Distance;
 import com.webgeoservices.woosmapgeofencing.database.MovingPosition;
 import com.webgeoservices.woosmapgeofencing.database.POI;
 import com.webgeoservices.woosmapgeofencing.database.Region;
@@ -166,15 +167,13 @@ public class MainActivity extends AppCompatActivity {
     private void onPOICallback(POI poi) {
     }
 
-
-
-    public class WoosDistanceAPIReadyListener implements Woosmap.DistanceAPIReadyListener {
-        public void DistanceAPIReadyCallback(DistanceAPI distanceAPIData) {
-            onDistanceAPICallback(distanceAPIData);
+    public class WoosDistanceReadyListener implements Woosmap.DistanceReadyListener {
+        public void DistanceReadyCallback(Distance[] distances) {
+            onDistanceCallback(distances);
         }
     }
 
-    private void onDistanceAPICallback(DistanceAPI distanceAPIData) {
+    private void onDistanceCallback(Distance[] distances) {
     }
 
     public class WoosVisitReadyListener implements Woosmap.VisitReadyListener {
@@ -395,7 +394,7 @@ public class MainActivity extends AppCompatActivity {
 
         this.woosmap.setLocationReadyListener(new WoosLocationReadyListener());
         this.woosmap.setSearchAPIReadyListener(new WoosSearchAPIReadyListener());
-        this.woosmap.setDistanceAPIReadyListener(new WoosDistanceAPIReadyListener());
+        this.woosmap.setDistanceReadyListener(new WoosDistanceReadyListener());
         this.woosmap.setVisitReadyListener(new WoosVisitReadyListener());
         this.woosmap.setRegionReadyListener( new WoosRegionReadyListener() );
         this.woosmap.setRegionLogReadyListener( new WoosRegionLogReadyListener() );
@@ -418,7 +417,7 @@ public class MainActivity extends AppCompatActivity {
         //WoosmapSettings.userPropertiesFilter.add( "creation_year" );
 
         // Fix the radius of geofence POI
-        //WoosmapSettings.poiRadiusNameFromResponse = "creation_year";
+        //WoosmapSettings.poiRadiusNameFromResponse = "near_radius";
         //WoosmapSettings.poiRadius = 500;
 
         this.woosmap.startTracking( Woosmap.ConfigurationProfile.passiveTracking );
@@ -739,6 +738,7 @@ public class MainActivity extends AppCompatActivity {
                             place.setTravelingDistance( poi.travelingDistance );
                             place.setType( PlaceData.dataType.POI );
                             place.setMovingDuration( poi.duration );
+                            break;
                         }
                     }
                     arrayOfPlaceData.add( place );
@@ -769,22 +769,34 @@ public class MainActivity extends AppCompatActivity {
                     if (MainActivity.this.mapFragment.mGoolgeMap != null && MainActivity.this.mapFragment.isVisible()) {
 
                         if(place.getType() == PlaceData.dataType.POI) {
-                            LatLng latLng = new LatLng( place.getPOILatitude(), place.getPOILongitude() );
-                            boolean markerToAdd = true;
-                            MarkerOptions markerOptions = new MarkerOptions().position(latLng).title(place.getCity()).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
-                            if (!MainActivity.this.mapFragment.markersPOI.isEmpty()) {
-                                for (MarkerOptions marker : MainActivity.this.mapFragment.markersPOI) {
-                                    if (marker.getPosition().equals(markerOptions.getPosition())) {
-                                        markerToAdd =false;
+                            for (POI poi : POIData) {
+                                if (poi.locationId == locationToShow.id) {
+                                    place.setPOILatitude( poi.lat );
+                                    place.setPOILongitude( poi.lng );
+                                    place.setZipCode( poi.zipCode );
+                                    place.setCity( poi.city );
+                                    place.setDistance( poi.distance );
+                                    place.setTravelingDistance( poi.travelingDistance );
+                                    place.setType( PlaceData.dataType.POI );
+                                    place.setMovingDuration( poi.duration );
+                                    LatLng latLng = new LatLng( place.getPOILatitude(), place.getPOILongitude() );
+                                    boolean markerToAdd = true;
+                                    MarkerOptions markerOptions = new MarkerOptions().position(latLng).title(place.getCity()).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
+                                    if (!MainActivity.this.mapFragment.markersPOI.isEmpty()) {
+                                        for (MarkerOptions marker : MainActivity.this.mapFragment.markersPOI) {
+                                            if (marker.getPosition().equals(markerOptions.getPosition())) {
+                                                markerToAdd =false;
+                                            }
+                                        }
                                     }
-                                }
-                            }
-                            if(markerToAdd) {
-                                MainActivity.this.mapFragment.markersPOI.add(markerOptions);
-                                MainActivity.this.mapFragment.poiMarkerList.add(MainActivity.this.mapFragment.mGoolgeMap.addMarker(markerOptions));
-                                if(!MainActivity.this.mapFragment.POIEnableCheckbox.isChecked()){
-                                    for (Marker marker : MainActivity.this.mapFragment.poiMarkerList) {
-                                        marker.setVisible(false);
+                                    if(markerToAdd) {
+                                        MainActivity.this.mapFragment.markersPOI.add(markerOptions);
+                                        MainActivity.this.mapFragment.poiMarkerList.add(MainActivity.this.mapFragment.mGoolgeMap.addMarker(markerOptions));
+                                        if(!MainActivity.this.mapFragment.POIEnableCheckbox.isChecked()){
+                                            for (Marker marker : MainActivity.this.mapFragment.poiMarkerList) {
+                                                marker.setVisible(false);
+                                            }
+                                        }
                                     }
                                 }
                             }

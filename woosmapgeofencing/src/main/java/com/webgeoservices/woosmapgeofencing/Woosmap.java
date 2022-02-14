@@ -18,7 +18,7 @@ import android.util.Log;
 
 
 import com.google.android.gms.maps.model.LatLng;
-import com.webgeoservices.woosmapgeofencing.DistanceAPIDataModel.DistanceAPI;
+import com.webgeoservices.woosmapgeofencing.database.Distance;
 import com.webgeoservices.woosmapgeofencing.database.POI;
 import com.webgeoservices.woosmapgeofencing.database.Region;
 import com.webgeoservices.woosmapgeofencing.database.RegionLog;
@@ -63,7 +63,7 @@ public class Woosmap {
     LocationReadyListener locationReadyListener = null;
     SearchAPIReadyListener searchAPIReadyListener = null;
     VisitReadyListener visitReadyListener = null;
-    DistanceAPIReadyListener distanceAPIReadyListener = null;
+    DistanceReadyListener distanceReadyListener = null;
     RegionReadyListener regionReadyListener = null;
     RegionLogReadyListener regionLogReadyListener = null;
 
@@ -176,13 +176,13 @@ public class Woosmap {
     /**
      * An interface to add callback on Distance API retrieving
      */
-    public interface DistanceAPIReadyListener {
+    public interface DistanceReadyListener {
         /**
          * When Woosmap get a new distance it calls this method
          *
-         * @param distanceAPIData an user's location
+         * @param distances array of distance reponse API
          */
-        void DistanceAPIReadyCallback(DistanceAPI distanceAPIData);
+        void DistanceReadyCallback(Distance[] distances);
     }
 
     /**
@@ -352,11 +352,11 @@ public class Woosmap {
     /**
      * Add a listener to get callback on new Distance
      *
-     * @param distanceAPIReadyListener
-     * @see DistanceAPIReadyListener
+     * @param distanceReadyListener
+     * @see DistanceReadyListener
      */
-    public void setDistanceAPIReadyListener(DistanceAPIReadyListener distanceAPIReadyListener) {
-        this.distanceAPIReadyListener = distanceAPIReadyListener;
+    public void setDistanceReadyListener(DistanceReadyListener distanceReadyListener) {
+        this.distanceReadyListener = distanceReadyListener;
     }
 
     /**
@@ -466,7 +466,7 @@ public class Woosmap {
             }else {
                 // Bind to the service. If the service is in foreground mode, this signals to the service
                 // that since this activity is in the foreground, the service can exit foreground mode.
-                getInstance().context.bindService(new Intent(context, LocationUpdatesService.class), mServiceConnection,Context.BIND_AUTO_CREATE);
+                getInstance().context.getApplicationContext().bindService(new Intent(context.getApplicationContext(), LocationUpdatesService.class), mServiceConnection,Context.BIND_AUTO_CREATE);
             }
         }
 
@@ -582,8 +582,16 @@ public class Woosmap {
         Woosmap.getInstance().fcmToken = messageToken;
     }
 
-    public void addGeofence(String id, LatLng latLng, float radius, String idStore) {
-        locationManager.addGeofence( id,latLng,radius, idStore );
+    public void addGeofence(String id, LatLng latLng, float radius, String type) {
+        addGeofence( id,latLng,radius, "", type);
+    }
+
+    public void addGeofence(String id, LatLng latLng, float radius) {
+        addGeofence( id,latLng,radius, "", "circle" );
+    }
+
+    public void addGeofence(String id, LatLng latLng, float radius, String idStore, String type) {
+        locationManager.addGeofence( id,latLng,radius, idStore, type );
     }
 
     public void removeGeofence(String id) {
@@ -645,6 +653,7 @@ public class Woosmap {
     public void startTracking(String profile) {
 
         try {
+
             JSONObject obj = new JSONObject(loadJSONFromAsset(profile));
             WoosmapSettings.trackingEnable = obj.getBoolean( "trackingEnable" );
             WoosmapSettings.foregroundLocationServiceEnable = obj.getBoolean( "foregroundLocationServiceEnable" );
@@ -671,13 +680,24 @@ public class Woosmap {
             WoosmapSettings.searchAPICreationRegionEnable = obj.getBoolean( "searchAPICreationRegionEnable" );
             WoosmapSettings.searchAPITimeFilter = obj.getInt( "searchAPITimeFilter" );
             WoosmapSettings.searchAPIDistanceFilter = obj.getInt( "searchAPIDistanceFilter" );
+            WoosmapSettings.searchAPIRefreshDelayDay = obj.getInt( "searchAPIRefreshDelayDay" );
+
 
             WoosmapSettings.distanceAPIEnable = obj.getBoolean( "distanceAPIEnable" );
-            WoosmapSettings.modeDistance = obj.getString( "modeDistance" );
             WoosmapSettings.outOfTimeDelay = obj.getInt( "outOfTimeDelay" );
             WoosmapSettings.numberOfDayDataDuration = obj.getLong( "dataDurationDelay" );
 
+            WoosmapSettings.setDistanceProvider( obj.getJSONObject( "distance" ).getString( "distanceProvider" ) );
+            WoosmapSettings.setModeDistance( obj.getJSONObject( "distance" ).getString( "distanceMode" ) );
+            WoosmapSettings.setDistanceUnits( obj.getJSONObject( "distance" ).getString( "distanceUnits" ) );
+            WoosmapSettings.setTrafficDistanceRouting( obj.getJSONObject( "distance" ).getString( "distanceRouting" ) );
+            WoosmapSettings.setDistanceLanguage( obj.getJSONObject( "distance" ).getString( "distanceLanguage" ) );
+            WoosmapSettings.setDistanceMaxAirDistanceFilter( obj.getJSONObject( "distance" ).getInt( "distanceMaxAirDistanceFilter" ) );
+            WoosmapSettings.setDistanceTimeFilter( obj.getJSONObject( "distance" ).getInt( "distanceTimeFilter" ) );
+
             enableTracking(WoosmapSettings.trackingEnable);
+
+            WoosmapSettings.saveSettings(context);
 
         } catch (JSONException e) {
             e.printStackTrace();
