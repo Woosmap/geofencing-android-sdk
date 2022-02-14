@@ -345,10 +345,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
                 String name=editText.getText().toString();
                 if (name.trim().compareTo("")==0) {
                     Toast.makeText(getContext(), "Enter the radius !", Toast.LENGTH_SHORT).show();
-                }else if (name.contains( "s" )){
-                    String id = UUID.randomUUID().toString();
-                    name = name.replace( "s","" );
-                    Woosmap.getInstance().addGeofence( id, latLng, Float.parseFloat( name ),"isochrone");
                 }
                 else{
                     String id = UUID.randomUUID().toString();

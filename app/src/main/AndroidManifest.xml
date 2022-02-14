@@ -36,9 +36,6 @@
                     android:host="notif" />
             </intent-filter>
         </activity>
-        <!-- Uncomment to enable airship -->
-        <!--       <meta-data android:name="com.urbanairship.autopilot"
-                   android:value="com.webgeoservices.sample.SampleAutopilot"/>-->
         <receiver android:name="com.webgeoservices.sample.RunOnStartup"
             android:exported="true"
             >
