@@ -22,7 +22,6 @@ import com.webgeoservices.woosmapgeofencing.WoosmapSettings.*
 import com.webgeoservices.woosmapgeofencing.WoosmapSettings.Tags.WoosmapSdkTag
 import com.webgeoservices.woosmapgeofencing.WoosmapSettings.Tags.WoosmapVisitsTag
 import com.webgeoservices.woosmapgeofencing.database.*
-import org.jetbrains.anko.doAsync
 import org.json.JSONException
 import org.json.JSONObject
 import java.text.SimpleDateFormat
@@ -426,7 +425,7 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
     }
 
     fun asyncManageLocation(locations: List<Location>) {
-        doAsync {
+        Thread {
             try {
                 temporaryCurrentVisits = mutableListOf<Visit>()
                 temporaryFinishedVisits = mutableListOf<Visit>()
@@ -439,7 +438,7 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
             } catch (e: Exception) {
                 Log.e(WoosmapVisitsTag, e.toString())
             }
-        }
+        }.start()
     }
 
     private fun detectVisitInZOIClassified() {
@@ -548,7 +547,7 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
 
                                     POIList.add(POIaround)
                                     createPOIRegion(
-                                        "POI_" + POIaround.name,
+                                        "POI_<id>" +searchAPIResponseItem.idstore,
                                         POIaround.radius,
                                         POIaround.lat,
                                         POIaround.lng,
@@ -653,7 +652,7 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
             regionsPOI.forEach {
                 var regionExist = false
                 for(POIadded in poiList) {
-                    if (it.identifier.contains("POI_" + POIadded.name)) {
+                    if (it.identifier.contains("POI_<id>" + POIadded.idStore)) {
                         regionExist = true
                     }
                 }
@@ -821,7 +820,7 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
             }
 
             if (!regionExist) {
-                Woosmap.getInstance().addGeofence(POIid + "_" + POIradius, LatLng(latitudePOI, longitudePOI),
+                Woosmap.getInstance().addGeofence(POIid + "</id>", LatLng(latitudePOI, longitudePOI),
                     POIradius.toFloat(), POIidStore, "circle")
             }
         }.start()
@@ -1357,7 +1356,7 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
             }
         }.start()
 
-        geofencingClient.addGeofences(geofencingRequest, geofencePendingIntent)?.run {
+        geofencingClient.addGeofences(geofencingRequest, geofencePendingIntent).run {
             addOnSuccessListener {
                 Log.d(WoosmapSdkTag,"onSuccess: Geofence Added...")
             }
