@@ -23,6 +23,7 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.util.Log;
 
+import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -98,19 +99,34 @@ public class LocationUpdatesService extends Service {
     @Override
     public void onCreate() {
         Log.i(TAG, "onCreate");
-        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient( this );
 
         mLocationCallback = new LocationCallback() {
             @Override
             public void onLocationResult(LocationResult locationResult) {
-                super.onLocationResult(locationResult);
-                onNewLocation(locationResult.getLastLocation());
+                super.onLocationResult( locationResult );
+                onNewLocation( locationResult.getLastLocation() );
             }
         };
 
         createLocationRequest();
 
-        mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        mNotificationManager = (NotificationManager) getSystemService( NOTIFICATION_SERVICE );
+
+        if (!shouldTrackUser()) {
+            removeLocationUpdates();
+            stopForeground(true);
+            stopSelf();
+            return;
+        }
+
+    }
+
+    private boolean shouldTrackUser() {
+        int finePermissionState = ActivityCompat.checkSelfPermission(getApplicationContext(),
+                android.Manifest.permission.ACCESS_FINE_LOCATION);
+        return finePermissionState == PackageManager.PERMISSION_GRANTED;
     }
 
     @Override
@@ -195,7 +211,7 @@ public class LocationUpdatesService extends Service {
             } else {
                 startForeground( NOTIFICATION_ID,getNotification() );
             }
-            mNotificationManager.notify(NOTIFICATION_ID, getNotification());
+            mNotificationManager.notify( NOTIFICATION_ID, getNotification() );
         } catch (SecurityException unlikely) {
             Log.e(TAG, "Lost location permission. Could not request updates. " + unlikely);
         }
