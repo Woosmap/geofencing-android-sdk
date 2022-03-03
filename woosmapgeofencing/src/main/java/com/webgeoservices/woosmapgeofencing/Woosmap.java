@@ -505,12 +505,12 @@ public class Woosmap {
         }
         mLocationUpdateService = null;
         if(WoosmapSettings.trackingEnable) {
-            getInstance().context.unbindService( mServiceConnection );
+            getInstance().context.getApplicationContext().unbindService( mServiceConnection );
         }
     }
 
 
-    private Boolean shouldTrackUser() {
+    public Boolean shouldTrackUser() {
         return this.locationManager.checkPermissions();
     }
 
