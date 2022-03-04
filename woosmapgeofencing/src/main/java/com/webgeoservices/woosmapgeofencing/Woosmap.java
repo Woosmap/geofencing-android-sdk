@@ -599,6 +599,10 @@ public class Woosmap {
     }
     public void removeGeofence() { locationManager.removeGeofences();}
 
+    public void replaceGeofenceIsochrone(String oldId, String newId, LatLng latLng, float radius){
+        locationManager.replaceGeofenceIsochrone(oldId, newId, latLng, radius, "");
+    }
+
     public void replaceGeofenceIsochrone(String oldId, String newId, LatLng latLng, float radius, String idStore){
         locationManager.replaceGeofenceIsochrone(oldId, newId, latLng, radius, idStore);
     }
