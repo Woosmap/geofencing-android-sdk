@@ -893,6 +893,7 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
             destination += it.first.toString() + "," + it.second.toString() + "|"
         }
 
+
         var url: String
         var mode = modeDistance
         var units = distanceUnits
@@ -1252,7 +1253,10 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
 
             if (type == "isochrone") {
                 val lastPosition = this.db.movingPositionsDao.getLastMovingPosition()
-                calculateDistanceWithRegion(lastPosition,this.db.regionsDAO.regionIsochrone)
+                if (lastPosition != null) {
+                    calculateDistanceWithRegion(lastPosition,this.db.regionsDAO.regionIsochrone)
+                }
+
             }
         }.start()
 
@@ -1340,6 +1344,40 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
     fun removeGeofence(id: String) {
         Thread {
             this.db.regionsDAO.deleteRegionFromId(id)
+        }.start()
+
+    }
+
+    fun replaceGeofence(
+        oldId: String,
+        newId: String,
+        radius: Double,
+        lat: Double,
+        lng: Double,
+        idStore: String
+    )  {
+        var region = Region()
+        region.lat = lat
+        region.lng = lng
+        region.identifier = newId
+        region.idStore = idStore
+        region.radius = radius
+        region.dateTime = System.currentTimeMillis()
+        region.type = "isochrone"
+
+        Thread {
+            this.db.regionsDAO.deleteRegionFromId(oldId)
+            this.db.regionsDAO.createRegion(region)
+
+            if (Woosmap.getInstance().regionReadyListener != null) {
+                Woosmap.getInstance().regionReadyListener.RegionReadyCallback(region)
+            }
+
+            val lastPosition = this.db.movingPositionsDao.getLastMovingPosition()
+            if (lastPosition != null) {
+                calculateDistanceWithRegion(lastPosition,this.db.regionsDAO.regionIsochrone)
+            }
+
         }.start()
 
     }

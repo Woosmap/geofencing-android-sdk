@@ -73,6 +73,10 @@ class LocationManager {
         positionsManager.removeGeofence(id);
     }
 
+    public void replaceGeofenceIsochrone(String oldId, String newId, final LatLng latLng, final float radius, final String idStore) {
+       positionsManager.replaceGeofence(oldId, newId, radius,latLng.latitude,latLng.longitude,idStore );
+    }
+
 
     public void addGeofence(final String id, final LatLng latLng, final float radius, final String idStore, String type) {
         if(type.equals( "circle" )) {
@@ -237,4 +241,5 @@ class LocationManager {
                     });
         }
     }
+
 }
