@@ -389,6 +389,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
             public void onCircleClick(Circle circle) {
                 Log.d("map","name " + circle.getTag());
                 Woosmap.getInstance().removeGeofence( (String) circle.getTag() );
+                // To test replace
+                //String id = UUID.randomUUID().toString();
+                //Woosmap.getInstance().addGeofence(id, latLng, 300,"isochrone");
+                //Woosmap.getInstance().replaceGeofenceIsochrone((String) circle.getTag(), (String) circle.getTag(), latLng, 300, "" );
                 circle.remove();
                 circleGeofence.remove( circle );
             }
@@ -401,6 +405,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
             if(region.type.equals( "circle" )) {
                 addCircle( region.identifier, new LatLng( region.lat, region.lng ), (float) region.radius, (region.didEnter || region.isCurrentPositionInside) );
             } else {
+                addCircle( region.identifier, new LatLng( region.lat, region.lng ), (float) region.radius, (region.didEnter || region.isCurrentPositionInside) );
                 LatLng latLng = new LatLng( region.lat, region.lng );
                 MarkerOptions markerOptions = new MarkerOptions().position(latLng).title( String.valueOf( region.radius ) ).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE));
                 mGoolgeMap.addMarker(markerOptions);
