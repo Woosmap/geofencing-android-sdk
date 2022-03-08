@@ -73,8 +73,15 @@ class LocationManager {
         positionsManager.removeGeofence(id);
     }
 
-    public void replaceGeofenceIsochrone(String oldId, String newId, final LatLng latLng, final float radius, final String idStore) {
-       positionsManager.replaceGeofence(oldId, newId, radius,latLng.latitude,latLng.longitude,idStore );
+    public void replaceGeofence(String oldId, String newId, final LatLng latLng, final float radius, final String type) {
+        if(type.equals( "circle" )) {
+            mGeofencingClient.removeGeofences( Collections.singletonList( oldId ) );
+            Geofence geofence = geofenceHelper.getGeofence( newId, latLng, radius, Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_DWELL | Geofence.GEOFENCE_TRANSITION_EXIT );
+            GeofencingRequest geofencingRequest = geofenceHelper.getGeofencingRequest( geofence );
+            positionsManager.replaceGeofenceCircle( oldId, geofenceHelper, geofencingRequest, getGeofencePendingIntent(), mGeofencingClient, newId, radius, latLng.latitude, latLng.longitude);
+        } else {
+            positionsManager.replaceGeofence( oldId, newId, radius, latLng.latitude, latLng.longitude, type );
+        }
     }
 
 

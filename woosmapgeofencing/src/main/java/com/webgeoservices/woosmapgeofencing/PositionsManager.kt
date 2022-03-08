@@ -1416,4 +1416,46 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
         }.start()
     }
 
+    @SuppressLint("MissingPermission")
+    fun replaceGeofenceCircle(
+        oldId: String,
+        geofenceHelper: GeofenceHelper,
+        geofencingRequest: GeofencingRequest,
+        GeofencePendingIntent: PendingIntent,
+        mGeofencingClient: GeofencingClient,
+        newId: String,
+        radius: Float,
+        latitude: Double,
+        longitude: Double,
+    ) {
+        var region = Region()
+        region.lat = latitude
+        region.lng = longitude
+        region.identifier = newId
+        region.idStore = ""
+        region.radius = radius.toDouble()
+        region.dateTime = System.currentTimeMillis()
+        region.type = "circle"
+
+        Thread {
+            this.db.regionsDAO.deleteRegionFromId(oldId)
+            val regionDB = this.db.regionsDAO.getRegionFromId(newId)
+            if(regionDB != null) {
+                Log.d(WoosmapSdkTag, "Region already exist")
+            } else {
+                this.db.regionsDAO.createRegion(region)
+            }
+        }.start()
+
+        mGeofencingClient.addGeofences(geofencingRequest, GeofencePendingIntent).run {
+            addOnSuccessListener {
+                Log.d(WoosmapSdkTag,"onSuccess: Geofence Added...")
+            }
+            addOnFailureListener {
+                val errorMessage = geofenceHelper.getErrorString(exception)
+                Log.d(WoosmapSdkTag,"onFailure "+errorMessage)
+            }
+        }
+    }
+
 }
