@@ -599,12 +599,12 @@ public class Woosmap {
     }
     public void removeGeofence() { locationManager.removeGeofences();}
 
-    public void replaceGeofenceIsochrone(String oldId, String newId, LatLng latLng, float radius){
-        locationManager.replaceGeofenceIsochrone(oldId, newId, latLng, radius, "");
+    public void replaceGeofence(String oldId, String newId, LatLng latLng, float radius){
+        locationManager.replaceGeofence(oldId, newId, latLng, radius, "circle");
     }
 
-    public void replaceGeofenceIsochrone(String oldId, String newId, LatLng latLng, float radius, String idStore){
-        locationManager.replaceGeofenceIsochrone(oldId, newId, latLng, radius, idStore);
+    public void replaceGeofence(String oldId, String newId, LatLng latLng, float radius, String type){
+        locationManager.replaceGeofence(oldId, newId, latLng, radius, type);
     }
 
     // Monitors the state of the connection to the service.

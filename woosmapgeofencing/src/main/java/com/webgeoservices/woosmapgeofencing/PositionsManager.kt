@@ -1366,16 +1366,21 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
         region.type = "isochrone"
 
         Thread {
-            this.db.regionsDAO.deleteRegionFromId(oldId)
-            this.db.regionsDAO.createRegion(region)
+            val regionDB = this.db.regionsDAO.getRegionFromId(oldId)
+            if(regionDB == null) {
+                Log.d(WoosmapSdkTag, "Region to replace not exist id = " + oldId)
+            } else {
+                this.db.regionsDAO.deleteRegionFromId(oldId)
+                this.db.regionsDAO.createRegion(region)
 
-            if (Woosmap.getInstance().regionReadyListener != null) {
-                Woosmap.getInstance().regionReadyListener.RegionReadyCallback(region)
-            }
+                if (Woosmap.getInstance().regionReadyListener != null) {
+                    Woosmap.getInstance().regionReadyListener.RegionReadyCallback(region)
+                }
 
-            val lastPosition = this.db.movingPositionsDao.getLastMovingPosition()
-            if (lastPosition != null) {
-                calculateDistanceWithRegion(lastPosition,this.db.regionsDAO.regionIsochrone)
+                val lastPosition = this.db.movingPositionsDao.getLastMovingPosition()
+                if (lastPosition != null) {
+                    calculateDistanceWithRegion(lastPosition, this.db.regionsDAO.regionIsochrone)
+                }
             }
 
         }.start()
@@ -1412,6 +1417,47 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
                 Log.d(WoosmapSdkTag, "Region already exist")
             } else {
                 createRegion(id, radius.toDouble(),latitude,longitude,idStore, "isochrone")
+            }
+        }.start()
+    }
+
+    @SuppressLint("MissingPermission")
+    fun replaceGeofenceCircle(
+        oldId: String,
+        geofenceHelper: GeofenceHelper,
+        geofencingRequest: GeofencingRequest,
+        GeofencePendingIntent: PendingIntent,
+        mGeofencingClient: GeofencingClient,
+        newId: String,
+        radius: Float,
+        latitude: Double,
+        longitude: Double,
+    ) {
+        var region = Region()
+        region.lat = latitude
+        region.lng = longitude
+        region.identifier = newId
+        region.idStore = ""
+        region.radius = radius.toDouble()
+        region.dateTime = System.currentTimeMillis()
+        region.type = "circle"
+
+        Thread {
+            val regionDB = this.db.regionsDAO.getRegionFromId(oldId)
+            if(regionDB == null) {
+                Log.d(WoosmapSdkTag, "Region to replace not exist id = " + oldId)
+            } else {
+                this.db.regionsDAO.deleteRegionFromId(oldId)
+                this.db.regionsDAO.createRegion(region)
+                mGeofencingClient.addGeofences(geofencingRequest, GeofencePendingIntent).run {
+                    addOnSuccessListener {
+                        Log.d(WoosmapSdkTag,"onSuccess: Geofence Added...")
+                    }
+                    addOnFailureListener {
+                        val errorMessage = geofenceHelper.getErrorString(exception)
+                        Log.d(WoosmapSdkTag,"onFailure "+errorMessage)
+                    }
+                }
             }
         }.start()
     }
