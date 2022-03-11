@@ -1366,11 +1366,16 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
         region.type = "isochrone"
 
         Thread {
-            val regionDB = this.db.regionsDAO.getRegionFromId(oldId)
-            if(regionDB == null) {
+            val regionOld = this.db.regionsDAO.getRegionFromId(oldId)
+            if(regionOld == null) {
                 Log.d(WoosmapSdkTag, "Region to replace not exist id = " + oldId)
             } else {
                 this.db.regionsDAO.deleteRegionFromId(oldId)
+            }
+            val regionNew = this.db.regionsDAO.getRegionFromId(newId)
+            if(regionNew != null) {
+                Log.d(WoosmapSdkTag, "Region already exist id = " + newId)
+            } else {
                 this.db.regionsDAO.createRegion(region)
 
                 if (Woosmap.getInstance().regionReadyListener != null) {
@@ -1443,11 +1448,16 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
         region.type = "circle"
 
         Thread {
-            val regionDB = this.db.regionsDAO.getRegionFromId(oldId)
-            if(regionDB == null) {
+            val regionOld = this.db.regionsDAO.getRegionFromId(oldId)
+            if(regionOld == null) {
                 Log.d(WoosmapSdkTag, "Region to replace not exist id = " + oldId)
             } else {
                 this.db.regionsDAO.deleteRegionFromId(oldId)
+            }
+            val regionNew = this.db.regionsDAO.getRegionFromId(newId)
+            if(regionNew != null) {
+                Log.d(WoosmapSdkTag, "Region already exist id = " + newId)
+            } else {
                 this.db.regionsDAO.createRegion(region)
                 mGeofencingClient.addGeofences(geofencingRequest, GeofencePendingIntent).run {
                     addOnSuccessListener {
