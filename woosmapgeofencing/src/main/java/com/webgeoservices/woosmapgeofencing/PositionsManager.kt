@@ -160,6 +160,10 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
             locationFromRegion.longitude = it.lng
             var distance = this.distanceBetweenLocationAndPosition(movingPosition, locationFromRegion)
             if (distance < WoosmapSettings.distanceMaxAirDistanceFilter) {
+                if ( it.dateTime == 0L ) {
+                    regionsBeUpdated = true
+                    continue
+                }
                 var spendtime = System.currentTimeMillis() - it.dateTime
                 var timeLimit = (it.duration - it.radius)/2
                 if (spendtime/1000 > timeLimit) {
@@ -1245,19 +1249,16 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
         region.type = type
 
         Thread {
+            if (type == "isochrone") {
+                region.dateTime = 0
+            }
+
             this.db.regionsDAO.createRegion(region)
 
             if (Woosmap.getInstance().regionReadyListener != null) {
                 Woosmap.getInstance().regionReadyListener.RegionReadyCallback(region)
             }
 
-            if (type == "isochrone") {
-                val lastPosition = this.db.movingPositionsDao.getLastMovingPosition()
-                if (lastPosition != null) {
-                    calculateDistanceWithRegion(lastPosition,this.db.regionsDAO.regionIsochrone)
-                }
-
-            }
         }.start()
 
     }
@@ -1362,7 +1363,7 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
         region.identifier = newId
         region.idStore = idStore
         region.radius = radius
-        region.dateTime = System.currentTimeMillis()
+        region.dateTime = 0
         region.type = "isochrone"
 
         Thread {
@@ -1380,11 +1381,6 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
 
                 if (Woosmap.getInstance().regionReadyListener != null) {
                     Woosmap.getInstance().regionReadyListener.RegionReadyCallback(region)
-                }
-
-                val lastPosition = this.db.movingPositionsDao.getLastMovingPosition()
-                if (lastPosition != null) {
-                    calculateDistanceWithRegion(lastPosition, this.db.regionsDAO.regionIsochrone)
                 }
             }
 
