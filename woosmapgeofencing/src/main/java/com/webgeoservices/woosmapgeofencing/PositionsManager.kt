@@ -1245,19 +1245,16 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
         region.type = type
 
         Thread {
+            if (type == "isochrone") {
+                region.dateTime = 0
+            }
+
             this.db.regionsDAO.createRegion(region)
 
             if (Woosmap.getInstance().regionReadyListener != null) {
                 Woosmap.getInstance().regionReadyListener.RegionReadyCallback(region)
             }
 
-            if (type == "isochrone") {
-                val lastPosition = this.db.movingPositionsDao.getLastMovingPosition()
-                if (lastPosition != null) {
-                    calculateDistanceWithRegion(lastPosition,this.db.regionsDAO.regionIsochrone)
-                }
-
-            }
         }.start()
 
     }
