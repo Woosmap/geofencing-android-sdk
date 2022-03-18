@@ -1363,7 +1363,7 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
         region.identifier = newId
         region.idStore = idStore
         region.radius = radius
-        region.dateTime = System.currentTimeMillis()
+        region.dateTime = 0
         region.type = "isochrone"
 
         Thread {
@@ -1381,11 +1381,6 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
 
                 if (Woosmap.getInstance().regionReadyListener != null) {
                     Woosmap.getInstance().regionReadyListener.RegionReadyCallback(region)
-                }
-
-                val lastPosition = this.db.movingPositionsDao.getLastMovingPosition()
-                if (lastPosition != null) {
-                    calculateDistanceWithRegion(lastPosition, this.db.regionsDAO.regionIsochrone)
                 }
             }
 
