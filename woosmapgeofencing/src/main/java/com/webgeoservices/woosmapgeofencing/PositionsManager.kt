@@ -160,6 +160,10 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
             locationFromRegion.longitude = it.lng
             var distance = this.distanceBetweenLocationAndPosition(movingPosition, locationFromRegion)
             if (distance < WoosmapSettings.distanceMaxAirDistanceFilter) {
+                if ( it.dateTime == 0L ) {
+                    regionsBeUpdated = true
+                    continue
+                }
                 var spendtime = System.currentTimeMillis() - it.dateTime
                 var timeLimit = (it.duration - it.radius)/2
                 if (spendtime/1000 > timeLimit) {
