@@ -368,12 +368,12 @@ public class Woosmap {
         }
         mLocationUpdateService = null;
         if(WoosmapSettings.trackingEnable) {
-            getInstance().context.unbindService( mServiceConnection );
+            getInstance().context.getApplicationContext().unbindService( mServiceConnection );
         }
     }
 
 
-    private Boolean shouldTrackUser() {
+    public Boolean shouldTrackUser() {
         return this.locationManager.checkPermissions();
     }
 
@@ -461,6 +461,14 @@ public class Woosmap {
         locationManager.removeGeofences(id);
     }
     public void removeGeofence() { locationManager.removeGeofences();}
+
+    public void replaceGeofence(String oldId, String newId, LatLng latLng, float radius){
+        locationManager.replaceGeofence(oldId, newId, latLng, radius, "circle");
+    }
+
+    public void replaceGeofence(String oldId, String newId, LatLng latLng, float radius, String type){
+        locationManager.replaceGeofence(oldId, newId, latLng, radius, type);
+    }
 
     // Monitors the state of the connection to the service.
     private ServiceConnection mServiceConnection = new ServiceConnection() {

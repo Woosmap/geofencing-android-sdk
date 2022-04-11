@@ -605,6 +605,7 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
             destination += it.first.toString() + "," + it.second.toString() + "|"
         }
 
+
         var url: String
         var mode = modeDistance
         var units = distanceUnits
@@ -886,6 +887,10 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
         region.type = type
 
         Thread {
+            if (type == "isochrone") {
+                region.dateTime = 0
+            }
+
             this.db.regionsDAO.createRegion(region)
 
             if (Woosmap.getInstance().regionReadyListener != null) {
@@ -941,6 +946,45 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
 
     }
 
+    fun replaceGeofence(
+        oldId: String,
+        newId: String,
+        radius: Double,
+        lat: Double,
+        lng: Double,
+        idStore: String
+    )  {
+        var region = Region()
+        region.lat = lat
+        region.lng = lng
+        region.identifier = newId
+        region.idStore = idStore
+        region.radius = radius
+        region.dateTime = 0
+        region.type = "isochrone"
+
+        Thread {
+            val regionOld = this.db.regionsDAO.getRegionFromId(oldId)
+            if(regionOld == null) {
+                Log.d(WoosmapSdkTag, "Region to replace not exist id = " + oldId)
+            } else {
+                this.db.regionsDAO.deleteRegionFromId(oldId)
+            }
+            val regionNew = this.db.regionsDAO.getRegionFromId(newId)
+            if(regionNew != null) {
+                Log.d(WoosmapSdkTag, "Region already exist id = " + newId)
+            } else {
+                this.db.regionsDAO.createRegion(region)
+
+                if (Woosmap.getInstance().regionReadyListener != null) {
+                    Woosmap.getInstance().regionReadyListener.RegionReadyCallback(region)
+                }
+            }
+
+        }.start()
+
+    }
+
 
     @SuppressLint("MissingPermission")
     fun addGeofence(geofenceHelper: GeofenceHelper, geofencingRequest: GeofencingRequest, geofencePendingIntent: PendingIntent, geofencingClient: GeofencingClient, id: String, radius: Float, latitude: Double, longitude: Double, idStore: String)  {
@@ -963,4 +1007,5 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
             }
         }
     }
+
 }
