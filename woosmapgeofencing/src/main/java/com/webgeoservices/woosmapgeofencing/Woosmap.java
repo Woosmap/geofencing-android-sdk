@@ -52,14 +52,6 @@ public class Woosmap {
     private Boolean isForegroundEnabled = false;
     private String asyncTrackNotifOpened = null;
 
-    AirshipSearchAPIReadyListener airshipSearchAPIReadyListener = null;
-    AirshipVisitReadyListener airshipVisitReadyListener = null;
-    AirshipRegionLogReadyListener airshipRegionLogReadyListener = null;
-
-    MarketingCloudSearchAPIReadyListener marketingCloudSearchAPIReadyListener = null;
-    MarketingCloudVisitReadyListener marketingCloudVisitReadyListener = null;
-    MarketingCloudRegionLogReadyListener marketingCloudRegionLogReadyListener = null;
-
     LocationReadyListener locationReadyListener = null;
     SearchAPIReadyListener searchAPIReadyListener = null;
     VisitReadyListener visitReadyListener = null;
@@ -70,73 +62,6 @@ public class Woosmap {
     // A reference to the service used to get location updates.
     private LocationUpdatesService mLocationUpdateService = null;
 
-    public interface AirshipSearchAPIReadyListener {
-
-        /**
-         * When Woosmap get a new POI it calls this method to create a event for airship
-         *
-         * @param dataEvent an dictonnary of dataPOI
-         */
-        void AirshipSearchAPIReadyCallback(HashMap<String, Object> dataEvent);
-    }
-
-    /**
-     * An interface to add callback on Visit retrieving
-     */
-    public interface AirshipVisitReadyListener {
-        /**
-         * When Woosmap get a new Visit it calls this method to create a event for airship
-         *
-         * @param dataEvent an dictonnary of a Visit
-         */
-        void AirshipVisitReadyCallback(HashMap<String, Object> dataEvent);
-    }
-
-    /**
-     * An interface to add callback on RegionLog retrieving
-     */
-    public interface AirshipRegionLogReadyListener {
-        /**
-         * When Woosmap get a region when event (enter,exit) it calls this method to create a event for airship
-         *
-         * @param dataEvent an dictonnary of a Region Log
-         */
-        void AirshipRegionLogReadyCallback(HashMap<String, Object> dataEvent);
-    }
-
-    public interface MarketingCloudSearchAPIReadyListener {
-
-        /**
-         * When Woosmap get a new POI it calls this method to create a event for Marketing Cloud
-         *
-         * @param dataEvent an dictonnary of dataPOI
-         */
-        void MarketingCloudSearchAPIReadyCallback(HashMap<String, Object> dataEvent);
-    }
-
-    /**
-     * An interface to add callback on Visit retrieving
-     */
-    public interface MarketingCloudVisitReadyListener {
-        /**
-         * When Woosmap get a new Visit it calls this method to create a event for Marketing Cloud
-         *
-         * @param dataEvent an dictonnary of a Visit
-         */
-        void MarketingCloudVisitReadyCallback(HashMap<String, Object> dataEvent);
-    }
-
-    /**
-     * An interface to add callback on RegionLog retrieving
-     */
-    public interface MarketingCloudRegionLogReadyListener {
-        /**
-         * When Woosmap get a region when event (enter,exit) it calls this method to create a event for Marketing Cloud
-         *
-         * @param dataEvent an dictonnary of a Region Log
-         */
-        void MarketingCloudRegionLogReadyCallback(HashMap<String, Object> dataEvent);
-    }
   
     public final class ConfigurationProfile {
 
@@ -266,68 +191,6 @@ public class Woosmap {
         this.setupWoosmap(context);
         return woosmapInstance;
     }
-
-    /**
-     * Add a listener to get callback on new POI for Airship
-     *
-     * @param airshipSearchAPIReadyListener
-     * @see AirshipSearchAPIReadyListener
-     */
-    public void setAirshipSearchAPIReadyListener(AirshipSearchAPIReadyListener airshipSearchAPIReadyListener) {
-        this.airshipSearchAPIReadyListener = airshipSearchAPIReadyListener;
-    }
-
-    /**
-     * Add a listener to get callback on new Visit for airship
-     *
-     * @param airshipVisitReadyListener
-     * @see AirshipVisitReadyListener
-     */
-    public void setAirshipVisitReadyListener(AirshipVisitReadyListener airshipVisitReadyListener) {
-        this.airshipVisitReadyListener = airshipVisitReadyListener;
-    }
-
-    /**
-     * Add a listener to get callback on event region for airship
-     *
-     * @param airshipRegionLogReadyListener
-     * @see AirshipRegionLogReadyListener
-     */
-    public void setAirhshipRegionLogReadyListener(AirshipRegionLogReadyListener airshipRegionLogReadyListener) {
-        this.airshipRegionLogReadyListener = airshipRegionLogReadyListener;
-    }
-
-    /**
-     * Add a listener to get callback on new POI for MarketingCloud
-     *
-     * @param marketingCloudSearchAPIReadyListener
-     * @see MarketingCloudSearchAPIReadyListener
-     */
-    public void setMarketingCloudSearchAPIReadyListener(MarketingCloudSearchAPIReadyListener marketingCloudSearchAPIReadyListener) {
-        this.marketingCloudSearchAPIReadyListener = marketingCloudSearchAPIReadyListener;
-    }
-
-    /**
-     * Add a listener to get callback on new Visit for MarketingCloud
-     *
-     * @param marketingCloudVisitReadyListener
-     * @see MarketingCloudVisitReadyListener
-     */
-    public void setMarketingCloudVisitReadyListener(MarketingCloudVisitReadyListener marketingCloudVisitReadyListener) {
-        this.marketingCloudVisitReadyListener = marketingCloudVisitReadyListener;
-    }
-
-    /**
-     * Add a listener to get callback on event region for MarketingCloud
-     *
-     * @param marketingCloudRegionLogReadyListener
-     * @see MarketingCloudRegionLogReadyListener
-     */
-    public void setMarketingCloudRegionLogReadyListener(MarketingCloudRegionLogReadyListener marketingCloudRegionLogReadyListener) {
-        this.marketingCloudRegionLogReadyListener = marketingCloudRegionLogReadyListener;
-    }
-
-
 
     /**
      * Add a listener to get callback on new locations

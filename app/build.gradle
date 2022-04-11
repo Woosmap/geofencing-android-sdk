@@ -91,18 +91,6 @@ dependencies {
 
     implementation 'com.google.code.gson:gson:2.8.8'
 
-    //Airship
-    def airshipVersion = '14.6.0'
-
-    // ADM & FCM push providers
-    implementation "com.urbanairship.android:urbanairship-fcm:$airshipVersion"
-    implementation "com.urbanairship.android:urbanairship-adm:$airshipVersion"
-
-    // In-App Messaging
-    implementation "com.urbanairship.android:urbanairship-automation:$airshipVersion"
-
-    // Message Center
-    implementation "com.urbanairship.android:urbanairship-message-center:$airshipVersion"
 }
 // If you want use Firebase for notification
 //apply plugin: 'com.google.gms.google-services'
