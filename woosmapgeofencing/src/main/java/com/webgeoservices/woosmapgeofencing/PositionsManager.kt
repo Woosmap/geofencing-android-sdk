@@ -322,7 +322,9 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
             data.put("longitude", regionLog.lng)
         } else {
             val poi = this.db.poIsDAO.getPOIbyStoreId(regionLog.idStore)
-            setDataAirshipPOI(poi,formatDateISO8601)?.let { data.putAll(it) }
+            if(poi != null) {
+                setDataAirshipPOI(poi, formatDateISO8601)?.let { data.putAll(it) }
+            }
             if(formatDateISO8601) {
                 data.put("date", displayDateFormatISO8601.format(regionLog.dateTime))
             } else {
