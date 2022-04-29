@@ -79,8 +79,6 @@ class LocationManager {
             Geofence geofence = geofenceHelper.getGeofence( newId, latLng, radius, Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_DWELL | Geofence.GEOFENCE_TRANSITION_EXIT );
             GeofencingRequest geofencingRequest = geofenceHelper.getGeofencingRequest( geofence );
             positionsManager.replaceGeofenceCircle( oldId, geofenceHelper, geofencingRequest, getGeofencePendingIntent(), mGeofencingClient, newId, radius, latLng.latitude, latLng.longitude);
-        } else {
-            positionsManager.replaceGeofence( oldId, newId, radius, latLng.latitude, latLng.longitude, type );
         }
     }
 
@@ -90,8 +88,6 @@ class LocationManager {
             Geofence geofence = geofenceHelper.getGeofence( id, latLng, radius, Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_DWELL | Geofence.GEOFENCE_TRANSITION_EXIT );
             GeofencingRequest geofencingRequest = geofenceHelper.getGeofencingRequest( geofence );
             positionsManager.addGeofence( geofenceHelper, geofencingRequest, getGeofencePendingIntent(), mGeofencingClient, id, radius, latLng.latitude, latLng.longitude, idStore );
-        } else {
-            positionsManager.createRegion( id,radius,latLng.latitude,latLng.longitude,idStore,type );
         }
     }
 

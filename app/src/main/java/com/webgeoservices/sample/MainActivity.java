@@ -38,8 +38,6 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
-import com.urbanairship.UAirship;
-import com.urbanairship.analytics.CustomEvent;
 import com.webgeoservices.sample.model.PlaceData;
 import com.webgeoservices.woosmapgeofencing.DistanceAPIDataModel.DistanceAPI;
 import com.webgeoservices.woosmapgeofencing.FigmmForVisitsCreator;
@@ -70,7 +68,6 @@ import java.util.Map;
 
 
 public class MainActivity extends AppCompatActivity {
-    public static final boolean AIRSHIP = false;
     static SimpleDateFormat displayDateFormatAirship = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
 
     private static final int REQUEST_PERMISSIONS_REQUEST_CODE = 34;
@@ -96,67 +93,6 @@ public class MainActivity extends AppCompatActivity {
     private void onLocationCallback(Location currentLocation) {
     }
 
-
-    public class WoosAirshipSearchAPIReadyListener implements Woosmap.AirshipSearchAPIReadyListener {
-        public void AirshipSearchAPIReadyCallback(HashMap<String, Object> dataEvent) {
-            sendAirshipEvent( dataEvent );
-        }
-    }
-
-
-    public class WoosAirshipVisitReadyListener implements Woosmap.AirshipVisitReadyListener {
-        public void AirshipVisitReadyCallback(HashMap<String, Object> dataEvent) {
-            sendAirshipEvent( dataEvent );
-        }
-    }
-
-    public class WoosAirshipRegionLogReadyListener implements Woosmap.AirshipRegionLogReadyListener {
-        public void AirshipRegionLogReadyCallback(HashMap<String, Object> dataEvent) {
-            sendAirshipEvent( dataEvent );
-        }
-    }
-
-
-
-    void sendAirshipEvent(HashMap<String, Object> dataEvent){
-        if(AIRSHIP) {
-            // Create and name an event
-            CustomEvent.Builder eventBuilder = new CustomEvent.Builder( (String) dataEvent.get( "event" ) );
-
-            // Set custom event properties on the builder
-            for (Map.Entry<String, Object> entry : dataEvent.entrySet()) {
-                eventBuilder.addProperty(entry.getKey(),  entry.getValue().toString() );
-            }
-
-            // Then record it
-            CustomEvent event = eventBuilder.build();
-
-            event.track();
-        }
-    }
-
-    public class WoosMarketingCloudSearchAPIReadyListener implements Woosmap.MarketingCloudSearchAPIReadyListener {
-        public void MarketingCloudSearchAPIReadyCallback(HashMap<String, Object> dataEvent) {
-            sendMarketingCloudEvent( dataEvent );
-        }
-    }
-
-
-    public class WoosMarketingCloudVisitReadyListener implements Woosmap.MarketingCloudVisitReadyListener {
-        public void MarketingCloudVisitReadyCallback(HashMap<String, Object> dataEvent) {
-            sendMarketingCloudEvent( dataEvent );
-        }
-    }
-
-    public class WoosMarketingCloudRegionLogReadyListener implements Woosmap.MarketingCloudRegionLogReadyListener {
-        public void MarketingCloudRegionLogReadyCallback(HashMap<String, Object> dataEvent) {
-            sendMarketingCloudEvent( dataEvent );
-        }
-    }
-
-    void sendMarketingCloudEvent(HashMap<String, Object> dataEvent){
-        // Call Marketing Cloud API here
-    }
 
     public class WoosSearchAPIReadyListener implements Woosmap.SearchAPIReadyListener {
         public void SearchAPIReadyCallback(POI poi) {
@@ -332,11 +268,6 @@ public class MainActivity extends AppCompatActivity {
         loadRegion();
         loadRegionLogs();
 
-        if(AIRSHIP) {
-            String channelId = UAirship.shared().getChannel().getId();
-            System.out.println( "My Application Channel ID: " + channelId );
-        }
-
         bottomNav = findViewById(R.id.bottom_navigation);
         bottomNav.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
@@ -399,16 +330,6 @@ public class MainActivity extends AppCompatActivity {
         this.woosmap.setRegionReadyListener( new WoosRegionReadyListener() );
         this.woosmap.setRegionLogReadyListener( new WoosRegionLogReadyListener() );
 
-        // Airship Listener
-        //this.woosmap.setAirshipSearchAPIReadyListener( new WoosAirshipSearchAPIReadyListener() );
-        //this.woosmap.setAirshipVisitReadyListener( new WoosAirshipVisitReadyListener() );
-        //this.woosmap.setAirhshipRegionLogReadyListener( new WoosAirshipRegionLogReadyListener() );
-
-        // Marketing CLoud Listener
-        //this.woosmap.setMarketingCloudSearchAPIReadyListener( new WoosMarketingCloudSearchAPIReadyListener() );
-        //this.woosmap.setMarketingCloudVisitReadyListener( new WoosMarketingCloudVisitReadyListener() );
-        //this.woosmap.setMarketingCloudRegionLogReadyListener( new WoosMarketingCloudRegionLogReadyListener() );
-
         // Search API parameters
         //WoosmapSettings.searchAPIParameters.put("radius","5000");
         //WoosmapSettings.searchAPIParameters.put("stores_by_page","100");
@@ -419,8 +340,6 @@ public class MainActivity extends AppCompatActivity {
         // Fix the radius of geofence POI
         //WoosmapSettings.poiRadiusNameFromResponse = "near_radius";
         //WoosmapSettings.poiRadius = 500;
-
-        this.woosmap.startTracking( Woosmap.ConfigurationProfile.passiveTracking );
 
         //WoosmapSettings.foregroundLocationServiceEnable = true;
 
