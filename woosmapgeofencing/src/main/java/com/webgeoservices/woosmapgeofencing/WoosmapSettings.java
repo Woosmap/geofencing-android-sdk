@@ -75,6 +75,7 @@ public class WoosmapSettings {
         prefsEditor.putString("userPropertiesFilter", userPropertiesHashMapString).apply();
         String SFMCCredentialsHashMapString = gson.toJson(SFMCCredentials);
         prefsEditor.putString("SFMCCredentials", SFMCCredentialsHashMapString).apply();
+        prefsEditor.putBoolean( "optimizeDistanceRequest",optimizeDistanceRequest );
 
 
         prefsEditor.commit();
@@ -129,6 +130,7 @@ public class WoosmapSettings {
         WoosmapSettings.WoosmapNotificationDescriptionChannel  = mPrefs.getString( "WoosmapNotificationDescriptionChannel",WoosmapSettings.WoosmapNotificationDescriptionChannel );
         WoosmapSettings.WoosmapNotificationActive = mPrefs.getBoolean( "WoosmapNotificationActive", WoosmapSettings.WoosmapNotificationActive );
         WoosmapSettings.SFMCAccessToken  = mPrefs.getString( "SFMCAccessToken",WoosmapSettings.SFMCAccessToken );
+        WoosmapSettings.optimizeDistanceRequest = mPrefs.getBoolean( "optimizeDistanceRequest", WoosmapSettings.optimizeDistanceRequest );
 
         //convert to string using gson
         Gson gson = new Gson();
@@ -364,6 +366,7 @@ public class WoosmapSettings {
 
     //Token SFMC
     static public String SFMCAccessToken = "";
+    static public boolean optimizeDistanceRequest=true;
 
 
 
