@@ -239,6 +239,7 @@ public class WoosmapSettings {
 
     //Enable/disable DistanceAPI
     static public boolean distanceAPIEnable = true;
+    static public boolean optimizeDistanceRequest=true;
 
     //Mode transportation DistanceAPI
     private static final String drivingMode  = "driving";
@@ -366,7 +367,7 @@ public class WoosmapSettings {
 
     //Token SFMC
     static public String SFMCAccessToken = "";
-    static public boolean optimizeDistanceRequest=true;
+
 
 
 
