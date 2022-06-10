@@ -163,7 +163,7 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
                 if ( it.dateTime == 0L ) {
                     regionsBeUpdated = true
                     //continue
-                    break //break will exit the loop  after one region need to update which is required behaviour.
+                    break //break will exit the loop after one region needs to be update which is required behaviour.
                 }
                 var spendtime = System.currentTimeMillis() - it.dateTime
                 var timeLimit = (it.duration - it.radius)/2
@@ -398,15 +398,7 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
         locationFromPosition.longitude = position.lng
         return location.distanceTo(locationFromPosition)
     }
-    private fun distanceBetweenTwoLatLng(start: LatLng, end: LatLng): Float {
-        val startPosition = Location("woosmapA")
-        startPosition.latitude = start.latitude
-        startPosition.longitude = start.longitude
-        val endPosition = Location("woosmapB")
-        endPosition.latitude = end.latitude
-        endPosition.longitude = end.longitude
-        return startPosition.distanceTo(endPosition)
-    }
+
 
     private fun timeBetweenLocationAndPosition(position: MovingPosition, location: Location): Long {
         return (location.time - position.dateTime) / 1000
@@ -1034,9 +1026,7 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
                     region.distanceText = distance.distanceText
                     region.duration = distance.duration
                     region.durationText = distance.durationText
-                    val airDistance=distanceBetweenTwoLatLng(LatLng(distance.originLatitude,distance.originLongitude),
-                        LatLng(distance.destinationLatitude,distance.destinationLongitude))
-                    region.expectedAverageSpeed=airDistance/distance.duration
+                    region.expectedAverageSpeed=(distance.distance/distance.duration).toFloat()
                     if(distance.duration <= region.radius) {
                         if(region.isCurrentPositionInside == false) {
                             region.isCurrentPositionInside = true
