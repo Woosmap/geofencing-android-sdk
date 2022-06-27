@@ -1026,7 +1026,12 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
                     region.distanceText = distance.distanceText
                     region.duration = distance.duration
                     region.durationText = distance.durationText
-                    region.expectedAverageSpeed=(distance.distance/distance.duration).toFloat()
+                    if(distance.duration==0){
+                        region.expectedAverageSpeed=0f
+                    }else{
+                        region.expectedAverageSpeed=(distance.distance/distance.duration).toFloat()
+                    }
+
                     if(distance.duration <= region.radius) {
                         if(region.isCurrentPositionInside == false) {
                             region.isCurrentPositionInside = true
