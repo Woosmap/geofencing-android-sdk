@@ -174,9 +174,10 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
                         break
                     }
                 }else if(!optimizeDistanceRequest){
+                    var distanceFromTheLastRefresh = this.distanceBetweenTwoPositions(movingPosition, this.db.movingPositionsDao.getMovingPositionById(it.locationId))
                     val spendTimeInSecond=spendtime/1000 //spendtime is in millisecond.
                     if((spendTimeInSecond/60f)>1f){
-                        val averageSpeed=(distance/spendTimeInSecond)
+                        val averageSpeed=(distanceFromTheLastRefresh/spendTimeInSecond)
                         if(averageSpeed>(it.expectedAverageSpeed*2)){
                             regionsBeUpdated = true
                             break
@@ -399,7 +400,16 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
         return location.distanceTo(locationFromPosition)
     }
 
-
+    private fun distanceBetweenTwoPositions(positionA: MovingPosition, positionB: MovingPosition): Float {
+        val locationFromPositionA = Location("woosmap")
+        locationFromPositionA.latitude = positionA.lat
+        locationFromPositionA.longitude = positionA.lng
+        val locationFromPositionB = Location("woosmap")
+        locationFromPositionB.latitude = positionB.lat
+        locationFromPositionB.longitude = positionB.lng
+        return locationFromPositionA.distanceTo(locationFromPositionB)
+    }
+    
     private fun timeBetweenLocationAndPosition(position: MovingPosition, location: Location): Long {
         return (location.time - position.dateTime) / 1000
     }
@@ -1026,6 +1036,7 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
                     region.distanceText = distance.distanceText
                     region.duration = distance.duration
                     region.durationText = distance.durationText
+                    region.locationId = distance.locationId
                     if(distance.duration==0){
                         region.expectedAverageSpeed=0f
                     }else{
