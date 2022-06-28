@@ -22,7 +22,7 @@ public interface MovingPositionsDao {
     @Query("SELECT * FROM movingpositions ORDER BY dateTime DESC LIMIT 1")
     MovingPosition getLastMovingPosition();
 
-    @Query("SELECT * FROM movingpositions WHERE id = :id ORDER BY dateTime DESC LIMIT 1")
+    @Query("SELECT * FROM movingpositions WHERE id = :id")
     MovingPosition getMovingPositionById(int id);
 
     @Query("SELECT * FROM movingpositions ORDER BY dateTime DESC LIMIT 1,2")
