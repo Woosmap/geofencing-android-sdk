@@ -162,15 +162,28 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
             if (distance < WoosmapSettings.distanceMaxAirDistanceFilter) {
                 if ( it.dateTime == 0L ) {
                     regionsBeUpdated = true
-                    continue
+                    //continue
+                    break //break will exit the loop after one region needs to be update which is required behaviour.
                 }
                 var spendtime = System.currentTimeMillis() - it.dateTime
                 var timeLimit = (it.duration - it.radius)/2
                 if (spendtime/1000 > timeLimit) {
                     if(spendtime/1000 > WoosmapSettings.distanceTimeFilter) {
                         regionsBeUpdated = true
-                        continue
+                        //continue
+                        break
                     }
+                }else if(!optimizeDistanceRequest){
+                    var distanceFromTheLastRefresh = this.distanceBetweenTwoPositions(movingPosition, this.db.movingPositionsDao.getMovingPositionById(it.locationId))
+                    val spendTimeInSecond=spendtime/1000 //spendtime is in millisecond.
+                    if((spendTimeInSecond/60f)>1f){
+                        val averageSpeed=(distanceFromTheLastRefresh/spendTimeInSecond)
+                        if(averageSpeed>(it.expectedAverageSpeed*2)){
+                            regionsBeUpdated = true
+                            break
+                        }
+                    }
+
                 }
             }
         }
@@ -387,6 +400,16 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
         return location.distanceTo(locationFromPosition)
     }
 
+    private fun distanceBetweenTwoPositions(positionA: MovingPosition, positionB: MovingPosition): Float {
+        val locationFromPositionA = Location("woosmap")
+        locationFromPositionA.latitude = positionA.lat
+        locationFromPositionA.longitude = positionA.lng
+        val locationFromPositionB = Location("woosmap")
+        locationFromPositionB.latitude = positionB.lat
+        locationFromPositionB.longitude = positionB.lng
+        return locationFromPositionA.distanceTo(locationFromPositionB)
+    }
+    
     private fun timeBetweenLocationAndPosition(position: MovingPosition, location: Location): Long {
         return (location.time - position.dateTime) / 1000
     }
@@ -1013,6 +1036,13 @@ class PositionsManager(val context: Context, private val db: WoosmapDb) {
                     region.distanceText = distance.distanceText
                     region.duration = distance.duration
                     region.durationText = distance.durationText
+                    region.locationId = distance.locationId
+                    if(distance.duration==0){
+                        region.expectedAverageSpeed=0f
+                    }else{
+                        region.expectedAverageSpeed=(distance.distance/distance.duration).toFloat()
+                    }
+
                     if(distance.duration <= region.radius) {
                         if(region.isCurrentPositionInside == false) {
                             region.isCurrentPositionInside = true
