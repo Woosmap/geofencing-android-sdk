@@ -1,4 +1,4 @@
-# Woosmap Geofencing SDK
+# Woosmap Geofencing SDK (version 1 only)
 
 ### Open Source SDKs to help developers collecting users’ locations in the right way.
 
