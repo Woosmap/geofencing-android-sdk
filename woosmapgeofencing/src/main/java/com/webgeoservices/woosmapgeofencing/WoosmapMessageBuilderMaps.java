@@ -28,6 +28,7 @@ import com.android.volley.toolbox.ImageRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.gson.Gson;
 import com.webgeoservices.woosmapgeofencing.SearchAPIDataModel.Feature;
@@ -368,7 +369,7 @@ public class WoosmapMessageBuilderMaps {
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             Log.d(WoosmapSettings.Tags.WoosmapSdkTag, "No permission");
         } else {
-            FusedLocationProviderClient locationProvider = new FusedLocationProviderClient(context);
+            FusedLocationProviderClient locationProvider = LocationServices.getFusedLocationProviderClient(context);
             locationProvider.getLastLocation().addOnSuccessListener(successListener);
         }
     }
