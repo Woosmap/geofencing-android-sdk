@@ -18,9 +18,9 @@ jobs:
         working-directory: woosmapgeofencing
         run: bash ./gradlew test --warning-mode none
       - name: Unit tests results
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v4
         with:
-          name: unit-tests-results
+          name: unit-tests-results-${{ github.sha }}
           path: ./woosmapgeofencing/build/reports/tests/testReleaseUnitTest
 
   lib:
@@ -38,7 +38,7 @@ jobs:
         working-directory: woosmapgeofencing
         run: bash ./gradlew assembleRelease --stacktrace
       - name: Upload lib
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
-          name: woosmapgeofencing-release.aar
+          name: woosmapgeofencing-release.aar-${{ github.sha }}
           path: /home/runner/work/woosmap-geofencing-android-sdk/woosmap-geofencing-android-sdk/woosmapgeofencing/build/outputs/aar/woosmapgeofencing-release.aar
