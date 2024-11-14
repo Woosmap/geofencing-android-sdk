@@ -20,10 +20,11 @@ jobs:
         working-directory: woosmapgeofencing
         run: bash ./gradlew test --warning-mode none
       - name: Unit tests results
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v4
         with:
           name: unit-tests-results
           path: ./woosmapgeofencing/build/reports/tests/testReleaseUnitTest
+          overwrite: true
 
   lib:
     name: Generate and release WoosmapGeofencing Lib
@@ -42,10 +43,11 @@ jobs:
         working-directory: woosmapgeofencing
         run: bash ./gradlew assembleRelease --stacktrace
       - name: Upload lib
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: woosmapgeofencing-release.aar
           path: /home/runner/work/woosmap-geofencing-android-sdk/woosmap-geofencing-android-sdk/woosmapgeofencing/build/outputs/aar/woosmapgeofencing-release.aar
+          overwrite: true
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
